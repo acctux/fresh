@@ -43,8 +43,6 @@ if [ ! -f "$HOME/.ssh/id_ed25519" ]; then
     cd $musb
     mkdir -p "$HOME/.ssh"
     cp -r ".ssh" "$HOME/.ssh"
-    eval "$(ssh-agent -s)"
-    ssh-add ~/.ssh/id_ed25519
     cp wifi.sh "$HOME"
 else
     echo "No USB folder found."

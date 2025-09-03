@@ -23,8 +23,10 @@ wifi_auto_connect() {
 
 install_nec() {
     sudo sed -i 's/timeout 3/timeout 1/' /boot/loader/loader.conf
-    sudo pacman -S --needed reflector xdg-user-dirs base-devel
+    sudo pacman -S --needed reflector xdg-user-dirs base-devel openssh
     sudo reflector --verbose --latest 10 --country 'United States' --sort rate --save /etc/pacman.d/mirrorlist
+    eval "$(ssh-agent -s)"
+    ssh-add ~/.ssh/id_ed25519
 }
 
 ensure_root_label() {

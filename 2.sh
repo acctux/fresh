@@ -23,7 +23,7 @@ wifi_auto_connect() {
 
 install_nec() {
     sudo sed -i 's/timeout 3/timeout 1/' /boot/loader/loader.conf
-    sudo pacman -S --needed reflector rsync xdg-user-dirs base-devel openssh
+    sudo pacman -S --needed reflector rsync xdg-user-dirs base-devel openssh github-cli
     sudo reflector --verbose --latest 10 --country 'United States' --sort rate --save /etc/pacman.d/mirrorlist
     eval "$(ssh-agent -s)"
     ssh-add ~/.ssh/id_ed25519
@@ -47,20 +47,22 @@ setup_dirs() {
 
 create_git() {
     cd ~/Lit
-    git clone https://github.com/acctux/scripts.git
-    git clone https://github.com/acctux/dotfiles.git
-    git clone https://github.com/acctux/Templates.git
+    git clone git@github.com:acctux/scripts.git
+    git clone git@github.com:acctux/dotfiles.git
+    git clone git@github.com:acctux/Templates.git
     cd "$HOME/Lit/scripts"
     git clone https://github.com/acctux/fresh.git
     cp -r "$HOME/Lit/Templates" "$HOME/Templates"
 }
 
-main(){
+main() {
     wifi_auto_connect
     install_nec
     ensure_root_label
     setup_dirs
     create_git
-    cd "$HOME/Lit/dotfiles" && sh ./main.sh & exit 0
+    cd "$HOME/Lit/dotfiles"
+    chmod +x main.sh
+    sh ./main.sh & exit 0
 }
 main

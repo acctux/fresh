@@ -45,7 +45,7 @@ if [ ! -f "$HOME/.ssh/id_ed25519" ]; then
     chmod 600 ~/.ssh/id_ed25519
     chmod 644 ~/.ssh/id_ed25519.pub
 else
-    echo "No USB folder found."
+    echo "Keys already exist. Skipping."
 fi
 cd "$HOME/fresh"
 ./2.sh

@@ -23,7 +23,7 @@ wifi_auto_connect() {
 
 install_nec() {
     # sudo sed -i 's/timeout 3/timeout 1/' /boot/loader/loader.conf
-    sudo pacman -S --needed reflector rsync xdg-user-dirs base-devel openssh github-cli
+    sudo pacman -S --needed reflector rsync xdg-user-dirs base-devel openssh github-cli neovim-lspconfig
     sudo reflector --verbose --latest 10 --country 'United States' --sort rate --save /etc/pacman.d/mirrorlist
     eval "$(ssh-agent -s)"
     ssh-add ~/.ssh/id_ed25519
@@ -63,6 +63,7 @@ main() {
     create_git
     cd "$HOME/Lit/dotfiles"
     chmod +x main.sh
-    sh ./main.sh & exit 0
+    sh ./main.sh
+    exit 0
 }
 main

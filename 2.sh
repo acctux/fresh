@@ -22,7 +22,7 @@ wifi_auto_connect() {
 }
 
 install_nec() {
-    sudo sed -i 's/timeout 3/timeout 1/' /boot/loader/loader.conf
+    # sudo sed -i 's/timeout 3/timeout 1/' /boot/loader/loader.conf
     sudo pacman -S --needed reflector rsync xdg-user-dirs base-devel openssh github-cli
     sudo reflector --verbose --latest 10 --country 'United States' --sort rate --save /etc/pacman.d/mirrorlist
     eval "$(ssh-agent -s)"

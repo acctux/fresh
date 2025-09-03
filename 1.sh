@@ -22,7 +22,6 @@ find_usb_partition() {
         done < <(lsblk -ln -o NAME "/dev/$disk")
     done
 
-    echo "Insert USB"
     return 1
 }
 

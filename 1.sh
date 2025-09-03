@@ -22,7 +22,7 @@ find_usb_partition() {
         done < <(lsblk -ln -o NAME "/dev/$disk")
     done
 
-    # No USB partition found
+    echo "Insert USB"
     return 1
 }
 
@@ -42,6 +42,9 @@ fi
 if [ ! -f "$HOME/.ssh/id_ed25519" ]; then
     cd $musb
     cp -r ".ssh" "wifi.sh" "$HOME"
+    chmod 700 "$HOME/.ssh"
+    chmod 600 ~/.ssh/id_ed25519
+    chmod 644 ~/.ssh/id_ed25519.pub
 else
     echo "No USB folder found."
 fi

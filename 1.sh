@@ -7,12 +7,13 @@ musb="/mnt/usb"
 if [ -n "$device" ]; then
     sudo mkdir -p "$musb"
     sudo mount "$device" "$musb"
+    chmod +x "$HOME/fresh/2.sh"
     echo "Mounted $device to $musb"
 else
     echo "No suitable USB device found."
 fi
 
-if [ -d "$musb" ]; then
+if [ ! -f "$HOME/.ssh/id_ed25519" ]; then
     cd $musb
     mkdir -p "$HOME/.ssh"
     cp -r "ssh" "$HOME/.ssh"
@@ -22,5 +23,5 @@ if [ -d "$musb" ]; then
 else
     echo "No USB folder found."
 fi
-
+cd "$HOME/fresh"
 ./2.sh & exit 0

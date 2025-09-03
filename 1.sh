@@ -41,9 +41,7 @@ fi
 
 if [ ! -f "$HOME/.ssh/id_ed25519" ]; then
     cd $musb
-    mkdir -p "$HOME/.ssh"
-    cp -r ".ssh" "$HOME/.ssh"
-    cp wifi.sh "$HOME"
+    cp -r ".ssh" "wifi.sh" "$HOME"
 else
     echo "No USB folder found."
 fi

@@ -48,4 +48,5 @@ else
     echo "No USB folder found."
 fi
 cd "$HOME/fresh"
-./2.sh & exit 0
+./2.sh
+exit 0

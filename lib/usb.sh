@@ -8,12 +8,13 @@ log() {
 
 list_usb_partitions() {
     lsblk -o NAME,SIZE,FSTYPE,TYPE,MOUNTPOINT,RM -n |
-        awk '$4 == "part" { printf "%s) /dev/%s  Size: %s  FS: %s  Mounted: %s  Removable: %s\n", ++i, $1, $2, $3, $5, $6 }'
+        awk '$4 == "part" {
+            printf "%s) /dev/%s  Size: %s  FS: %s  Mounted: %s  Removable: %s\n", ++i, $1, $2, $3, $5, $6
+        }'
 }
 
 get_usb_devices_array() {
-    lsblk -o NAME,TYPE -n |
-        awk '$2 == "part" { print "/dev/" $1 }'
+    lsblk -o NAME,TYPE -n | awk '$2 == "part" { print "/dev/" $1 }'
 }
 
 prompt_partition_selection() {
@@ -30,7 +31,8 @@ prompt_partition_selection() {
         exit 1
     fi
 
-    echo "${devices[choice-1]}"
+    # Set the global variable
+    declare -g device="${devices[choice-1]}"
 }
 
 copy_files() {
@@ -60,12 +62,12 @@ unmount_usb() {
     sudo rmdir "$MUSB" 2>/dev/null
 }
 
-### --- MAIN EXECUTION --- ###
+### --- MAIN --- ###
 
 sudo mkdir -p "$MUSB" || { log "ERROR" "Can't create $MUSB."; exit 1; }
 trap 'unmount_usb' EXIT
 
-device=$(prompt_partition_selection)
+prompt_partition_selection
 sudo mount "$device" "$MUSB" || { log "ERROR" "Can't mount $device."; exit 1; }
 
 copy_files "$MUSB"

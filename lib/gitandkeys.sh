@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+install_openssh() {
+    sudo pacman -S --needed --noconfirm openssh
+}
+
 setup_ssh_agent() {
     [[ -f "$HOME/.ssh/id_ed25519" ]] || { log WARNING "SSH key missing."; return 1; }
     chmod 700 "$HOME/.ssh"

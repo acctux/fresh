@@ -2,8 +2,17 @@
 
 # Helpers
 find_usb_partition() {
-    lsblk -o NAME,FSTYPE,TYPE -n | awk '$3 == "part" && ($2 == "vfat" || $2 == "exfat") {print "/dev/" $1}' | while read -r device; do
-        blkid -s TYPE "$device" &>/dev/null && echo "$device" && return
+    lsblk -o NAME,FSTYPE,TYPE,RM -n | while read -r name fstype type rm; do
+        echo "Checking: name=$name, fstype=$fstype, type=$type, rm=$rm"
+        if [[ "$type" == "part" && ( "$fstype" == "vfat" || "$fstype" == "exfat" ) ]]; then
+            parent=${name%%[0-9]*}
+            parent_rm=$(lsblk -o NAME,RM -n | awk -v p="$parent" '$1 == p {print $2}')
+            echo "  Parent disk: $parent, removable=$parent_rm"
+            if [[ "$parent_rm" == "1" ]]; then
+                echo "/dev/$name"
+                return 0
+            fi
+        fi
     done
     return 1
 }

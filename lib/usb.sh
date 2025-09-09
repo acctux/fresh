@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 
 # Helpers
+
 find_usb_partition() {
-    lsblk -o NAME,TRAN,TYPE -n | awk '$2 == "usb" && $3 == "part" {print "/dev/" $1}' | while read -r device; do
+    lsblk -o NAME,TYPE -n | awk '$2 == "part" {print "/dev/" $1}' | while read -r device; do
         blkid -s TYPE "$device" &>/dev/null && echo "$device" && return
     done
     return 1

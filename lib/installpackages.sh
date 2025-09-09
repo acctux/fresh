@@ -2,25 +2,37 @@
 
 setup_chaotic_keys() {
     log INFO "Setting up Chaotic AUR repository..."
-    key_id="3056513887B78AEB"
-    keyservers=(
-        keyserver.ubuntu.com
-        hkp://pgp.mit.edu
-    )
-    for ks in "${keyservers[@]}"; do
-        log INFO "Trying keyserver: $ks"
-        if sudo pacman-key --recv-key "$key_id" --keyserver "$ks"; then
-            log INFO "Successfully retrieved key from $ks"
-            break
-        fi
-    done
+    local key_id="3056513887B78AEB"
 
-    sudo pacman-key --lsign-key 3056513887B78AEB ||
-        { log ERROR "Failed to sign Chaotic AUR key."; return 1; }
+    # Check if the key is already installed
+    if sudo pacman-key --list-keys "$key_id" &>/dev/null; then
+        log INFO "Chaotic AUR key is already installed. Skipping key retrieval."
+    else
+        log INFO "Chaotic AUR key not found. Retrieving key..."
+        local keyservers=(
+            hkps://keyserver.ubuntu.com
+            hkp://pgp.mit.edu
+        )
+
+        for ks in "${keyservers[@]}"; do
+            log INFO "Trying keyserver: $ks"
+            if sudo pacman-key --recv-key "$key_id" --keyserver "$ks"; then
+                log INFO "Successfully retrieved key from $ks"
+                break
+            fi
+        done
+    fi
+
+    sudo pacman-key --lsign-key "$key_id" || {
+        log ERROR "Failed to sign Chaotic AUR key."
+        return 1
+    }
     sudo pacman -U --noconfirm \
         https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-keyring.pkg.tar.zst \
-        https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-mirrorlist.pkg.tar.zst ||
-        { log ERROR "Failed to install Chaotic AUR packages."; return 1; }
+        https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-mirrorlist.pkg.tar.zst || {
+        log ERROR "Failed to install Chaotic AUR packages."
+        return 1
+    }
 }
 
 write_chaotic_pacman() {

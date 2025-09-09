@@ -3,7 +3,7 @@
 stow_dotfiles() {
     log INFO "Stowing dotfiles..."
     command -v stow >/dev/null || { log ERROR "stow not installed."; return 1; }
-    stow --no-folding -d "$DOTFILES_DIR" -t "$HOME" Home ||
+    stow --no-folding -d "$HOME_DOTFILES_DIR" -t "$HOME" Home ||
         { log ERROR "Failed to stow dotfiles."; return 1; }
 
     log INFO "Creating GTK theme symlinks..."

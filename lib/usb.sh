@@ -1,12 +1,11 @@
 #!/usr/bin/env bash
 
 # Helpers
-find_usb_partition() {
-    lsblk -o NAME,FSTYPE,TYPE -n | awk '$3 == "part" && ($2 == "vfat" || $2 == "xfat") {print "/dev/" $1}' | while read -r device; do
-        blkid -s TYPE "$device" &>/dev/null && echo "$device" && return
-    done
-    return 1
-}
+for ((i=1; i<=attempts; i++)); do
+    device=$(find_usb_partition) && break
+    log INFO "Waiting for USB device (attempt $i/$attempts)..."
+    sleep "$delay"
+done
 
 # Main
 mount_usb_device() {
@@ -16,7 +15,10 @@ mount_usb_device() {
     local delay=5
 
     for ((i=1; i<=attempts; i++)); do
-        device=$(find_usb_partition) && break
+        device=$(find_usb_partition)
+        if [[ -n "$device" ]]; then
+            break
+        fi
         log INFO "Waiting for USB device (attempt $i/$attempts)..."
         sleep "$delay"
     done

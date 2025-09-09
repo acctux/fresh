@@ -1,89 +1,56 @@
-##!/usr/bin/env bash
+#!/usr/bin/env bash
 
 # Mount point
 MUSB="/mnt/usb"
 
 # Logging helper
 log() {
-    echo "$(echo "$1" | tr '[:lower:]' '[:upper:]'): $2"
+    echo "$1: $2"
 }
 
 # Select USB partition
 select_usb_partition() {
-    # List partitions (focus on USB-like; adjust if needed)
     mapfile -t devices < <(lsblk -o NAME,TYPE -n | awk '$2=="part" {print $1}')
+    [ ${#devices[@]} -eq 0 ] && { log "ERROR" "No partitions found."; exit 1; }
 
-    if [ ${#devices[@]} -eq 0 ]; then
-        log "ERROR" "No partitions found."
-        return 1
-    fi
-
-    log "INFO" "Available partitions:"
+    echo "Partitions:"
     for i in "${!devices[@]}"; do
         echo "$((i+1))) /dev/${devices[i]}"
     done
 
-    echo -n "Select partition number: "
+    echo -n "Select number: "
     read -r choice
-
-    if ! [[ "$choice" =~ ^[0-9]+$ ]] || [ "$choice" -lt 1 ] || [ "$choice" -gt ${#devices[@]} ]; then
-        log "ERROR" "Invalid choice."
-        return 1
-    fi
+    [[ ! "$choice" =~ ^[0-9]+$ ]] || [ "$choice" -lt 1 ] || [ "$choice" -gt ${#devices[@]} ] && {
+        log "ERROR" "Invalid choice."; exit 1
+    }
 
     echo "/dev/${devices[choice-1]}"
 }
 
-# Copy files from USB
-copy_usb_files() {
+# Copy files
+copy_files() {
     if ! mountpoint -q "$MUSB"; then
-        log "ERROR" "$MUSB not mounted."
-        return 1
+        log "ERROR" "Not mounted."; exit 1
     fi
+    log "INFO" "Copying files..."
 
-    log "INFO" "Copying files from USB..."
-
-    if [ -d "$MUSB/.ssh" ]; then
-        cp -r "$MUSB/.ssh" /root/
-        log "INFO" "Copied .ssh to /root."
-    else
-        log "WARNING" "No .ssh found."
-    fi
-
-    if [ -f "$MUSB/wifi.sh" ]; then
-        cp "$MUSB/wifi.sh" /root/
-        log "INFO" "Copied wifi.sh to /root."
-    else
-        log "WARNING" "No wifi.sh found."
-    fi
+    [ -d "$MUSB/.ssh" ] && sudo cp -r "$MUSB/.ssh" "$HOME" && log "INFO" "Copied .ssh." ||
+        log "INFO" "No .ssh found."
+    [ -f "$MUSB/wifi.sh" ] && sudo cp "$MUSB/wifi.sh" "$HOME" && log "INFO" "Copied wifi.sh." ||
+        log "INFO" "No wifi.sh found."
 }
 
 # Unmount USB
 unmount_usb() {
     if mountpoint -q "$MUSB"; then
-        umount -l "$MUSB" && log "INFO" "Unmounted $MUSB."
-        rmdir "$MUSB" 2>/dev/null || true
+        sudo umount -l "$MUSB" && log "INFO" "Unmounted."
+        sudo rmdir "$MUSB" 2>/dev/null || true
     fi
 }
 
 # Main
-main() {
-    mkdir -p "$MUSB"
-
-#    trap 'unmount_usb' EXIT
-
-    local device
-    device=$(select_usb_partition) || {
-        log "ERROR" "Failed to select partition."
-        exit 1
-    }
-
-    mount "$device" "$MUSB" || {
-        log "ERROR" "Failed to mount $device."
-        exit 1
-    }
-
-    copy_usb_files
-}
-
-main "$@"
+sudo mkdir -p "$MUSB" || { log "ERROR" "Can't create $MUSB."; exit 1; }
+trap 'unmount_usb' EXIT
+device=$(select_usb_partition)
+sudo mount "$device" "$MUSB" || { log "ERROR" "Can't mount $device."; exit 1; }
+copy_files

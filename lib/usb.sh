@@ -1,22 +1,24 @@
 #!/usr/bin/env bash
 
 # Helpers
-for ((i=1; i<=attempts; i++)); do
-    device=$(find_usb_partition) && break
-    log INFO "Waiting for USB device (attempt $i/$attempts)..."
-    sleep "$delay"
-done
+find_usb_partition() {
+    # Example implementation: find first vfat or xfat partition
+    lsblk -o NAME,FSTYPE,TYPE -n | awk '$3 == "part" && ($2 == "vfat" || $2 == "xfat") {print "/dev/" $1}' | while read -r device; do
+        blkid -s TYPE "$device" &>/dev/null && echo "$device" && return
+    done
+    return 1
+}
 
-# Main
 mount_usb_device() {
     log INFO "Looking for USB device..."
-    device=""
+    local device=""
     local attempts=12
     local delay=5
 
     for ((i=1; i<=attempts; i++)); do
         device=$(find_usb_partition)
         if [[ -n "$device" ]]; then
+            log INFO "Found USB device: $device"
             break
         fi
         log INFO "Waiting for USB device (attempt $i/$attempts)..."

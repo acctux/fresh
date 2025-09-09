@@ -7,14 +7,14 @@ log() {
 }
 
 list_usb_partitions() {
-    lsblk -o NAME,SIZE,FSTYPE,TYPE,MOUNTPOINT,RM -n |
+    lsblk -r -o NAME,SIZE,FSTYPE,TYPE,MOUNTPOINT,RM -n |
         awk '$4 == "part" {
             printf "%s) /dev/%s  Size: %s  FS: %s  Mounted: %s  Removable: %s\n", ++i, $1, $2, $3, $5, $6
         }'
 }
 
 get_usb_devices_array() {
-    lsblk -o NAME,TYPE -n | awk '$2 == "part" { print "/dev/" $1 }'
+    lsblk -r -o NAME,TYPE -n | awk '$2 == "part" { print "/dev/" $1 }'
 }
 
 prompt_partition_selection() {

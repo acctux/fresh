@@ -28,10 +28,6 @@ select_usb_partition() {
     echo "/dev/$dev_name"
 }
 
-# Usage example:
-device=$(select_usb_partition) || exit 1
-echo "You selected device: $device"
-
 copy_usb_files() {
     mountpoint -q "$MUSB" || { log ERROR "$MUSB not mounted."; return 1; }
     log INFO "Copying files from USB..."
@@ -50,7 +46,11 @@ unmount_usb_device() {
 
 usb_and_copy_keys() {
     trap 'unmount_usb_device' EXIT
-    select_usb_partition
+    local device
+    device=$(select_usb_partition) || { log ERROR "Failed to select partition."; return 1; }
+    MUSB="/mnt/usb"
+    sudo mkdir -p "$MUSB"
+    sudo mount "$device" "$MUSB" || { log ERROR "Failed to mount $device."; return 1; }
     copy_usb_files
     unmount_usb_device
 }

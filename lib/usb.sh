@@ -48,9 +48,10 @@ list_and_store_partitions() {
 check_existing_files() {
     # Check if .ssh directory or wifi.sh file already exists in $HOME
     if [[ -d "$HOME/.ssh" ]] || [[ -f "$HOME/wifi.sh" ]]; then
-        log INFO "Skipping execution: .ssh directory or wifi.sh already exists in $HOME"
-        exit 0
+        log INFO "Skipping USB copy: .ssh directory or wifi.sh already exists in $HOME"
+        return 1
     fi
+    return 0  # Proceed with USB operations
 }
 
 select_partition() {

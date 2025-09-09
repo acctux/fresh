@@ -1,58 +1,36 @@
 #!/usr/bin/env bash
 
 # Helpers
-find_usb_partition() {
-    lsblk -o NAME,FSTYPE,TYPE,RM -n | while read -r name fstype type rm; do
-        echo "Checking: name=$name, fstype=$fstype, type=$type, rm=$rm"
-        if [[ "$type" == "part" && ( "$fstype" == "vfat" || "$fstype" == "exfat" ) ]]; then
-            parent=${name%%[0-9]*}
-            parent_rm=$(lsblk -o NAME,RM -n | awk -v p="$parent" '$1 == p {print $2}')
-            echo "  Parent disk: $parent, removable=$parent_rm"
-            if [[ "$parent_rm" == "1" ]]; then
-                echo "/dev/$name"
-                return 0
-            fi
-        fi
-    done
-    return 1
-}
+select_usb_partition() {
+    mapfile -t devices < <(lsblk -o NAME,FSTYPE,TYPE,RM,SIZE,MOUNTPOINT -n | awk '$3=="part" {print $0}')
 
-mount_usb_device() {
-    log INFO "Looking for USB device..."
-    local device=""
-    local attempts=12
-    local delay=5
-
-    for ((i=1; i<=attempts; i++)); do
-        device=$(find_usb_partition)
-        if [[ -n "$device" ]]; then
-            log INFO "Found USB device: $device"
-            break
-        fi
-        log INFO "Waiting for USB device (attempt $i/$attempts)..."
-        sleep "$delay"
-    done
-
-    [[ -z "$device" ]] && { log ERROR "No USB device detected."; return 1; }
-
-    sudo mkdir -p "$MUSB"
-
-    if mountpoint -q "$MUSB"; then
-        if [[ -d "$MUSB/.ssh" ]]; then
-            log INFO "$MUSB is already mounted and contains .ssh — assuming correct USB."
-            return 0
-        else
-            log ERROR "$MUSB is already mounted, but .ssh is missing — unexpected device?"
-            return 1
-        fi
+    if [ "${#devices[@]}" -eq 0 ]; then
+        echo "No partitions found."
+        return 1
     fi
 
-    local fs_type
-    fs_type=$(blkid -s TYPE -o value "$device") || { log ERROR "Failed to detect filesystem type."; return 1; }
-    sudo mount -t "$fs_type" -o ro "$device" "$MUSB" &&
-        log INFO "Mounted $device ($fs_type) at $MUSB." ||
-        { log ERROR "Failed to mount USB."; return 1; }
+    echo "Available partitions:"
+    for i in "${!devices[@]}"; do
+        echo "$((i+1))) ${devices[i]}"
+    done
+
+    echo -n "Select a partition number to mount: "
+    read -r choice
+
+    if ! [[ "$choice" =~ ^[0-9]+$ ]] || (( choice < 1 || choice > ${#devices[@]} )); then
+        echo "Invalid choice."
+        return 1
+    fi
+
+    local selected_line="${devices[choice-1]}"
+    local dev_name
+    dev_name=$(awk '{print $1}' <<< "$selected_line")
+    echo "/dev/$dev_name"
 }
+
+# Usage example:
+device=$(select_usb_partition) || exit 1
+echo "You selected device: $device"
 
 copy_usb_files() {
     mountpoint -q "$MUSB" || { log ERROR "$MUSB not mounted."; return 1; }
@@ -72,7 +50,7 @@ unmount_usb_device() {
 
 usb_and_copy_keys() {
     trap 'unmount_usb_device' EXIT
-    mount_usb_device
+    select_usb_device
     copy_usb_files
     unmount_usb_device
 }

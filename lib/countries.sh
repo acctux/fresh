@@ -250,16 +250,18 @@ declare -A COUNTRY_NAMES=(
     [ZW]="Zimbabwe"
 )
 
+
 detect_country() {
     local cc
-    cc=$(curl -s --max-time 5 https://ipapi.co/country/ | tr -d '\n' | tr '[:lower:]' '[:upper:]')
+    cc=$(curl -s --max-time 5 https://ipapi.co/country/; echo)
 
-    if [[ "$cc" =~ ^[A-Z]{2}$ && -n "${COUNTRY_MAP[$cc]}" ]]; then
+    if [[ "$cc" =~ ^[A-Z]{2}$ && -n "${COUNTRY_NAMES[$cc]}" ]]; then
         export COUNTRY_CODE="$cc"
     else
         log WARNING "Could not detect valid country code via API. Falling back to $DEFAULT_COUNTRY_CODE."
         export COUNTRY_CODE="$DEFAULT_COUNTRY_CODE"
     fi
-    export COUNTRY_NAME="${COUNTRY_MAP[$COUNTRY_CODE]:-Unknown}"
+
+    export COUNTRY_NAME="${COUNTRY_NAMES[$COUNTRY_CODE]:-Unknown}"
     log INFO "Using country: $COUNTRY_NAME ($COUNTRY_CODE)"
 }

@@ -118,9 +118,6 @@ unmount_partition() {
 
 # ─────────────────── Wrapper ─────────────────── #
 usb_and_copy_keys() {
-    # Ensure cleanup happens on script exit
-    trap unmount_partition EXIT
-
     select_partition
     # Validate that the selected device exists and is a block device
     if [[ -z "$device" || ! -b "$device" ]]; then
@@ -129,4 +126,5 @@ usb_and_copy_keys() {
     fi
     mount_partition
     copy_usb_files
+    unmount_partition
 }

@@ -2,9 +2,9 @@
 set -euo pipefail
 
 # ─────── Source Configuration ────── #
-source "$(dirname "$0")/conf_pac.sh"
-source "$(dirname "$0")/conf_services.sh"
-source "$(dirname "$0")/conf_user.sh"
+source "$(dirname "$0")/config/conf_pac.sh"
+source "$(dirname "$0")/config/conf_services.sh"
+source "$(dirname "$0")/config/conf_user.sh"
 
 # ─────── Source Functions ────── #
 source "$(dirname "$0")/lib/logging.sh"

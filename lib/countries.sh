@@ -250,18 +250,47 @@ declare -A COUNTRY_NAMES=(
     [ZW]="Zimbabwe"
 )
 
-
 detect_country() {
-    local cc
-    cc=$(curl -s --max-time 5 https://ipapi.co/country/; echo)
+    local cc input
+
+    # Get 2-letter country code from API (uppercase)
+    cc=$(curl -s --max-time 5 https://ipapi.co/country/ | tr -d '\n' | tr '[:lower:]' '[:upper:]')
 
     if [[ "$cc" =~ ^[A-Z]{2}$ && -n "${COUNTRY_NAMES[$cc]}" ]]; then
-        export COUNTRY_CODE="$cc"
+        COUNTRY_CODE="$cc"
     else
-        log WARNING "Could not detect valid country code via API. Falling back to $DEFAULT_COUNTRY_CODE."
-        export COUNTRY_CODE="$DEFAULT_COUNTRY_CODE"
+        log WARNING "Could not detect valid country code via API. Falling back to default: $DEFAULT_COUNTRY_CODE."
+        COUNTRY_CODE="$DEFAULT_COUNTRY_CODE"
     fi
 
-    export COUNTRY_NAME="${COUNTRY_NAMES[$COUNTRY_CODE]:-Unknown}"
+    # If default also invalid or empty, prompt user as last resort
+    if [[ -z "$COUNTRY_CODE" || -z "${COUNTRY_NAMES[$COUNTRY_CODE]}" ]]; then
+        echo "Please enter your 2-letter country code or full country name:"
+        read -r input
+        input=${input^^}  # Uppercase for codes
+
+        if [[ "$input" =~ ^[A-Z]{2}$ && -n "${COUNTRY_NAMES[$input]}" ]]; then
+            COUNTRY_CODE="$input"
+        else
+            local found_code=""
+            for code in "${!COUNTRY_NAMES[@]}"; do
+                if [[ "${COUNTRY_NAMES[$code],,}" == "${input,,}" ]]; then
+                    found_code="$code"
+                    break
+                fi
+            done
+
+            if [[ -n "$found_code" ]]; then
+                COUNTRY_CODE="$found_code"
+            else
+                log ERROR "Invalid input and no valid default country. Aborting."
+                exit 1
+            fi
+        fi
+    fi
+
+    COUNTRY_NAME="${COUNTRY_NAMES[$COUNTRY_CODE]:-Unknown}"
+    export COUNTRY_CODE COUNTRY_NAME
+
     log INFO "Using country: $COUNTRY_NAME ($COUNTRY_CODE)"
 }

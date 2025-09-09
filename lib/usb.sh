@@ -50,7 +50,7 @@ unmount_usb_device() {
 
 usb_and_copy_keys() {
     trap 'unmount_usb_device' EXIT
-    select_usb_device
+    select_usb_partition
     copy_usb_files
     unmount_usb_device
 }

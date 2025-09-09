@@ -27,16 +27,16 @@ clone_git_repos() {
 
 import_gpg_key() {
     [[ -f "$GPG_KEYFILE" ]] || { log WARNING "No GPG key file at $GPG_KEYFILE."; return 1; }
-    read -rs -p "Enter GPG passphrase: " passphrase
-    echo
-    local decrypted
-    decrypted=$(echo "$passphrase" | gpg --batch --yes --passphrase-fd 0 --decrypt "$GPG_KEYFILE" 2>/dev/null) ||
-        { log ERROR "Failed to decrypt GPG key."; return 1; }
+
     local fingerprint
-    fingerprint=$(echo "$decrypted" | gpg --import-options show-only --import - 2>/dev/null | awk -F: '/^fpr:/ {print $10; exit}')
-    [[ -z "$fingerprint" ]] && { log ERROR "Could not extract fingerprint."; return 1; }
+    fingerprint=$(gpg --import-options show-only --import --with-colons "$GPG_KEYFILE" 2>/dev/null |
+                  awk -F: '/^fpr:/ { print $10; exit }') ||
+        { log ERROR "Could not extract fingerprint."; return 1; }
+
+    [[ -z "$fingerprint" ]] && { log ERROR "Fingerprint not found."; return 1; }
+
     if ! gpg --list-keys "$fingerprint" &>/dev/null; then
-        echo "$decrypted" | gpg --import -
+        gpg --import "$GPG_KEYFILE" || { log ERROR "Failed to import GPG key."; return 1; }
         echo "${fingerprint}:6:" | gpg --import-ownertrust
         log INFO "Imported GPG key $fingerprint."
     else
@@ -45,6 +45,7 @@ import_gpg_key() {
 }
 
 git_and_keys() {
+    install_openssh
     setup_ssh_agent
     clone_git_repos
     import_gpg_key

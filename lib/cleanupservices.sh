@@ -1,21 +1,38 @@
 #!/usr/bin/env bash
 
-manage_services() {
+enable_services() {
     log INFO "Managing services..."
     for service in "${SERVENABLE[@]}"; do
         systemctl list-unit-files "$service.service" &>/dev/null &&
             sudo systemctl enable "$service" && log INFO "Enabled $service" ||
             log WARNING "Service $service not found."
     done
+}
+
+disable_services() {
     for service in "${SERVDISABLE[@]}"; do
         systemctl list-unit-files "$service.service" &>/dev/null &&
             sudo systemctl disable "$service" && log INFO "Disabled $service" ||
             log WARNING "Service $service not found."
     done
+}
+mask_services() {
+    log INFO "Masking services..."
+    for service in "${SERVMASK[@]}"; do
+        if systemctl list-unit-files "$service" &>/dev/null; then
+            sudo systemctl stop "$service" &>/dev/null
+            sudo systemctl mask "$service"
+            log INFO "Stopped and masked $service"
+        else
+            log WARNING "Service $service not found."
+        fi
+    done
+}
+
+enable_user_services() {
     systemctl --user enable pipewire pipewire-pulse wireplumber ssh-agent 2>/dev/null ||
         log WARNING "Failed to enable user services."
 }
-
 cleanup_files() {
     log INFO "Cleaning up files..."
     for item in "${CLEANUP_USER_FILES[@]}"; do
@@ -33,6 +50,9 @@ cleanup_files() {
 }
 
 services_and_cleanup() {
-    manage_services
+    enable_services
+    disable_services
+    mask_services
+    enable_user_services
     cleanup_files
 }

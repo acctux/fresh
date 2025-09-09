@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Main entry point for system setup
-# Usage: sudo ./setup.sh
+# ─────── Source Configuration ────── #
+source "$(dirname "$0")/conf_pac.sh"
+source "$(dirname "$0")/conf_services.sh"
+source "$(dirname "$0")/conf_user.sh"
 
-# Source configuration and library functions
-source "$(dirname "$0")/config.sh"
+# ─────── Source Functions ────── #
 source "$(dirname "$0")/lib/logging.sh"
 source "$(dirname "$0")/lib/usb.sh"
 source "$(dirname "$0")/lib/network.sh"
@@ -17,6 +18,7 @@ source "$(dirname "$0")/lib/dotfiles.sh"
 source "$(dirname "$0")/lib/hide.sh"
 source "$(dirname "$0")/lib/cleanupservices.sh"
 
+# ─────── Run Main ────── #
 main() {
     log INFO "Starting system setup"
 

@@ -1,15 +1,5 @@
 #!/usr/bin/env bash
 
-# ──────────────── Configuration ──────────────── #
-readonly ROOT_LABEL="Arch"
-readonly MUSB="/mnt/usb"
-readonly GIT_USER="acctux"
-readonly GIT_LIT="$HOME/Lit"
-readonly GIT_REPOS=("scripts" "dotfiles" "fresh")
-readonly REFLECTOR_COUNTRY="Ukraine"
-readonly GPG_KEYFILE="$HOME/.ssh/secret.asc.gpg"
-readonly LOG_FILE="$HOME/bootstrap.log"
-
 # ──────────────── PACMAN ──────────────── #
 PACMAN=(
   alacritty
@@ -219,25 +209,4 @@ AUR=(
   surfshark-client
   wl-screenrec
   walker-bin
-)
-
-# ──────────────── SERVICES ──────────────── #
-SERVENABLE=(
-  avahi-daemon.service
-  bluetooth.service
-  chronyd.service
-  dnsmasq.service
-  firewalld.service
-  ly.service
-  NetworkManager.service
-  tlp.service
-  fstrim.timer
-  logrotate.timer
-  man-db.timer
-  paccache.timer
-  reflector.timer
-)
-
-SERVDISABLE=(
-  systemd-timesyncd.service
 )

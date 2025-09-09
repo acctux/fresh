@@ -127,7 +127,9 @@ unmount_partition() {
 
 # ─────────────────── Wrapper ─────────────────── #
 usb_and_copy_keys() {
-    check_existing_files
+    if ! check_existing_files; then
+       return 0  # Skip USB operations and continue main script
+    fi
     select_partition
     # Validate that the selected device exists and is a block device
     if [[ -z "$device" || ! -b "$device" ]]; then

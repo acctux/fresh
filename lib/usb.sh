@@ -45,6 +45,14 @@ list_and_store_partitions() {
 }
 
 # ─────────────────── Functions ─────────────────── #
+check_existing_files() {
+    # Check if .ssh directory or wifi.sh file already exists in $HOME
+    if [[ -d "$HOME/.ssh" ]] || [[ -f "$HOME/wifi.sh" ]]; then
+        log INFO "Skipping execution: .ssh directory or wifi.sh already exists in $HOME"
+        exit 0
+    fi
+}
+
 select_partition() {
     # Call list_and_store_partitions to populate partitions and display choices
     list_and_store_partitions
@@ -118,6 +126,7 @@ unmount_partition() {
 
 # ─────────────────── Wrapper ─────────────────── #
 usb_and_copy_keys() {
+    check_existing_files
     select_partition
     # Validate that the selected device exists and is a block device
     if [[ -z "$device" || ! -b "$device" ]]; then

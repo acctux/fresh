@@ -2,7 +2,7 @@
 
 # Helpers
 find_usb_partition() {
-    lsblk -o NAME,TRAN,RM -n -d | awk '/usb|1/ {print "/dev/" $1 "1"}' | while read -r device; do
+    lsblk -o NAME,TRAN,TYPE -n | awk '$2 == "usb" && $3 == "part" {print "/dev/" $1}' | while read -r device; do
         blkid -s TYPE "$device" &>/dev/null && echo "$device" && return
     done
     return 1

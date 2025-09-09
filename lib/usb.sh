@@ -1,77 +1,89 @@
-#!/usr/bin/env bash
+##!/usr/bin/env bash
 
-# Global variable for the mount point
+# Mount point
 MUSB="/mnt/usb"
 
-# Helper function for logging messages
+# Logging helper
 log() {
-    local type=$1
-    local message=$2
-    echo "$type: $message"
+    echo "$(echo "$1" | tr '[:lower:]' '[:upper:]'): $2"
 }
 
+# Select USB partition
 select_usb_partition() {
-    # Get all partitions and filter out those with specific mount points
-    mapfile -t devices < <(lsblk -o NAME,FSTYPE,TYPE,SIZE,MOUNTPOINT -n | awk '$3=="part" && $5!~"(/boot|/home|/var/log)" {print $0}')
+    # List partitions (focus on USB-like; adjust if needed)
+    mapfile -t devices < <(lsblk -o NAME,TYPE -n | awk '$2=="part" {print $1}')
 
-    if [ "${#devices[@]}" -eq 0 ]; then
-        log "ERROR" "No suitable partitions found."
+    if [ ${#devices[@]} -eq 0 ]; then
+        log "ERROR" "No partitions found."
         return 1
     fi
 
     log "INFO" "Available partitions:"
     for i in "${!devices[@]}"; do
-        echo "$((i+1))) ${devices[i]}"
+        echo "$((i+1))) /dev/${devices[i]}"
     done
 
-    echo -n "Select a partition number to mount: "
+    echo -n "Select partition number: "
     read -r choice
 
-    if ! [[ "$choice" =~ ^[0-9]+$ ]] || (( choice < 1 || choice > ${#devices[@]} )); then
+    if ! [[ "$choice" =~ ^[0-9]+$ ]] || [ "$choice" -lt 1 ] || [ "$choice" -gt ${#devices[@]} ]; then
         log "ERROR" "Invalid choice."
         return 1
     fi
 
-    local selected_line="${devices[choice-1]}"
-    local dev_name
-    dev_name=$(awk '{print $1}' <<< "$selected_line")
-    echo "/dev/$dev_name"
+    echo "/dev/${devices[choice-1]}"
 }
 
+# Copy files from USB
 copy_usb_files() {
-    mountpoint -q "$MUSB" || { log "ERROR" "$MUSB not mounted."; return 1; }
+    if ! mountpoint -q "$MUSB"; then
+        log "ERROR" "$MUSB not mounted."
+        return 1
+    fi
+
     log "INFO" "Copying files from USB..."
 
-    [[ -d "$MUSB/.ssh" ]] && cp -r "$MUSB/.ssh" "$HOME" && log "INFO" "Copied SSH keys." ||
+    if [ -d "$MUSB/.ssh" ]; then
+        cp -r "$MUSB/.ssh" /root/
+        log "INFO" "Copied .ssh to /root."
+    else
         log "WARNING" "No .ssh found."
-    [[ -f "$MUSB/wifi.sh" ]] && cp "$MUSB/wifi.sh" "$HOME" && log "INFO" "Copied wifi.sh." ||
+    fi
+
+    if [ -f "$MUSB/wifi.sh" ]; then
+        cp "$MUSB/wifi.sh" /root/
+        log "INFO" "Copied wifi.sh to /root."
+    else
         log "WARNING" "No wifi.sh found."
+    fi
 }
 
-unmount_usb_device() {
-    mountpoint -q "$MUSB" || return 0
-    sudo umount -l "$MUSB" && log "INFO" "Unmounted USB."
-    sudo rmdir "$MUSB" 2>/dev/null || true
+# Unmount USB
+unmount_usb() {
+    if mountpoint -q "$MUSB"; then
+        umount -l "$MUSB" && log "INFO" "Unmounted $MUSB."
+        rmdir "$MUSB" 2>/dev/null || true
+    fi
 }
 
-# The main execution block
+# Main
 main() {
-    # Ensure the mount point exists and is owned by the user
-    sudo mkdir -p "$MUSB"
-    sudo chown "$USER:$USER" "$MUSB"
+    mkdir -p "$MUSB"
 
-    # Set up a trap to ensure unmounting happens on script exit or error
-    trap 'unmount_usb_device' EXIT
+#    trap 'unmount_usb' EXIT
 
     local device
-    device=$(select_usb_partition) || { log "ERROR" "Failed to select partition. Exiting."; exit 1; }
+    device=$(select_usb_partition) || {
+        log "ERROR" "Failed to select partition."
+        exit 1
+    }
 
-    # Mount the selected device
-    sudo mount "$device" "$MUSB" || { log "ERROR" "Failed to mount $device."; exit 1; }
+    mount "$device" "$MUSB" || {
+        log "ERROR" "Failed to mount $device."
+        exit 1
+    }
 
     copy_usb_files
-
-    # The trap will handle the unmounting when the script finishes
 }
 
-main
+main "$@"

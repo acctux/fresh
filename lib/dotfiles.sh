@@ -40,29 +40,36 @@ stow_dotfiles() {
     fc-cache -f || log WARNING "Failed to update font cache."
 }
 
+c
 copy_system_config() {
     log INFO "Copying system config files..."
     local src_dir="$DOTFILES_DIR/etc"
-    [[ -d "$src_dir" ]] || { log ERROR "Directory $src_dir not found."; return 1; }
+    if [[ ! -d "$src_dir" ]]; then
+        log ERROR "Directory $src_dir not found."
+        return 1
+    fi
 
     # Backup any existing system config files
     backup_files_in_dir "$src_dir" "/etc"
 
-    find "$src_dir" -type f -print0 | while IFS= read -r -d '' file; do
-        # Remove 'local' to make 'dest' accessible to sudo
-        dest="/${file#$src_dir/}"
-        sudo mkdir -p "$(dirname "$dest")"
-
-        if sudo cp "$file" "$dest"; then
-            log INFO "Copied $file -> $dest"
-        else
-            log ERROR "Failed to copy $file -> $dest"
+    # Iterate over files using a glob, which stays in the same process
+    for file in "$src_dir"/*; do
+        if [[ -f "$file" ]]; then
+            local dest="/${file#$src_dir/}"
+            sudo mkdir -p "$(dirname "$dest")"
+            if sudo cp "$file" "$dest"; then
+                log INFO "Copied $file -> $dest"
+            else
+                log ERROR "Failed to copy $file -> $dest"
+            fi
         fi
     done
 
+    # These commands are now in the same process and will work.
     sudo chown root:root /etc/sudoers.d/mysudo
     sudo chmod 440 /etc/sudoers.d/mysudo
 }
+
 
 setup_dotfiles_and_config() {
     stow_dotfiles

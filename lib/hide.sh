@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-BACKUP_DIR="$HOME/appbackup"
-
 HIDE_APP_FILES=(
     "/usr/share/applications/steam.desktop"
     "/usr/share/applications/octopi-cachecleaner.desktop"

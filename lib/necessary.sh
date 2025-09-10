@@ -21,37 +21,31 @@ update_wireless_regdom() {
 }
 
 update_mirrorlist_if_changed() {
-    local mirror_status_url="https://archlinux.org/mirrors/status/json/"
+    local mirrorlist_file="/etc/pacman.d/mirrorlist"
+    local today_date
+    today_date=$(date +%F)
 
-    log INFO "Checking Arch mirror server list for country: $COUNTRY_NAME ($COUNTRY_CODE)"
+    if [[ -f "$mirrorlist_file" ]]; then
+        # Extract date from the '# When:' line in the mirrorlist header
+        local header_date
+        # Search the mirrorlist file for the line starting with "# When:"
+        # 'grep '^# When:' "$mirrorlist_file"' finds all lines beginning with "# When:"
+        # 'head -1' takes the first matching line (in case there are multiple)
+        # 'awk '{print $3}'' extracts the third field from that line, (1=#, 2="When", 3=date)
+        header_date=$(grep '^# When:' "$mirrorlist_file" | head -1 | awk '{print $3}')
 
-    # Fetch current mirror URLs from Arch's mirror status JSON for the selected country
-    local current_servers
-    current_servers=$(curl -sf "$mirror_status_url" | \
-        jq -r --arg cc "$COUNTRY_CODE" '.urls[] | select(.country_code == $cc) | .url' | \
-        sort)
-
-    # If fetching failed or no mirrors were found, log and skip
-    if [[ -z "$current_servers" ]]; then
-        log WARNING "No mirrors found for $COUNTRY_NAME ($COUNTRY_CODE), or network error occurred."
-        return 0
+        if [[ "$header_date" == "$today_date" ]]; then
+            log INFO "Mirrorlist already generated today ($header_date). Skipping update."
+            return 0
+        fi
     fi
 
-    # Determine whether to update the mirrorlist based on cached server list
-    if [[ ! -f "$ARCH_MIRROR_CACHE" ]] || ! diff -q <(echo "$current_servers") "$ARCH_MIRROR_CACHE" > /dev/null; then
-        log INFO "Mirror server list has changed. Regenerating mirrorlist with reflector..."
+    log INFO "Mirrorlist missing or outdated. Running reflector..."
 
-        # Generate new mirrorlist using reflector
-        sudo reflector --country "$COUNTRY_NAME" \
-                       --latest 10 \
-                       --sort rate \
-                       --save /etc/pacman.d/mirrorlist
-
-        # Cache the current list of servers for future comparisons
-        echo "$current_servers" | sudo tee "$ARCH_MIRROR_CACHE" > /dev/null
-    else
-        log INFO "Mirror server list unchanged. Skipping reflector."
-    fi
+    sudo reflector --country "$COUNTRY_NAME" \
+                   --latest 10 \
+                   --sort rate \
+                   --save "$mirrorlist_file"
 }
 
 do_the_needful() {

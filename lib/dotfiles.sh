@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 
-backup_dotfiles_dry_run() {
+backup_dotfiles() {
     local source_dir="$DOTFILES_DIR/Home"
     local backup_dir="$HOME/overwrittendots"
 
-    log INFO "Dry run: checking which dotfiles would be backed up..."
+    log INFO "Backing up existing dotfiles..."
 
     find "$source_dir" -type f | while read -r file; do
         # Get relative path from source_dir
@@ -15,8 +15,9 @@ backup_dotfiles_dry_run() {
         backup_dir_path=$(dirname "$backup_target")
 
         if [[ -f "$target" && ! -L "$target" ]]; then
-            echo "Would create directory: $backup_dir_path"
-            echo "Would move: $target -> $backup_target"
+            mkdir -p "$backup_dir_path"
+            mv "$target" "$backup_target"
+            log INFO "Moved: $target -> $backup_target"
         fi
     done
 }

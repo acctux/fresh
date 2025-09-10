@@ -1,9 +1,28 @@
 #!/usr/bin/env bash
 
+backup_existing_dotfiles() {
+    log INFO "Dry-run: Listing existing dotfiles that would be backed up (files only)..."
+
+    local backup_dir="$HOME/overwrittendots"
+    local dot_source="$DOTFILES_DIR/Home"
+    [[ -d "$dot_source" ]] || { log WARNING "Dotfiles source '$dot_source' not found."; return 1; }
+
+    (
+        cd "$dot_source" || return
+        find . -type f | while read -r file; do
+            local target="$HOME/${file#./}"
+            if [[ -f "$target" && ! -L "$target" ]]; then
+                echo "[Dry-run] Would move: '$target' to '$backup_dir/${file#./}'"
+            fi
+        done
+    )
+}
+
 stow_dotfiles() {
     log INFO "Stowing dotfiles..."
     command -v stow >/dev/null || { log ERROR "stow not installed."; return 1; }
-    stow --no-folding -d "$HOME_DOTFILES_DIR" -t "$HOME" Home ||
+    # "Home" refers to folder in DOTFILES_DIR
+    stow --no-folding -d "$DOTFILES_DIR" -t "$HOME" Home ||
         { log ERROR "Failed to stow dotfiles."; return 1; }
 
     log INFO "Creating GTK theme symlinks..."
@@ -61,6 +80,7 @@ cleanup_files() {
 }
 
 setup_dotfiles_and_config() {
+    backup_existing_dotfiles
     stow_dotfiles
     copy_system_config
     manage_services

@@ -1,21 +1,24 @@
 #!/usr/bin/env bash
 
-backup_existing_dotfiles() {
-    log INFO "Dry-run: Listing existing dotfiles that would be backed up (files only)..."
-
+backup_dotfiles_dry_run() {
+    local source_dir="$DOTFILES_DIR/Home"
     local backup_dir="$HOME/overwrittendots"
-    local dot_source="$DOTFILES_DIR/Home"
-    [[ -d "$dot_source" ]] || { log WARNING "Dotfiles source '$dot_source' not found."; return 1; }
 
-    (
-        cd "$dot_source" || return
-        find . -type f | while read -r file; do
-            local target="$HOME/${file#./}"
-            if [[ -f "$target" && ! -L "$target" ]]; then
-                echo "[Dry-run] Would move: '$target' to '$backup_dir/${file#./}'"
-            fi
-        done
-    )
+    log INFO "Dry run: checking which dotfiles would be backed up..."
+
+    find "$source_dir" -type f | while read -r file; do
+        # Get relative path from source_dir
+        local rel_path="${file#$source_dir/}"
+        local target="$HOME/$rel_path"
+        local backup_target="$backup_dir/$rel_path"
+        local backup_dir_path
+        backup_dir_path=$(dirname "$backup_target")
+
+        if [[ -f "$target" && ! -L "$target" ]]; then
+            echo "Would create directory: $backup_dir_path"
+            echo "Would move: $target -> $backup_target"
+        fi
+    done
 }
 
 stow_dotfiles() {

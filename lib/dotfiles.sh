@@ -52,7 +52,7 @@ copy_system_config() {
 
     # Use find with process substitution to handle all files recursively
     while IFS= read -r -d '' file; do
-        local dest="/${file#$src_dir/}"
+        local dest="/etc/${file#$src_dir}"
         sudo mkdir -p "$(dirname "$dest")"
         if sudo cp "$file" "$dest"; then
             log INFO "Copied $file -> $dest"

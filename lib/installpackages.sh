@@ -23,16 +23,28 @@ setup_chaotic_keys() {
         done
     fi
 
-    sudo pacman-key --lsign-key "$key_id" || {
-        log ERROR "Failed to sign Chaotic AUR key."
-        return 1
-    }
-    sudo pacman -U --noconfirm \
+    if ! sudo pacman-key --list-keys | grep -q "$key_id"; then
+        sudo pacman-key --lsign-key "$key_id" || {
+            log ERROR "Failed to sign Chaotic AUR key."
+            return 1
+        }
+    else
+        log INFO "Chaotic AUR key already signed."
+    fi
+}
+
+install_chaotic_keyring() {
+    # Check if packages already installed
+    if ! pacman -Qs chaotic-keyring > /dev/null || ! pacman -Qs chaotic-mirrorlist > /dev/null; then
+        sudo pacman -U --noconfirm \
         https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-keyring.pkg.tar.zst \
         https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-mirrorlist.pkg.tar.zst || {
-        log ERROR "Failed to install Chaotic AUR packages."
-        return 1
-    }
+            log ERROR "Failed to install Chaotic AUR packages."
+            return 1
+        }
+    else
+        log INFO "Chaotic AUR keyring already installed."
+    fi
 }
 
 write_chaotic_pacman() {
@@ -62,6 +74,7 @@ install_packages() {
 
 setup_packages() {
     setup_chaotic_keys
+    install_chaotic_keyring
     write_chaotic_pacman
     install_packages
 }

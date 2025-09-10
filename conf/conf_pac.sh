@@ -2,6 +2,10 @@
 
 # ──────────────── PACMAN ──────────────── #
 PACMAN=(
+  # reflector
+  # rsync
+  # git
+  # base-devel
   alacritty
   alsa-firmware
   alsa-utils

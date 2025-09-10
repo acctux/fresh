@@ -2,15 +2,16 @@
 set -euo pipefail
 
 # ─────── Source Configuration ────── #
-source "$(dirname "$0")/config/conf_pac.sh"
-source "$(dirname "$0")/config/conf_services.sh"
-source "$(dirname "$0")/config/conf_user.sh"
+source "$(dirname "$0")/conf/conf_pac.sh"
+source "$(dirname "$0")/conf/conf_services.sh"
+source "$(dirname "$0")/conf/conf_user.sh"
 
 # ─────── Source Functions ────── #
 source "$(dirname "$0")/lib/logging.sh"
 source "$(dirname "$0")/lib/usb.sh"
 source "$(dirname "$0")/lib/network.sh"
 source "$(dirname "$0")/lib/countries.sh"
+source "$(dirname "$0")/lib/necessary.sh"
 source "$(dirname "$0")/lib/gitandkeys.sh"
 source "$(dirname "$0")/lib/installpackages.sh"
 source "$(dirname "$0")/lib/system.sh"
@@ -26,6 +27,7 @@ main() {
     usb_and_copy_keys
     wifi_auto_connect
     detect_country
+    do_the_needful
     git_and_keys
     setup_packages
     setup_dotfiles_and_config

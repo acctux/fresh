@@ -1,9 +1,5 @@
 #!/usr/bin/env bash
 
-install_openssh() {
-    sudo pacman -S --needed --noconfirm openssh
-}
-
 setup_ssh_agent() {
     [[ -f "$HOME/.ssh/id_ed25519" ]] || { log WARNING "SSH key missing."; return 1; }
     chmod 700 "$HOME/.ssh"
@@ -45,7 +41,6 @@ import_gpg_key() {
 }
 
 git_and_keys() {
-    install_openssh
     setup_ssh_agent
     clone_git_repos
     import_gpg_key

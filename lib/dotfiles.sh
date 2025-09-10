@@ -16,7 +16,7 @@ backup_files_in_dir() {
 
         if [[ -f "$target_file" && ! -L "$target_file" ]]; then
             mkdir -p "$BACKUP_DIR_path"
-            mv "$target_file" "$backup_target"
+            cp "$target_file" "$backup_target"
             log INFO "Backed up: $target_file -> $backup_target"
         fi
     done
@@ -49,7 +49,8 @@ copy_system_config() {
     backup_files_in_dir "$src_dir" "/etc"
 
     find "$src_dir" -type f -print0 | while IFS= read -r -d '' file; do
-        local dest="/${file#$src_dir/}"
+        # Remove 'local' to make 'dest' accessible to sudo
+        dest="/${file#$src_dir/}"
         sudo mkdir -p "$(dirname "$dest")"
 
         if sudo cp "$file" "$dest"; then

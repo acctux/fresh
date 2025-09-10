@@ -40,7 +40,6 @@ stow_dotfiles() {
     fc-cache -f || log WARNING "Failed to update font cache."
 }
 
-c
 copy_system_config() {
     log INFO "Copying system config files..."
     local src_dir="$DOTFILES_DIR/etc"
@@ -49,23 +48,20 @@ copy_system_config() {
         return 1
     fi
 
-    # Backup any existing system config files
     backup_files_in_dir "$src_dir" "/etc"
 
-    # Iterate over files using a glob, which stays in the same process
-    for file in "$src_dir"/*; do
-        if [[ -f "$file" ]]; then
-            local dest="/${file#$src_dir/}"
-            sudo mkdir -p "$(dirname "$dest")"
-            if sudo cp "$file" "$dest"; then
-                log INFO "Copied $file -> $dest"
-            else
-                log ERROR "Failed to copy $file -> $dest"
-            fi
+    # Use find with process substitution to handle all files recursively
+    while IFS= read -r -d '' file; do
+        local dest="/${file#$src_dir/}"
+        sudo mkdir -p "$(dirname "$dest")"
+        if sudo cp "$file" "$dest"; then
+            log INFO "Copied $file -> $dest"
+        else
+            log ERROR "Failed to copy $file -> $dest"
         fi
-    done
+    done < <(find "$src_dir" -type f -print0)
 
-    # These commands are now in the same process and will work.
+    # These commands are now in the same process and will work correctly.
     sudo chown root:root /etc/sudoers.d/mysudo
     sudo chmod 440 /etc/sudoers.d/mysudo
 }

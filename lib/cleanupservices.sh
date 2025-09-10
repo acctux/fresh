@@ -3,23 +3,28 @@
 enable_services() {
     log INFO "Managing services..."
     for service in "${SERVENABLE[@]}"; do
-        systemctl list-unit-files "$service.service" &>/dev/null &&
-            sudo systemctl enable "$service" && log INFO "Enabled $service" ||
+        if systemctl status "$service.service" &>/dev/null; then
+            sudo systemctl enable "$service" && log INFO "Enabled $service"
+        else
             log WARNING "Service $service not found."
+        fi
     done
 }
 
 disable_services() {
     for service in "${SERVDISABLE[@]}"; do
-        systemctl list-unit-files "$service.service" &>/dev/null &&
-            sudo systemctl disable "$service" && log INFO "Disabled $service" ||
+        if systemctl status "$service.service" &>/dev/null; then
+            sudo systemctl disable "$service" && log INFO "Disabled $service"
+        else
             log WARNING "Service $service not found."
+        fi
     done
 }
+
 mask_services() {
     log INFO "Masking services..."
     for service in "${SERVMASK[@]}"; do
-        if systemctl list-unit-files "$service" &>/dev/null; then
+        if systemctl status "$service.service" &>/dev/null; then
             sudo systemctl stop "$service" &>/dev/null
             sudo systemctl mask "$service"
             log INFO "Stopped and masked $service"

@@ -9,7 +9,7 @@ source "$(dirname "$0")/conf/conf_user.sh"
 # ─────── Source Functions ────── #
 source "$(dirname "$0")/lib/logging.sh"
 source "$(dirname "$0")/lib/mnt-cp-keys.sh"
-source "$(dirname "$0")/lib/wifi_connect.sh"
+source "$(dirname "$0")/lib/wifi-connect.sh"
 source "$(dirname "$0")/lib/detect-country.sh"
 source "$(dirname "$0")/lib/regdom-reflector.sh"
 source "$(dirname "$0")/lib/import-personal-keys.sh"

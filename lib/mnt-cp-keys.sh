@@ -102,8 +102,9 @@ unmount_partition() {
 
 # ─────────────────── Wrapper ─────────────────── #
 mnt_cp_keys() {
-    check_existing_files
-    mount_partition
-    copy_key_files
-    unmount_partition
+    log INFO "Starting mnt_cp_keys"
+    check_existing_files || log INFO "check_existing_files returned non-zero"
+    mount_partition && log INFO "mount_partition completed"
+    copy_key_files && log INFO "copy_key_files completed"
+    unmount_partition && log INFO "unmount_partition completed"
 }

@@ -1,6 +1,3 @@
-# keychain is only needed depending on the amount of pw protected gh repos you need
-sudo pacman -S --needed --noconfirm
-
 update_wireless_regdom() {
     local file="/etc/conf.d/wireless-regdom"
 

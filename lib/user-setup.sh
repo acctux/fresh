@@ -60,7 +60,6 @@ change_icon_color() {
 }
 
 user_setup() {
-    sudo sed -i 's/timeout 3/timeout 1/' /boot/loader/loader.conf
     ensure_root_label
     setup_folders
     refresh_caches

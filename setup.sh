@@ -38,6 +38,7 @@ main() {
     rm ~/.ssh/config
 
     git_dots_etc
+#    sudo sed -i 's/timeout 3/timeout 1/' /boot/loader/loader.conf
     user_setup
     hide_apps
     handle_services

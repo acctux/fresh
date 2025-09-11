@@ -1,12 +1,15 @@
-#Don't adjust
+# ─────── IMPORTANT ────── #
+# Ensure DEFAULT_WIFI_SSID=""  DEFAULT_WIFI_SSID="" set in file
+# Otherwise, won't be sourced
 
+readonly WIFI_CREDENTIALS="$KEYS_MNT/.ssh/wifi.env"
 
 # User Configuration
+
 readonly ROOT_LABEL="Arch"
 readonly GIT_USER="acctux"
 readonly GIT_LIT="$HOME/Lit"
 readonly KEY_DIR="$HOME/.ssh"
-readonly GIT_REPOS=("scripts" "dotfiles" "fresh" "Templates")
 readonly DEFAULT_COUNTRY_CODE="US"
 readonly GPG_KEYFILE="$KEY_DIR/my-private-key.asc"
 readonly MY_RECIPES="$KEY_DIR/recipes.asc"
@@ -14,11 +17,12 @@ readonly DOTFILES_DIR="$HOME/Lit/dotfiles"
 readonly LOG_FILE="$HOME/bootstrap.log"
 readonly BACKUP_DIR="$HOME/overwrittendots"
 
-# ─────── IMPORTANT ────── #
-# Ensure DEFAULT_WIFI_SSID=""  DEFAULT_WIFI_SSID="" set in file
-# Otherwise, won't be sourced
-readonly WIFI_CREDENTIALS="$KEYS_MNT/.ssh/wifi.env"
-
+readonly GIT_REPOS=(
+    "scripts"
+    "dotfiles"
+    "fresh"
+    "Templates"
+)
 KEY_FILES=(
     id_ed25519
     id_ed25519.pub

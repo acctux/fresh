@@ -95,6 +95,5 @@ import_personal_keys() {
     set_correct_permissions
     create_ssh_config
     setup_ssh_agent
-    clone_git_repos
     import_gpg_key
 }

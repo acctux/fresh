@@ -1,5 +1,10 @@
 # User Configuration
 
+# ─────── IMPORTANT ────── #
+# Ensure DEFAULT_WIFI_SSID=""  DEFAULT_WIFI_SSID="" set in file
+# Otherwise, won't be sourced
+readonly WIFI_CREDENTIALS="$KEYS_MNT/.ssh/wifi.env"
+
 readonly ROOT_LABEL="Arch"
 readonly GIT_USER="acctux"
 readonly GIT_LIT="$HOME/Lit"
@@ -11,6 +16,13 @@ readonly MY_RECIPES="$KEY_DIR/recipes.asc"
 readonly DOTFILES_DIR="$HOME/Lit/dotfiles"
 readonly LOG_FILE="$HOME/bootstrap.log"
 readonly BACKUP_DIR="$HOME/overwrittendots"
+
+KEY_FILES=(
+    id_ed25519
+    id_ed25519.pub
+    my-private-key.asc
+    my-public-key.asc
+)
 
 HIDE_APP_FILES=(
     "/usr/share/applications/steam.desktop"
@@ -29,14 +41,6 @@ HIDE_APP_FILES=(
     "/usr/share/applications/nvim.desktop"
     "/usr/share/applications/bvnc.desktop"
     "/usr/share/applications/bssh.desktop"
-)
-
-KEY_FILES=(
-    id_ed25519
-    id_ed25519.pub
-    my-private-key.asc
-    my-public-key.asc
-    wifi.env
 )
 
 # Items for Removal

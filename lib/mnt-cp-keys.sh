@@ -29,17 +29,22 @@ list_and_store_partitions() {
     done < <(lsblk -P -o NAME,SIZE,FSTYPE,TYPE,MOUNTPOINT,RM)
 }
 
-
 # ─────────────────── Functions ─────────────────── #
-check_existing_files() {
+saved_wifi_connection() {
+    # List all saved connections with type wifi (802-11-wireless)
+    if nmcli connection show | grep -q "802-11-wireless"; then
+        return 0  # Found at least one Wi-Fi connection saved
+    fi
+}
+
+existing_keys() {
     for key_file in "${KEY_FILES[@]}"; do
         if [[ ! -f "$KEY_DIR/$key_file" ]]; then
-            return 0
+            return 1  # Missing file → files do NOT all exist
         fi
     done
 
-    log INFO "Skipping USB copy: All key files already exist in \$KEY_DIR"
-    return 1
+    return 0  # All files exist
 }
 
 mount_partition() {
@@ -75,7 +80,35 @@ mount_partition() {
     log INFO "Mounted $device to $KEYS_MNT"
 }
 
-# Copy expected files (.ssh directory and wifi.sh) from mounted USB to user's home directory.
+read_wifi_credentials() {
+    if [[ ! -f "$WIFI_CREDENTIALS" ]]; then
+        log WARNING "Wi-Fi WIFI_CREDENTIALS file not found on USB."
+        return 1
+    fi
+
+    log INFO "Reading Wi-Fi credentials into memory..."
+    # shellcheck disable=SC1090
+
+    if [[ -f "$WIFI_CREDENTIALS" ]]; then
+        while IFS='=' read -r key value; do
+            case "$key" in
+                DEFAULT_WIFI_SSID) DEFAULT_WIFI_SSID="$value" ;;
+                DEFAULT_WIFI_PASS) DEFAULT_WIFI_PASS="$value" ;;
+            esac
+        done < "$WIFI_CREDENTIALS"
+    fi
+
+    # Validate required variables are now in memory
+    if [[ -z "${DEFAULT_WIFI_SSID:-}" || -z "${DEFAULT_WIFI_PASS:-}" ]]; then
+        log ERROR "Wi-Fi SSID or password not set in $WIFI_CREDENTIALS."
+        return 1
+    fi
+
+    log INFO "Wi-Fi credentials loaded into memory."
+    return 0
+}
+
+# Copy keys to home directory.
 copy_key_files() {
     # Confirm mount point directory exists
     if [[ ! -d "$KEYS_MNT" ]]; then
@@ -107,11 +140,13 @@ unmount_partition() {
 
 # ─────────────────── Wrapper ─────────────────── #
 mnt_cp_keys() {
-    if check_existing_files; then
+    if ! has_saved_wifi_connection && ! existing_files; then
         mount_partition
+        read_wifi_credentials
         copy_key_files
         unmount_partition
+        echo "Running key and wifi setup because both Wi-Fi and key files are missing."
     else
-        log INFO "Skipping USB copy because all key files are already present."
+        echo "All requirements met. Skipping external sourcing setup."
     fi
 }

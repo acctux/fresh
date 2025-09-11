@@ -7,7 +7,7 @@ source "$(dirname "$0")/conf/conf_pac.sh"
 source "$(dirname "$0")/conf/conf_user.sh"
 
 # ─────── Source Functions ────── #
-source "$(dirname "$0")/lib/logging.sh"
+source "$(dirname "$0")/lib/utils.sh"
 source "$(dirname "$0")/lib/mnt-cp-keys.sh"
 source "$(dirname "$0")/lib/wifi-connect.sh"
 source "$(dirname "$0")/lib/detect-country.sh"

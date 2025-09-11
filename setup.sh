@@ -25,8 +25,9 @@ main() {
     mnt_cp_keys
     wifi_connect
     detect_country
-    regdom_reflector
+    #Install regdb and reflector
     sudo pacman -Syu --needed --noconfirm "${BASE_PAC[@]}"
+    regdom_reflector
     import_personal_keys
 #    chaos_remaining_packages
 #    git_dots_etc

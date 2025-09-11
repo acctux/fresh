@@ -1,6 +1,6 @@
 #Environment setting
 set_correct_permissions() {
-    local .ssh="$HOME/.ssh"
+    local ssh="$HOME/.ssh"
 
     # check for progress marker file
     if [[ -f "$ssh/keys_permissions_set" ]]; then
@@ -34,21 +34,33 @@ Host *
     IdentityFile ~/.ssh/id_ed25519
 EOF
         chmod 600 "$HOME/.ssh/config"
+    else
+        log INFO "SSH config already set. Skipping."
     fi
 }
 
 # Key import
 setup_ssh_agent() {
-    [[ -f "$HOME/.ssh/id_ed25519" ]] || { log WARNING "SSH key missing."; return 1; }
+    local ssh_key="$HOME/.ssh/id_ed25519"
 
-    if ! pgrep -u "$USER" ssh-agent > /dev/null; then
-        eval "$(keychain --quiet --eval id_ed25519)" >/dev/null
-        export SSH_AUTH_SOCK
-        export SSH_AGENT_PID
+    [[ -f "$ssh_key" ]] || { log WARNING "SSH key missing."; return 1; }
+
+    # Start keychain and source the generated env vars
+    keychain --quiet --eval "$ssh_key" >/dev/null
+
+    # Source keychain environment variables
+    if [[ -f "$HOME/.keychain/$(hostname)-sh" ]]; then
+        source "$HOME/.keychain/$(hostname)-sh"
+    elif [[ -f "$HOME/.keychain/$(hostname)-bash" ]]; then
+        source "$HOME/.keychain/$(hostname)-bash"
+    else
+        log WARNING "Keychain environment not found. Agent may not work."
+        return 1
     fi
 
-    if ! ssh-add -l | grep -q "$(ssh-keygen -y -P '' -f "$HOME/.ssh/id_ed25519" | awk '{print $2}')"; then
-        ssh-add "$HOME/.ssh/id_ed25519" || { log WARNING "Failed to add SSH key."; return 1; }
+    # Add the key if not already loaded
+    if ! ssh-add -l 2>/dev/null | grep -q "$(ssh-keygen -y -P '' -f "$ssh_key" | awk '{print $2}')" 2>/dev/null; then
+        ssh-add "$ssh_key" || { log WARNING "Failed to add SSH key."; return 1; }
     fi
 }
 

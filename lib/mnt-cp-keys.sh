@@ -1,12 +1,8 @@
-# ────────── Global variable declaration ─────────── #
-device=""
-partitions=()
-
 # ─────────────────── Helpers ─────────────────── #
-list_and_store_partitions() {
-    log INFO "Detecting available partitions..."
+list_and_store_PARTITIONS() {
+    log INFO "Detecting available PARTITIONS..."
 
-    partitions=()
+    PARTITIONS=()
     local index=1
 
     while read -r line; do
@@ -16,7 +12,7 @@ list_and_store_partitions() {
         # Check if it's an unmounted partition
         if [[ "$TYPE" == "part" && -z "$MOUNTPOINT" ]]; then
             local dev="/dev/$NAME"
-            partitions+=("$dev")
+            PARTITIONS+=("$dev")
 
             local mount_status="UNMOUNTED"
 
@@ -47,11 +43,11 @@ existing_keys() {
 }
 
 mount_partition() {
-    # Call list_and_store_partitions to populate partitions and display choices
-    list_and_store_partitions
+    # Call list_and_store_PARTITIONS to populate PARTITIONS and display choices
+    list_and_store_PARTITIONS
 
-    if [[ ${#partitions[@]} -eq 0 ]]; then
-        log ERROR "No partitions available for selection."
+    if [[ ${#PARTITIONS[@]} -eq 0 ]]; then
+        log ERROR "No PARTITIONS available for selection."
         exit 1
     fi
 
@@ -59,24 +55,24 @@ mount_partition() {
     read -r choice
 
     # Validate that choice is a number and within valid range
-    if [[ ! "$choice" =~ ^[0-9]+$ ]] || (( choice < 1 || choice > ${#partitions[@]} )); then
+    if [[ ! "$choice" =~ ^[0-9]+$ ]] || (( choice < 1 || choice > ${#PARTITIONS[@]} )); then
         log ERROR "Invalid selection: $choice"
         exit 1
     fi
 
-    # Set global device variable based on user selection
-    device="${partitions[choice-1]}"
-    # Validate that the selected device exists and is a block device
-    if [[ -z "$device" || ! -b "$device" ]]; then
-        log ERROR "Invalid or missing device: $device"
+    # Set global DEVICE variable based on user selection
+    DEVICE="${PARTITIONS[choice-1]}"
+    # Validate that the selected DEVICE exists and is a block DEVICE
+    if [[ -z "$DEVICE" || ! -b "$DEVICE" ]]; then
+        log ERROR "Invalid or missing DEVICE: $DEVICE"
         exit 1
     fi
 
     sudo mkdir -p "$KEYS_MNT"
 
-    # Attempt to mount the device; errors will exit the script due to 'set -e'
-    sudo mount "$device" "$KEYS_MNT"
-    log INFO "Mounted $device to $KEYS_MNT"
+    # Attempt to mount the DEVICE; errors will exit the script due to 'set -e'
+    sudo mount "$DEVICE" "$KEYS_MNT"
+    log INFO "Mounted $DEVICE to $KEYS_MNT"
 }
 
 read_wifi_credentials() {

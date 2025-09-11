@@ -3,7 +3,7 @@ set -euo pipefail
 
 # ─────── Source Configuration ────── #
 source "$(dirname "$0")/conf/conf_pac.sh"
-#source "$(dirname "$0")/conf/conf_services.sh"
+source "$(dirname "$0")/conf/conf_services.sh"
 source "$(dirname "$0")/conf/conf_user.sh"
 
 # ─────── Source Functions ────── #
@@ -25,23 +25,25 @@ main() {
     mnt_cp_keys
     wifi_connect
     detect_country
-    #Install regdb and reflector
+
+    # Install regdb reflector rsync base-devel
     sudo pacman -Syu --needed --noconfirm "${BASE_PAC[@]}"
+
     regdom_reflector
     import_personal_keys
     chaos_remaining_packages
+
+    # remove previously created config
+    rm ~/.ssh/config
+
     git_dots_etc
     user_setup
     hide_apps
     handle_services
     cleanup_and_autorun
+
     log INFO "Setup Completed Successfully!"
-    read -p "Reboot now? (y/N): " -n 1 -r
-    echo
-    if [[ $REPLY =~ ^[Yy]$ ]]; then
-      log "INFO" "Rebooting system..."
-      sudo reboot
-    fi
+    reboot_prompt
 }
 
 main "$@"

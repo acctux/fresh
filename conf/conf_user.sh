@@ -1,5 +1,5 @@
 #Don't adjust
-KEYS_MNT=$(mktemp -d)
+
 
 # User Configuration
 readonly ROOT_LABEL="Arch"
@@ -17,7 +17,6 @@ readonly BACKUP_DIR="$HOME/overwrittendots"
 # ─────── IMPORTANT ────── #
 # Ensure DEFAULT_WIFI_SSID=""  DEFAULT_WIFI_SSID="" set in file
 # Otherwise, won't be sourced
-
 readonly WIFI_CREDENTIALS="$KEYS_MNT/.ssh/wifi.env"
 
 KEY_FILES=(

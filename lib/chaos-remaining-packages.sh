@@ -1,5 +1,3 @@
-CHAOTIC_KEY_ID="3056513887B78AEB"
-
 is_chaotic_key_installed() {
     if sudo pacman-key --list-keys "$CHAOTIC_KEY_ID" &>/dev/null; then
         # Check if the key is locally signed using GPG

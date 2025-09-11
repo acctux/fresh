@@ -1,4 +1,3 @@
-#Environment setting
 set_correct_permissions() {
     # check for progress marker file
     if [[ -f "$KEY_DIR/keys_permissions_set" ]]; then
@@ -38,39 +37,35 @@ EOF
 }
 
 # Key import
-
 setup_ssh_agent() {
     local ssh_key="$KEY_DIR/id_ed25519"
+    local host="${HOSTNAME:-$(uname -n)}"
+    local keychain_env="$HOME/.keychain/${host}-bash"  # only bash now
 
     # Check if key file exists
     if [[ ! -f "$ssh_key" ]]; then
-        log WARNING "SSH key missing: $ssh_key"
+        echo "WARNING: SSH key missing: $ssh_key"
         return 1
     fi
 
-    # Start keychain
-    keychain --quiet --eval "$ssh_key" >/dev/null
-
-    # Source keychain environment
-    # fallback to `uname -n` if HOSTNAME unset
-    local host="${HOSTNAME:-$(uname -n)}"
-    if [[ -f "$HOME/.keychain/${host}-sh" ]]; then
-        source "$HOME/.keychain/${host}-sh"
-    elif [[ -f "$HOME/.keychain/${host}-bash" ]]; then
-        source "$HOME/.keychain/${host}-bash"
-    else
-        log WARNING "Keychain environment not found for host '$host'."
-        return 1
+    # Start keychain only if SSH agent is not running or socket missing
+    if [[ -z "$SSH_AUTH_SOCK" || -z "$SSH_AGENT_PID" || ! -S "$SSH_AUTH_SOCK" ]]; then
+        keychain --quiet --eval "$ssh_key" >/dev/null
+        if [[ -f "$keychain_env" ]]; then
+            source "$keychain_env"
+        else
+            echo "WARNING: Keychain environment not found for host '$host'."
+            return 1
+        fi
     fi
 
-    # Check if the key is already loaded
-    if ! ssh-add -l 2>/dev/null | grep -q "$ssh_key"; then
-        ssh-add "$ssh_key" || { log WARNING "Failed to add SSH key."; return 1; }
+    # Check if key is loaded by fingerprint
+    if ! ssh-add -l 2>/dev/null | grep -q "$(ssh-keygen -lf "$ssh_key" | awk '{print $2}')"; then
+        ssh-add "$ssh_key" || { echo "WARNING: Failed to add SSH key."; return 1; }
     fi
 
-    log INFO "SSH key successfully added to agent."
+    echo "INFO: SSH key successfully added to agent."
 }
-
 
 import_gpg_key() {
     [[ -f "$GPG_KEYFILE" ]] || { log WARNING "No GPG key file at $GPG_KEYFILE."; return 1; }

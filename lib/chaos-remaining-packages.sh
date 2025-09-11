@@ -1,34 +1,38 @@
-setup_chaotic_keys() {
-    log INFO "Setting up Chaotic AUR repository..."
-    local key_id="3056513887B78AEB"
+CHAOTIC_KEY_ID="3056513887B78AEB"
 
-    # Check if the key is already installed
-    if sudo pacman-key --list-keys "$key_id" &>/dev/null; then
-        log INFO "Chaotic AUR key is already installed. Skipping key retrieval."
-    else
-        log INFO "Chaotic AUR key not found. Retrieving key..."
-        local keyservers=(
-            keyserver.ubuntu.com
-            pgp.mit.edu
-        )
-
-        for ks in "${keyservers[@]}"; do
-            log INFO "Trying keyserver: $ks"
-            if sudo pacman-key --recv-key "$key_id" --keyserver "$ks"; then
-                log INFO "Successfully retrieved key from $ks"
-                break
-            fi
-        done
-    fi
-
-    if ! sudo pacman-key --list-keys | grep -q "$key_id"; then
-        sudo pacman-key --lsign-key "$key_id" || {
-            log ERROR "Failed to sign Chaotic AUR key."
+is_chaotic_key_installed() {
+    if sudo pacman-key --list-keys "$CHAOTIC_KEY_ID" &>/dev/null; then
+        # Check if the key is locally signed using GPG
+        if gpg --homedir /etc/pacman.d/gnupg --list-sigs "$CHAOTIC_KEY_ID" 2>/dev/null | grep -q "^\s*sig\s*L"; then
+            echo "Chaotic AUR GPG key is installed and locally signed."
+            return 0
+        else
+            echo "Chaotic AUR GPG key is installed but not locally signed."
             return 1
-        }
+        fi
     else
-        log INFO "Chaotic AUR key already signed."
+        echo "Chaotic AUR GPG key not found."
+        return 1
     fi
+}
+
+setup_chaotic_keys() {
+    log INFO "Chaotic AUR key not found. Retrieving key..."
+    local keyservers=(
+        keyserver.ubuntu.com
+        pgp.mit.edu
+    )
+    for ks in "${keyservers[@]}"; do
+        log INFO "Trying keyserver: $ks"
+        if sudo pacman-key --recv-key "$CHAOTIC_KEY_ID" --keyserver "$ks"; then
+            log INFO "Successfully retrieved key from $ks"
+            break
+        fi
+    done
+    sudo pacman-key --lsign-key "$CHAOTIC_KEY_ID" || {
+        log ERROR "Failed to sign Chaotic AUR key."
+        return 1
+    }
 }
 
 install_chaotic_keyring() {
@@ -45,20 +49,38 @@ install_chaotic_keyring() {
     fi
 }
 
-paru_chaotic_fallback() {
-    if ! command -v paru &>/dev/null; then
-        sudo pacman -S --needed --noconfirm base-devel git
-        git clone https://aur.archlinux.org/paru.git /tmp/paru
-        cd /tmp/paru || return 1
-        makepkg -si --noconfirm
-        cd - >/dev/null || return 1
-        rm -rf /tmp/paru
+install_chaotic_key_from_github() {
+    local key_url="https://raw.githubusercontent.com/chaotic-aur/keyring/master/chaotic.gpg"
+    local tmpfile
+
+    tmpfile=$(mktemp /tmp/chaotic_gpg.XXXXXX) || return 1
+
+    echo "Downloading Chaotic GPG key from GitHub..."
+    if curl -fLo "$tmpfile" "$key_url"; then
+        echo "Downloaded key to $tmpfile"
+    else
+        echo "Failed to download Chaotic GPG key"
+        rm -f "$tmpfile"
+        return 1
     fi
-    # Install keyring and mirrorlist from AUR
-    paru -S --noconfirm chaotic-keyring chaotic-mirrorlist || {
-        echo "Failed to install keyring and mirrorlist from AUR."
+
+    echo "Adding key to pacman keyring..."
+    sudo pacman-key --add "$tmpfile" || {
+        echo "pacman-key --add failed"
+        rm -f "$tmpfile"
         return 1
     }
+
+    echo "Locally signing the key..."
+    sudo pacman-key --lsign-key "$CHAOTIC_KEY_ID" || {
+        echo "pacman-key --lsign-key failed"
+        rm -f "$tmpfile"
+        return 1
+    }
+
+    echo "Key installed and signed."
+    rm -f "$tmpfile"
+    return 0
 }
 
 write_chaotic_pacman() {
@@ -88,9 +110,9 @@ install_packages() {
 }
 
 chaos_remaining_packages() {
-    setup_chaotic_keys || paru_chaotic_fallback
-    install_chaotic_keyring || paru_chaotic_fallback
-    write_chaotic_pacman || true
-
+    is_chaotic_key_installed || setup_chaotic_keys
+    is_chaotic_key_installed || install_chaotic_key_from_github
+    install_chaotic_keyring
+    write_chaotic_pacman
     install_packages
 }

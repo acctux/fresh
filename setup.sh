@@ -26,7 +26,7 @@ main() {
     wifi_connect
     detect_country
     regdom_reflector
-    sudo pacman -S --needed --noconfirm "${BASE_PAC[@]}"
+    sudo pacman -Syu --needed --noconfirm "${BASE_PAC[@]}"
     import_personal_keys
     chaos_remaining_packages
     git_dots_etc

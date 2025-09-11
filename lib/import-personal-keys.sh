@@ -38,29 +38,39 @@ EOF
 }
 
 # Key import
+
 setup_ssh_agent() {
     local ssh_key="$KEY_DIR/id_ed25519"
 
-    [[ -f "$ssh_key" ]] || { log WARNING "SSH key missing."; return 1; }
-
-    # Start keychain and source the generated env vars
-    keychain --quiet --eval "$ssh_key" >/dev/null
-
-    # Source keychain environment variables
-    if [[ -f "$HOME/.keychain/$(hostname)-sh" ]]; then
-        source "$HOME/.keychain/$(hostname)-sh"
-    elif [[ -f "$HOME/.keychain/$(hostname)-bash" ]]; then
-        source "$HOME/.keychain/$(hostname)-bash"
-    else
-        log WARNING "Keychain environment not found. Agent may not work."
+    # Check if key file exists
+    if [[ ! -f "$ssh_key" ]]; then
+        log WARNING "SSH key missing: $ssh_key"
         return 1
     fi
 
-    # Add the key if not already loaded
-    if ! ssh-add -l 2>/dev/null | grep -q "$(ssh-keygen -y -P '' -f "$ssh_key" | awk '{print $2}')" 2>/dev/null; then
+    # Start keychain
+    keychain --quiet --eval "$ssh_key" >/dev/null
+
+    # Source keychain environment
+    # fallback to `uname -n` if HOSTNAME unset
+    local host="${HOSTNAME:-$(uname -n)}"
+    if [[ -f "$HOME/.keychain/${host}-sh" ]]; then
+        source "$HOME/.keychain/${host}-sh"
+    elif [[ -f "$HOME/.keychain/${host}-bash" ]]; then
+        source "$HOME/.keychain/${host}-bash"
+    else
+        log WARNING "Keychain environment not found for host '$host'."
+        return 1
+    fi
+
+    # Check if the key is already loaded
+    if ! ssh-add -l 2>/dev/null | grep -q "$ssh_key"; then
         ssh-add "$ssh_key" || { log WARNING "Failed to add SSH key."; return 1; }
     fi
+
+    log INFO "SSH key successfully added to agent."
 }
+
 
 import_gpg_key() {
     [[ -f "$GPG_KEYFILE" ]] || { log WARNING "No GPG key file at $GPG_KEYFILE."; return 1; }

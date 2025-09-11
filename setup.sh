@@ -11,8 +11,8 @@ source "$(dirname "$0")/lib/logging.sh"
 source "$(dirname "$0")/lib/mnt-cp-keys.sh"
 source "$(dirname "$0")/lib/wifi-connect.sh"
 source "$(dirname "$0")/lib/detect-country.sh"
-#source "$(dirname "$0")/lib/regdom-reflector.sh"
-#source "$(dirname "$0")/lib/import-personal-keys.sh"
+source "$(dirname "$0")/lib/regdom-reflector.sh"
+source "$(dirname "$0")/lib/import-personal-keys.sh"
 #source "$(dirname "$0")/lib/all-remaining-packages.sh"
 #source "$(dirname "$0")/lib/user-setup.sh"
 #source "$(dirname "$0")/lib/git-dots-etc.sh"
@@ -25,7 +25,7 @@ main() {
     mnt_cp_keys
     wifi_connect
     detect_country
-#    regdom_reflector
+    regdom_reflector
 #    sudo pacman -Syu --needed --noconfirm "${BASE_PAC[@]}"
 #    import_personal_keys
 #    chaos_remaining_packages

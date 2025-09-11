@@ -1,23 +1,7 @@
-#!/usr/bin/env bash
-set -euo pipefail
-
 # --- Configuration ---
-GPG_SECRET_FILE="$HOME/.ssh/pass.txt.gpg"
-STOW_DIR=$(echo "$HOME/Lit/dotfiles/.thunderbird/*default")  # Wildcard expansion
-BETTERBIRD_PROFILE_DIR="$HOME/.thunderbird"
 DBEAVER_DELAY="${DBEAVER_DELAY:-60}"
 DEFAULT_DELAY=5
 PROFILE_CHECK_TIMEOUT=30
-
-# --- Logging and Error Handling ---
-log_error() {
-    echo "Error: $1" >&2
-    exit 1
-}
-
-log_info() {
-    echo "Info: $1"
-}
 
 # Ensure required commands are available
 require_cmd() {
@@ -28,11 +12,9 @@ require_cmd() {
 
 # --- Sourcing Hidden Variables ---
 decrypt_and_source_secrets() {
-    require_cmd gpg
-
     # Check if the GPG secret file exists
-    if [[ ! -f "$GPG_SECRET_FILE" ]]; then
-        log_error "GPG file '$GPG_SECRET_FILE' does not exist."
+    if [[ ! -f "$MY_RECIPES" ]]; then
+        log_error "GPG file '$MY_RECIPES' does not exist."
     fi
 
     local tmpfile
@@ -40,7 +22,7 @@ decrypt_and_source_secrets() {
     chmod 600 "$tmpfile"
 
     # Decrypt the secrets using GPG
-    if ! gpg --quiet --decrypt "$GPG_SECRET_FILE" > "$tmpfile"; then
+    if ! gpg --quiet --decrypt "$MY_RECIPES" > "$tmpfile"; then
         rm -f "$tmpfile"
         log_error "Failed to decrypt secrets."
     fi
@@ -78,23 +60,19 @@ run_temp_app() {
     wait "$pid" 2>/dev/null || true
 }
 
-# Wait for Betterbird to create its profile
-wait_for_profile_creation() {
-    local timeout=$PROFILE_CHECK_TIMEOUT
-    local elapsed=0
-    local sleep_interval=1
-    local dynamic_profile_dir
+# Wait for Betterbird to create its profile, used in symlink_profile_contents
+create_and_find_betterbird_profile_dir() {
 
     log_info "Waiting for Betterbird to create a valid profile folder..."
 
     # Loop until we either find a valid profile or time out
-    while [[ $elapsed -lt $timeout ]]; do
+    while [[ $elapsed -lt $$PROFILE_CHECK_TIMEOUT ]]; do
         # Check if we have a profile folder with files or the *default-default folder
-        dynamic_profile_dir=$(find "$BETTERBIRD_PROFILE_DIR" -maxdepth 1 -type d -name '*.default-default' | head -n1)
+        dynamic_profile_dir=$(find "$betterbird_home_dir" -maxdepth 1 -type d -name '*.default-default' | head -n1)
 
         if [[ -z "$dynamic_profile_dir" ]]; then
             # If no *default-default, find the folder with the most files
-            dynamic_profile_dir=$(find "$BETTERBIRD_PROFILE_DIR" -maxdepth 1 -type d | \
+            dynamic_profile_dir=$(find "$betterbird_home_dir" -maxdepth 1 -type d | \
                 sort -n -k2 | \
                 tail -n1)
         fi
@@ -110,24 +88,32 @@ wait_for_profile_creation() {
         ((elapsed += sleep_interval))
     done
 
-    log_error "Timeout ($timeout seconds) waiting for Betterbird profile creation."
+    log_error "Timeout ($$PROFILE_CHECK_TIMEOUT seconds) waiting for Betterbird profile creation."
 }
 
 # Symlink profile contents from the stow directory to the dynamic profile directory
 symlink_profile_contents() {
+    local $PROFILE_CHECK_TIMEOUT=$PROFILE_CHECK_TIMEOUT
+    betterbird_dots_dir=$(echo "$HOME/Lit/dotfiles/.thunderbird/*default")  # Wildcard expansion
+    betterbird_home_dir="$HOME/.thunderbird"
+    local elapsed=0
+    local sleep_interval=1
+    local dynamic_profile_dir
+
+    create_and_find_betterbird_profile_dir
     # Assuming wait_for_profile_creation already identified the correct profile folder
     if [[ -z "$dynamic_profile_dir" ]]; then
         log_error "No valid Betterbird profile directory found. Cannot proceed with symlink."
     fi
 
-    if [[ ! -d "$STOW_DIR" ]]; then
-        log_error "Stow directory '$STOW_DIR' not found."
+    if [[ ! -d "$betterbird_dots_dir" ]]; then
+        log_error "Stow directory '$betterbird_dots_dir' not found."
     fi
 
-    log_info "Symlinking profile contents from '$STOW_DIR' to '$dynamic_profile_dir'."
+    log_info "Symlinking profile contents from '$betterbird_dots_dir' to '$dynamic_profile_dir'."
 
     # Loop through files in the source directory and symlink to target
-    for file in "$STOW_DIR"/*; do
+    for file in "$betterbird_dots_dir"/*; do
         if [[ -d "$file" ]]; then
             continue
         fi
@@ -152,13 +138,10 @@ symlink_profile_contents() {
 setup_and_prepare() {
     log_info "Running pre-flight checks and setup."
 
-    # Ensure required commands are available
-    for cmd in gpg wl-copy brave protonmail-bridge steam-native-runtime dbeaver betterbird stow find; do
-        require_cmd "$cmd"
-    done
+    require_cmd "$cmd"
 
     log_info "Stowing static Betterbird configuration."
-    (cd "$STOW_DIR" && stow -t "$HOME" --no-fold betterbird-static) || log_error "Failed to stow static Betterbird files."
+    (cd "$betterbird_dots_dir" && stow -t "$HOME" --no-fold betterbird-static) || log_error "Failed to stow static Betterbird files."
 
     log_info "Launching Betterbird to generate dynamic profile folder."
     betterbird &>/dev/null &

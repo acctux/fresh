@@ -1,13 +1,48 @@
-#!/usr/bin/env bash
+#Environment setting
+set_correct_permissions() {
+    local .ssh="$HOME/.ssh"
 
+    # check for progress marker file
+    if [[ -f "$ssh/keys_permissions_set" ]]; then
+        log INFO "Permissions already set. Skipping."
+        return 0
+    fi
+
+    chown "$USER:$USER" "$ssh" 2>/dev/null || true
+    chmod 700 "$ssh"
+
+    for key_file in "${KEY_FILES[@]}"; do
+            if [[ ! -f "$ssh/$key_file" ]]; then
+                log ERROR "$key_file not found. Rerun script."
+            else
+                chown "$USER":"$USER" "$ssh/$key_file"
+                chmod 600 "$ssh/$key_file"
+            fi
+    done
+
+    # Create progress marker file
+    touch "$ssh/keys_permissions_set"
+}
+
+# cat needs to be exactly as written in destination (don't indent)
+create_ssh_config() {
+    mkdir -p "$HOME/.ssh"
+    if [[ ! -f "$HOME/.ssh/config" ]]; then
+        cat << EOF > "$HOME/.ssh/config"
+Host *
+    AddKeysToAgent yes
+    IdentityFile ~/.ssh/id_ed25519
+EOF
+        chmod 600 "$HOME/.ssh/config"
+    fi
+}
+
+# Key import
 setup_ssh_agent() {
     [[ -f "$HOME/.ssh/id_ed25519" ]] || { log WARNING "SSH key missing."; return 1; }
-    chmod 700 "$HOME/.ssh"
-    chmod 600 "$HOME/.ssh/id_ed25519"
-    chmod 644 "$HOME/.ssh/id_ed25519.pub"
 
     if ! pgrep -u "$USER" ssh-agent > /dev/null; then
-        eval "$(ssh-agent -s)" >/dev/null
+        eval "$(keychain --quiet --eval id_ed25519)" >/dev/null
         export SSH_AUTH_SOCK
         export SSH_AGENT_PID
     fi
@@ -15,16 +50,6 @@ setup_ssh_agent() {
     if ! ssh-add -l | grep -q "$(ssh-keygen -y -P '' -f "$HOME/.ssh/id_ed25519" | awk '{print $2}')"; then
         ssh-add "$HOME/.ssh/id_ed25519" || { log WARNING "Failed to add SSH key."; return 1; }
     fi
-}
-
-clone_git_repos() {
-    mkdir -p "$GIT_LIT"
-    cd "$GIT_LIT"
-    for repo in "${GIT_REPOS[@]}"; do
-        [[ -d "$repo" ]] && { log INFO "$repo already exists."; continue; }
-        git clone "git@github.com:$GIT_USER/$repo.git" && log INFO "Cloned $repo." ||
-            log ERROR "Failed to clone $repo."
-    done
 }
 
 import_gpg_key() {
@@ -46,7 +71,9 @@ import_gpg_key() {
     fi
 }
 
-git_and_keys() {
+import_personal_keys() {
+    set_correct_permissions
+    create_ssh_config
     setup_ssh_agent
     clone_git_repos
     import_gpg_key

@@ -1,5 +1,3 @@
-#!/usr/bin/env bash
-
 # Helpers
 prompt_for_mariadb() {
     local password confirmation

@@ -1,25 +1,19 @@
-#!/usr/bin/env bash
-
-install_nec() {
-    sudo pacman -S --needed --noconfirm openssh reflector rsync base-devel wireless-regdb
-}
+# keychain is only needed depending on the amount of pw protected gh repos you need
+sudo pacman -S --needed --noconfirm
 
 update_wireless_regdom() {
     local file="/etc/conf.d/wireless-regdom"
 
-    # Check for an uncommented WIRELESS_REGDOM line
-    if sudo grep -q '^WIRELESS_REGDOM=' "$file" | grep -v '^#'; then
-        # Update the first uncommented WIRELESS_REGDOM line
-        sudo sed -i "/^WIRELESS_REGDOM=/ s/.*/WIRELESS_REGDOM=\"$COUNTRY_CODE\"/" "$file"
-    else
-        # Append the new setting if no uncommented line is found
-        echo "WIRELESS_REGDOM=\"$COUNTRY_CODE\"" | sudo tee -a "$file" > /dev/null
-    fi
+    # Remove any uncommented WIRELESS_REGDOM= lines
+    sudo sed -i '/^[[:space:]]*WIRELESS_REGDOM=/!b; /^[[:space:]]*#/! s/^.*$//' "$file"
 
-    # Apply immediately (optional)
+    # Append new setting
+    echo "WIRELESS_REGDOM=\"$COUNTRY_CODE\"" | sudo tee -a "$file" > /dev/null
+
+    # Apply immediately
     sudo iw reg set "$COUNTRY_CODE"
 
-    log INFO "Updated wireless regulatory domain to $COUNTRY_CODE"
+    log INFO "Set wireless regulatory domain to $COUNTRY_CODE and updated $file"
 }
 
 update_mirrorlist_if_changed() {
@@ -36,8 +30,7 @@ update_mirrorlist_if_changed() {
     sudo reflector --country "$COUNTRY_NAME" --latest 10 --sort rate --save "$mirrorlist_file"
 }
 
-do_the_needful() {
-    install_nec
+regdom_reflector() {
     update_wireless_regdom
     update_mirrorlist_if_changed
 }

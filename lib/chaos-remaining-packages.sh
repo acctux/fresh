@@ -1,5 +1,3 @@
-#!/usr/bin/env bash
-
 setup_chaotic_keys() {
     log INFO "Setting up Chaotic AUR repository..."
     local key_id="3056513887B78AEB"
@@ -10,8 +8,8 @@ setup_chaotic_keys() {
     else
         log INFO "Chaotic AUR key not found. Retrieving key..."
         local keyservers=(
-            hkps://keyserver.ubuntu.com
-            hkp://pgp.mit.edu
+            keyserver.ubuntu.com
+            pgp.mit.edu
         )
 
         for ks in "${keyservers[@]}"; do
@@ -61,7 +59,8 @@ install_packages() {
     log INFO "Installing packages..."
     sudo pacman -S --needed --noconfirm "${PACMAN[@]}" ||
         { log ERROR "Failed to install Pacman packages."; return 1; }
-    command -v tldr &>/dev/null && tldr --update || log WARNING "Failed to update tldr cache."
+    command -v tldr &>/dev/null && tldr --update ||
+        log WARNING "Failed to update tldr cache."
 
     if command -v paru &>/dev/null; then
         log INFO "Installing AUR packages with paru..."
@@ -72,7 +71,7 @@ install_packages() {
     fi
 }
 
-setup_packages() {
+chaos_remaining_packages() {
     setup_chaotic_keys
     install_chaotic_keyring
     write_chaotic_pacman

@@ -1,4 +1,12 @@
-#!/usr/bin/env bash
+clone_git_repos() {
+    mkdir -p "$GIT_LIT"
+    cd "$GIT_LIT"
+    for repo in "${GIT_REPOS[@]}"; do
+        [[ -d "$repo" ]] && { log INFO "$repo already exists."; continue; }
+        git clone "git@github.com:$GIT_USER/$repo.git" && log INFO "Cloned $repo." ||
+            log ERROR "Failed to clone $repo."
+    done
+}
 
 backup_files_in_dir() {
     local src_dir="$1"
@@ -40,7 +48,7 @@ stow_dotfiles() {
     fc-cache -f || log WARNING "Failed to update font cache."
 }
 
-copy_system_config() {
+copy_system_files() {
     log INFO "Copying system config files..."
     local src_dir="$DOTFILES_DIR/etc"
     if [[ ! -d "$src_dir" ]]; then
@@ -66,8 +74,8 @@ copy_system_config() {
     sudo chmod 440 /etc/sudoers.d/mysudo
 }
 
-
-setup_dotfiles_and_config() {
+git_dots_etc() {
+    clone_git_repos
     stow_dotfiles
-    copy_system_config
+    copy_system_files
 }

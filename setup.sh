@@ -8,33 +8,39 @@ source "$(dirname "$0")/conf/conf_user.sh"
 
 # ─────── Source Functions ────── #
 source "$(dirname "$0")/lib/logging.sh"
-source "$(dirname "$0")/lib/usb.sh"
-source "$(dirname "$0")/lib/network.sh"
-source "$(dirname "$0")/lib/countries.sh"
-source "$(dirname "$0")/lib/necessary.sh"
-source "$(dirname "$0")/lib/gitandkeys.sh"
-source "$(dirname "$0")/lib/installpackages.sh"
-source "$(dirname "$0")/lib/system.sh"
-source "$(dirname "$0")/lib/dotfiles.sh"
-source "$(dirname "$0")/lib/hide.sh"
-source "$(dirname "$0")/lib/cleanupservices.sh"
+source "$(dirname "$0")/lib/mnt-cp-keys.sh"
+source "$(dirname "$0")/lib/wifi_connect.sh"
+source "$(dirname "$0")/lib/detect-country.sh"
+source "$(dirname "$0")/lib/regdom-reflector.sh"
+source "$(dirname "$0")/lib/import-personal-keys.sh"
+source "$(dirname "$0")/lib/all-remaining-packages.sh"
+source "$(dirname "$0")/lib/user-setup.sh"
+source "$(dirname "$0")/lib/git-dots-etc.sh"
+source "$(dirname "$0")/lib/handle-services.sh"
+source "$(dirname "$0")/lib/cleanup-and-autorun.sh"
 
 # ─────── Run Main ────── #
 main() {
     log INFO "Starting system setup"
-
-    # Execute setup steps
-    usb_and_copy_keys
-    wifi_auto_connect
+    mnt_cp_keys
+    wifi_connect
     detect_country
-    do_the_needful
-    git_and_keys
-    setup_packages
-    setup_dotfiles_and_config
+    regdom_reflector
+    sudo pacman -S --needed --noconfirm "${BASE_PAC[@]}"
+    import_personal_keys
+    chaos_remaining_packages
+    git_dots_etc
+    user_setup
     hide_apps
-    services_and_cleanup
-    log INFO "Setup Completed Successfully! Rebooting."
-    sudo reboot
+    handle_services
+    cleanup_and_autorun
+    log INFO "Setup Completed Successfully!"
+    read -p "Reboot now? (y/N): " -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+      log "INFO" "Rebooting system..."
+      sudo reboot
+    else
 }
 
 main "$@"

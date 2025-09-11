@@ -1,5 +1,3 @@
-#!/usr/bin/env bash
-
 # ──────────────── SERVICES ──────────────── #
 SERVENABLE=(
   avahi-daemon.service

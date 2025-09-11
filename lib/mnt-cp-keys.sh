@@ -1,7 +1,6 @@
 # ────────── Global variable declaration ─────────── #
 device=""
 partitions=()
-readonly KEYS_MNT="/mnt/keys"
 
 # ─────────────────── Helpers ─────────────────── #
 list_and_store_partitions() {

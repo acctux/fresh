@@ -49,7 +49,7 @@ setup_ssh_agent() {
     fi
 
     # Start keychain only if SSH agent is not running or socket missing
-    if [[ -z "$SSH_AUTH_SOCK" || -z "$SSH_AGENT_PID" || ! -S "$SSH_AUTH_SOCK" ]]; then
+    if [[ -z "${SSH_AUTH_SOCK-}" || -z "${SSH_AGENT_PID-}" || ! -S "${SSH_AUTH_SOCK-}" ]]; then
         keychain --quiet --eval "$ssh_key" >/dev/null
         if [[ -f "$keychain_env" ]]; then
             source "$keychain_env"

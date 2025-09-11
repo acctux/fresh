@@ -2,15 +2,15 @@
 set -euo pipefail
 
 # ─────── Source Configuration ────── #
-#source "$(dirname "$0")/conf/conf_pac.sh"
+source "$(dirname "$0")/conf/conf_pac.sh"
 #source "$(dirname "$0")/conf/conf_services.sh"
 source "$(dirname "$0")/conf/conf_user.sh"
 
 # ─────── Source Functions ────── #
 source "$(dirname "$0")/lib/logging.sh"
 source "$(dirname "$0")/lib/mnt-cp-keys.sh"
-#source "$(dirname "$0")/lib/wifi-connect.sh"
-#source "$(dirname "$0")/lib/detect-country.sh"
+source "$(dirname "$0")/lib/wifi-connect.sh"
+source "$(dirname "$0")/lib/detect-country.sh"
 #source "$(dirname "$0")/lib/regdom-reflector.sh"
 #source "$(dirname "$0")/lib/import-personal-keys.sh"
 #source "$(dirname "$0")/lib/all-remaining-packages.sh"
@@ -23,8 +23,8 @@ source "$(dirname "$0")/lib/mnt-cp-keys.sh"
 main() {
     log INFO "Starting system setup"
     mnt_cp_keys
-#    wifi_connect
-#    detect_country
+    wifi_connect
+    detect_country
 #    regdom_reflector
 #    sudo pacman -Syu --needed --noconfirm "${BASE_PAC[@]}"
 #    import_personal_keys

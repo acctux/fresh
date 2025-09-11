@@ -107,8 +107,11 @@ unmount_partition() {
 
 # ─────────────────── Wrapper ─────────────────── #
 mnt_cp_keys() {
-    check_existing_files
-    mount_partition
-    copy_key_files
-    unmount_partition
+    if check_existing_files; then
+        mount_partition
+        copy_key_files
+        unmount_partition
+    else
+        log INFO "Skipping USB copy because all key files are already present."
+    fi
 }

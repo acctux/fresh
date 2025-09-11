@@ -6,6 +6,7 @@ PACMAN=(
   # rsync
   # git
   # base-devel
+  acpi
   alacritty
   alsa-firmware
   alsa-utils

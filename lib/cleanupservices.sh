@@ -4,7 +4,8 @@ enable_services() {
     log INFO "Managing services..."
     for service in "${SERVENABLE[@]}"; do
         if systemctl status "$service.service" &>/dev/null; then
-            sudo systemctl enable "$service" && log INFO "Enabled $service"
+            sudo systemctl enable "$service" && log INFO "Enabled $service" ||
+                log WARNING "Failed to enable $service"
         else
             log WARNING "Service $service not found."
         fi

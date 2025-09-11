@@ -78,9 +78,10 @@ declare -A COUNTRY_NAMES=(
 detect_country() {
     local cc input
 
-    # Get 2-letter country code from API (uppercase)
+    # Attempt to get the 2-letter country code from public API and make it uppercase
     cc=$(curl -s --max-time 5 https://ipapi.co/country/ | tr -d '\n' | tr '[:lower:]' '[:upper:]')
 
+    # Check 2-letter country code is uppercase and exists in the COUNTRY_NAMES array else use DEFAULT_COUNTRY_CODE
     if [[ "$cc" =~ ^[A-Z]{2}$ && -n "${COUNTRY_NAMES[$cc]}" ]]; then
         COUNTRY_CODE="$cc"
     else
@@ -88,34 +89,24 @@ detect_country() {
         COUNTRY_CODE="$DEFAULT_COUNTRY_CODE"
     fi
 
-    # If default also invalid or empty, prompt user as last resort
+    # As a last resort, if both the API and default codes are invalid or empty
     if [[ -z "$COUNTRY_CODE" || -z "${COUNTRY_NAMES[$COUNTRY_CODE]}" ]]; then
-        echo "Please enter your 2-letter country code or full country name:"
+        echo "Please enter your 2-letter country code:"
         read -r input
-        input=${input^^}  # Uppercase for codes
+        # Convert the input to uppercase
+        input=${input^^}
 
+        # Check if the user input is a valid 2-letter country code, else Worldwide
         if [[ "$input" =~ ^[A-Z]{2}$ && -n "${COUNTRY_NAMES[$input]}" ]]; then
             COUNTRY_CODE="$input"
         else
-            local found_code=""
-            for code in "${!COUNTRY_NAMES[@]}"; do
-                if [[ "${COUNTRY_NAMES[$code],,}" == "${input,,}" ]]; then
-                    found_code="$code"
-                    break
-                fi
-            done
-
-            if [[ -n "$found_code" ]]; then
-                COUNTRY_CODE="$found_code"
-            else
-                log ERROR "Invalid input or no valid default country. Defaulting to Worldwide"
-                COUNTRY_CODE="WW"
-            fi
+            log ERROR "Invalid input or no valid default country. Defaulting to Worldwide"
+            COUNTRY_CODE="WW"
         fi
     fi
 
-    COUNTRY_NAME="${COUNTRY_NAMES[$COUNTRY_CODE]:-Unknown}"
+    # Look up the full country name using the final country code
+    COUNTRY_NAME="${COUNTRY_NAMES[$COUNTRY_CODE]}"
     export COUNTRY_CODE COUNTRY_NAME
-
     log INFO "Using country: $COUNTRY_NAME ($COUNTRY_CODE)"
 }

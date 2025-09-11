@@ -5,10 +5,16 @@ setup_ssh_agent() {
     chmod 700 "$HOME/.ssh"
     chmod 600 "$HOME/.ssh/id_ed25519"
     chmod 644 "$HOME/.ssh/id_ed25519.pub"
+
     if ! pgrep -u "$USER" ssh-agent > /dev/null; then
         eval "$(ssh-agent -s)" >/dev/null
+        export SSH_AUTH_SOCK
+        export SSH_AGENT_PID
     fi
-    ssh-add "$HOME/.ssh/id_ed25519" || log WARNING "Failed to add SSH key."
+
+    if ! ssh-add -l | grep -q "$(ssh-keygen -y -P '' -f "$HOME/.ssh/id_ed25519" | awk '{print $2}')"; then
+        ssh-add "$HOME/.ssh/id_ed25519" || { log WARNING "Failed to add SSH key."; return 1; }
+    fi
 }
 
 clone_git_repos() {

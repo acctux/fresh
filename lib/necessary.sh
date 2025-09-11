@@ -1,23 +1,25 @@
 #!/usr/bin/env bash
 
 install_nec() {
-    sudo pacman -S --needed --noconfirm openssh reflector rsync base-devel wireless-regdb jq
+    sudo pacman -S --needed --noconfirm openssh reflector rsync base-devel wireless-regdb
 }
 
 update_wireless_regdom() {
     local file="/etc/conf.d/wireless-regdom"
-    local code="$COUNTRY_CODE"
 
-    if sudo grep -q '^WIRELESS_REGDOM=' "$file"; then
-        sudo sed -i "/^WIRELESS_REGDOM=/c\\WIRELESS_REGDOM=\"$code\"" "$file"
+    # Check for an uncommented WIRELESS_REGDOM line
+    if sudo grep -q '^WIRELESS_REGDOM=' "$file" | grep -v '^#'; then
+        # Update the first uncommented WIRELESS_REGDOM line
+        sudo sed -i "/^WIRELESS_REGDOM=/ s/.*/WIRELESS_REGDOM=\"$COUNTRY_CODE\"/" "$file"
     else
-        echo "WIRELESS_REGDOM=\"$code\"" | sudo tee -a "$file" > /dev/null
+        # Append the new setting if no uncommented line is found
+        echo "WIRELESS_REGDOM=\"$COUNTRY_CODE\"" | sudo tee -a "$file" > /dev/null
     fi
 
     # Apply immediately (optional)
-    sudo iw reg set "$code"
+    sudo iw reg set "$COUNTRY_CODE"
 
-    log INFO "Updated wireless regulatory domain to $code"
+    log INFO "Updated wireless regulatory domain to $COUNTRY_CODE"
 }
 
 update_mirrorlist_if_changed() {

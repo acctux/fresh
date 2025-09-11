@@ -2,6 +2,7 @@
 set -euo pipefail
 
 # ─────── Source Configuration ────── #
+source "$(dirname "$0")/conf/conf_globals.sh"
 source "$(dirname "$0")/conf/conf_pac.sh"
 source "$(dirname "$0")/conf/conf_services.sh"
 source "$(dirname "$0")/conf/conf_user.sh"

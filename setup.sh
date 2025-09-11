@@ -40,7 +40,7 @@ main() {
     if [[ $REPLY =~ ^[Yy]$ ]]; then
       log "INFO" "Rebooting system..."
       sudo reboot
-    else
+    fi
 }
 
 main "$@"

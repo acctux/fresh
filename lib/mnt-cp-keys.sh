@@ -10,20 +10,25 @@ list_and_store_partitions() {
     partitions=()
     local index=1
 
-    while IFS= read -r name size fstype type mount rm; do
-        if [[ "$type" == "part" ]] && [[ ! "$mount" =~ ^/ ]]; then
-            local dev="/dev/$name"
+    while read -r line; do
+        # Parse using eval
+        eval "$line"
+
+        # Check if it's an unmounted partition
+        if [[ "$TYPE" == "part" && -z "$MOUNTPOINT" ]]; then
+            local dev="/dev/$NAME"
             partitions+=("$dev")
 
-            local mount_status="${mount:-UNMOUNTED}"
+            local mount_status="UNMOUNTED"
 
             printf "%d) %-10s Size: %-6s FS: %-6s Mounted: %-12s Removable: %s\n" \
-                "$index" "$dev" "$size" "$fstype" "$mount_status" "$rm"
+                "$index" "$dev" "$SIZE" "$FSTYPE" "$mount_status" "$RM"
 
             ((index++))
         fi
-    done < <(lsblk -rno NAME,SIZE,FSTYPE,TYPE,MOUNTPOINT,RM)
+    done < <(lsblk -P -o NAME,SIZE,FSTYPE,TYPE,MOUNTPOINT,RM)
 }
+
 
 # ─────────────────── Functions ─────────────────── #
 check_existing_files() {

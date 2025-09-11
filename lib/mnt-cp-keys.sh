@@ -68,18 +68,18 @@ mount_partition() {
         exit 1
     fi
 
-    sudo mkdir -p "$KEYS_MOUNTPOINT"
+    sudo mkdir -p "$KEYS_MNT"
 
     # Attempt to mount the device; errors will exit the script due to 'set -e'
-    sudo mount "$device" "$KEYS_MOUNTPOINT"
-    log INFO "Mounted $device to $KEYS_MOUNTPOINT"
+    sudo mount "$device" "$KEYS_MNT"
+    log INFO "Mounted $device to $KEYS_MNT"
 }
 
 # Copy expected files (.ssh directory and wifi.sh) from mounted USB to user's home directory.
 copy_key_files() {
     # Confirm mount point directory exists
-    if [[ ! -d "$KEYS_MOUNTPOINT" ]]; then
-        log ERROR "Mount point $KEYS_MOUNTPOINT not found"
+    if [[ ! -d "$KEYS_MNT" ]]; then
+        log ERROR "Mount point $KEYS_MNT not found"
         return 1
     fi
 
@@ -88,7 +88,7 @@ copy_key_files() {
     # Copy .ssh directory if present
     for key_file in "${KEY_FILES[@]}"; do
         if [[ ! -f "$HOME/.ssh/$key_file" ]]; then
-            cp "$KEYS_MOUNTPOINT/.ssh/$key_file" "$HOME/.ssh"
+            cp "$KEYS_MNT/.ssh/$key_file" "$HOME/.ssh"
         fi
     done
 }
@@ -96,13 +96,13 @@ copy_key_files() {
 # Unmount USB partition and clean up mount directory.
 unmount_partition() {
     # Only attempt unmount if mount point is active
-    if mountpoint -q "$KEYS_MOUNTPOINT"; then
-        sudo umount "$KEYS_MOUNTPOINT"
-        log INFO "Unmounted USB from $KEYS_MOUNTPOINT"
+    if mountpoint -q "$KEYS_MNT"; then
+        sudo umount "$KEYS_MNT"
+        log INFO "Unmounted USB from $KEYS_MNT"
     fi
 
     # Remove the mount directory; ignore errors if it does not exist
-    sudo rmdir "$KEYS_MOUNTPOINT" 2>/dev/null || true
+    sudo rmdir "$KEYS_MNT" 2>/dev/null || true
 }
 
 # ─────────────────── Wrapper ─────────────────── #

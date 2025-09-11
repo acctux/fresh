@@ -45,6 +45,22 @@ install_chaotic_keyring() {
     fi
 }
 
+paru_chaotic_fallback() {
+    if ! command -v paru &>/dev/null; then
+        sudo pacman -S --needed --noconfirm base-devel git
+        git clone https://aur.archlinux.org/paru.git /tmp/paru
+        cd /tmp/paru || return 1
+        makepkg -si --noconfirm
+        cd - >/dev/null || return 1
+        rm -rf /tmp/paru
+    fi
+    # Install keyring and mirrorlist from AUR
+    paru -S --noconfirm chaotic-keyring chaotic-mirrorlist || {
+        echo "Failed to install keyring and mirrorlist from AUR."
+        return 1
+    }
+}
+
 write_chaotic_pacman() {
     if ! grep -q '\[chaotic-aur\]' /etc/pacman.conf; then
         echo -e '\n[chaotic-aur]\nInclude = /etc/pacman.d/chaotic-mirrorlist' | sudo tee -a /etc/pacman.conf
@@ -72,8 +88,9 @@ install_packages() {
 }
 
 chaos_remaining_packages() {
-    setup_chaotic_keys
-    install_chaotic_keyring
-    write_chaotic_pacman
+    setup_chaotic_keys || paru_chaotic_fallback
+    install_chaotic_keyring || paru_chaotic_fallback
+    write_chaotic_pacman || true
+
     install_packages
 }

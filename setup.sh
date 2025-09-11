@@ -13,11 +13,11 @@ source "$(dirname "$0")/lib/wifi-connect.sh"
 source "$(dirname "$0")/lib/detect-country.sh"
 source "$(dirname "$0")/lib/regdom-reflector.sh"
 source "$(dirname "$0")/lib/import-personal-keys.sh"
-#source "$(dirname "$0")/lib/all-remaining-packages.sh"
-#source "$(dirname "$0")/lib/user-setup.sh"
-#source "$(dirname "$0")/lib/git-dots-etc.sh"
-#source "$(dirname "$0")/lib/handle-services.sh"
-#source "$(dirname "$0")/lib/cleanup-and-autorun.sh"
+source "$(dirname "$0")/lib/chaos-remaining-packages.sh"
+source "$(dirname "$0")/lib/user-setup.sh"
+source "$(dirname "$0")/lib/git-dots-etc.sh"
+source "$(dirname "$0")/lib/handle-services.sh"
+source "$(dirname "$0")/lib/cleanup-and-autorun.sh"
 
 # ─────── Run Main ────── #
 main() {
@@ -29,19 +29,19 @@ main() {
     sudo pacman -Syu --needed --noconfirm "${BASE_PAC[@]}"
     regdom_reflector
     import_personal_keys
-#    chaos_remaining_packages
-#    git_dots_etc
-#    user_setup
-#    hide_apps
-#    handle_services
-#    cleanup_and_autorun
-#    log INFO "Setup Completed Successfully!"
-#    read -p "Reboot now? (y/N): " -n 1 -r
-#    echo
-#    if [[ $REPLY =~ ^[Yy]$ ]]; then
-#      log "INFO" "Rebooting system..."
-#      sudo reboot
-#    fi
+    chaos_remaining_packages
+    git_dots_etc
+    user_setup
+    hide_apps
+    handle_services
+    cleanup_and_autorun
+    log INFO "Setup Completed Successfully!"
+    read -p "Reboot now? (y/N): " -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+      log "INFO" "Rebooting system..."
+      sudo reboot
+    fi
 }
 
 main "$@"

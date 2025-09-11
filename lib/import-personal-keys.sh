@@ -40,7 +40,7 @@ EOF
 setup_ssh_agent() {
     local ssh_key="$KEY_DIR/id_ed25519"
     local host="${HOSTNAME:-$(uname -n)}"
-    local keychain_env="$HOME/.keychain/${host}-bash"  # only bash now
+    local keychain_env="$HOME/.keychain/${host}-sh"
 
     # Check if key file exists
     if [[ ! -f "$ssh_key" ]]; then

@@ -44,7 +44,7 @@ hide_apps() {
     fi
 }
 
-cleanup_and_autorun(
+cleanup_and_autorun() {
     cleanup_files
     hide_apps
-)
+}

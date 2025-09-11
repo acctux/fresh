@@ -98,7 +98,7 @@ unmount_partition() {
 }
 
 # ─────────────────── Wrapper ─────────────────── #
-mounted device_and_copy_keys() {
+mnt_cp_keys() {
     if ! check_existing_files; then
        return 0  # Skip mounted device operations and continue main script
     fi

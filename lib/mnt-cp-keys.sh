@@ -33,12 +33,12 @@ list_and_store_partitions() {
 # ─────────────────── Functions ─────────────────── #
 check_existing_files() {
     for key_file in "${KEY_FILES[@]}"; do
-        if [[ ! -f "$HOME/.ssh/$key_file" ]]; then
+        if [[ ! -f "$KEY_DIR/$key_file" ]]; then
             return 0
         fi
     done
 
-    log INFO "Skipping USB copy: All key files already exist in \$HOME/.ssh"
+    log INFO "Skipping USB copy: All key files already exist in \$KEY_DIR"
     return 1
 }
 
@@ -84,11 +84,11 @@ copy_key_files() {
     fi
 
     log INFO "Copying files from USB..."
-    mkdir -p "$HOME/.ssh"
+    mkdir -p "$KEY_DIR"
     # Copy .ssh directory if present
     for key_file in "${KEY_FILES[@]}"; do
-        if [[ ! -f "$HOME/.ssh/$key_file" ]]; then
-            cp "$KEYS_MNT/.ssh/$key_file" "$HOME/.ssh"
+        if [[ ! -f "$KEY_DIR/$key_file" ]]; then
+            cp "$KEYS_MNT/.ssh/$key_file" "$KEY_DIR"
         fi
     done
 }

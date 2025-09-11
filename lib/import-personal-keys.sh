@@ -1,39 +1,37 @@
 #Environment setting
 set_correct_permissions() {
-    local ssh="$HOME/.ssh"
-
     # check for progress marker file
-    if [[ -f "$ssh/keys_permissions_set" ]]; then
+    if [[ -f "$KEY_DIR/keys_permissions_set" ]]; then
         log INFO "Permissions already set. Skipping."
         return 0
     fi
 
-    chown "$USER:$USER" "$ssh" 2>/dev/null || true
-    chmod 700 "$ssh"
+    chown "$USER:$USER" "$KEY_DIR" 2>/dev/null || true
+    chmod 700 "$KEY_DIR"
 
     for key_file in "${KEY_FILES[@]}"; do
-            if [[ ! -f "$ssh/$key_file" ]]; then
+            if [[ ! -f "$KEY_DIR/$key_file" ]]; then
                 log ERROR "$key_file not found. Rerun script."
             else
-                chown "$USER":"$USER" "$ssh/$key_file"
-                chmod 600 "$ssh/$key_file"
+                chown "$USER":"$USER" "$KEY_DIR/$key_file"
+                chmod 600 "$KEY_DIR/$key_file"
             fi
     done
 
     # Create progress marker file
-    touch "$ssh/keys_permissions_set"
+    touch "$KEY_DIR/keys_permissions_set"
 }
 
 # cat needs to be exactly as written in destination (don't indent)
 create_ssh_config() {
-    mkdir -p "$HOME/.ssh"
-    if [[ ! -f "$HOME/.ssh/config" ]]; then
-        cat << EOF > "$HOME/.ssh/config"
+    mkdir -p "$KEY_DIR"
+    if [[ ! -f "$KEY_DIR/config" ]]; then
+        cat << EOF > "$KEY_DIR/config"
 Host *
     AddKeysToAgent yes
     IdentityFile ~/.ssh/id_ed25519
 EOF
-        chmod 600 "$HOME/.ssh/config"
+        chmod 600 "$KEY_DIR/config"
     else
         log INFO "SSH config already set. Skipping."
     fi
@@ -41,7 +39,7 @@ EOF
 
 # Key import
 setup_ssh_agent() {
-    local ssh_key="$HOME/.ssh/id_ed25519"
+    local ssh_key="$KEY_DIR/id_ed25519"
 
     [[ -f "$ssh_key" ]] || { log WARNING "SSH key missing."; return 1; }
 

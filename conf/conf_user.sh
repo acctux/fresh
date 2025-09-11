@@ -3,10 +3,11 @@
 readonly ROOT_LABEL="Arch"
 readonly GIT_USER="acctux"
 readonly GIT_LIT="$HOME/Lit"
+readonly KEY_DIR="$HOME/.ssh"
 readonly GIT_REPOS=("scripts" "dotfiles" "fresh" "Templates")
 readonly DEFAULT_COUNTRY_CODE="US"
-readonly GPG_KEYFILE="$HOME/.ssh/my-private-key.asc"
-readonly MY_RECIPES="$HOME/.ssh/recipes.asc"
+readonly GPG_KEYFILE="$KEY_DIR/my-private-key.asc"
+readonly MY_RECIPES="$KEY_DIR/recipes.asc"
 readonly DOTFILES_DIR="$HOME/Lit/dotfiles"
 readonly LOG_FILE="$HOME/bootstrap.log"
 readonly BACKUP_DIR="$HOME/overwrittendots"

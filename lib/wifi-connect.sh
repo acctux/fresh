@@ -19,7 +19,7 @@ check_online() {
 
 # Connect using saved Wi-Fi configuration
 connect_with_config() {
-    local WIFI_CONFIG_FILE="$HOME/.ssh/wifi.env"
+    local WIFI_CONFIG_FILE="$KEY_DIR/wifi.env"
 
     if [[ ! -f "$WIFI_CONFIG_FILE" ]]; then
         log WARNING "Wi-Fi config file $WIFI_CONFIG_FILE not found."

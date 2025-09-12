@@ -26,16 +26,20 @@ list_and_store_PARTITIONS() {
 
 # ─────────────────── Functions ─────────────────── #
 saved_wifi_connection() {
-    # List all saved connections with type wifi (802-11-wireless)
     if nmcli connection show | grep -q "802-11-wireless"; then
-        return 0  # Found at least one Wi-Fi connection saved
+        log INFO "Previous wifi connection found."
+        return 0
+    else
+        log INFO "No previous wifi connection found."
+        return 1
     fi
 }
 
 existing_keys() {
     for key_file in "${KEY_FILES[@]}"; do
         if [[ ! -f "$KEY_DIR/$key_file" ]]; then
-            return 1  # Missing file → files do NOT all exist
+            log INFO "$KEY_DIR/$key_file not found."
+            return 1
         fi
     done
 

@@ -139,7 +139,8 @@ unmount_partition() {
 
 # ─────────────────── Wrapper ─────────────────── #
 mnt_cp_keys() {
-    if ! saved_wifi_connection || ! existing_keys; then
+#    if ! saved_wifi_connection || ! existing_keys; then
+     if ! existing_keys; then
         mount_partition
         read_wifi_credentials
         copy_key_files

@@ -1,11 +1,9 @@
 # ─────── IMPORTANT ────── #
 # Ensure DEFAULT_WIFI_SSID=""  DEFAULT_WIFI_SSID="" set in file
 # Otherwise, won't be sourced
-
 readonly WIFI_CREDENTIALS="$KEYS_MNT/.ssh/wifi.env"
 
 # User Configuration
-
 readonly ROOT_LABEL="Arch"
 readonly GIT_USER="acctux"
 readonly GIT_LIT="$HOME/Lit"
@@ -16,6 +14,8 @@ readonly MY_RECIPES="$KEY_DIR/recipes.asc"
 readonly DOTFILES_DIR="$HOME/Lit/dotfiles"
 readonly LOG_FILE="$HOME/bootstrap.log"
 readonly BACKUP_DIR="$HOME/overwrittendots"
+readonly ICON_REPO="https://github.com/vinceliuice/WhiteSur-icon-theme.git
+"
 
 readonly GIT_REPOS=(
     "docs"
@@ -24,6 +24,7 @@ readonly GIT_REPOS=(
     "scripts"
     "Templates"
 )
+
 KEY_FILES=(
     id_ed25519
     id_ed25519.pub
@@ -45,7 +46,6 @@ HIDE_APP_FILES=(
     "/usr/share/applications/xgpsspeed.desktop"
     "/usr/share/applications/avahi-discover.desktop"
     "/usr/share/applications/mpv.desktop"
-    "/usr/share/applications/nvim.desktop"
     "/usr/share/applications/bvnc.desktop"
     "/usr/share/applications/bssh.desktop"
 )

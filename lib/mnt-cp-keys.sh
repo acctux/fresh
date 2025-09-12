@@ -47,13 +47,16 @@ existing_keys() {
 }
 
 mount_partition() {
-    # Call list_and_store_PARTITIONS to populate PARTITIONS and display choices
-    list_and_store_PARTITIONS
+    while true; do
+        list_and_store_PARTITIONS
 
-    if [[ ${#PARTITIONS[@]} -eq 0 ]]; then
-        log ERROR "No PARTITIONS available for selection."
-        exit 1
-    fi
+        if [[ ${#PARTITIONS[@]} -gt 0 ]]; then
+            break  # Partitions found, exit loop
+        fi
+
+        echo "No partitions detected. Please insert your device and press Enter to retry..."
+        read -r  # Wait for user to press Enter
+    done
 
     printf "Select partition where keys can be located in the base directory: "
     read -r choice
@@ -64,17 +67,13 @@ mount_partition() {
         exit 1
     fi
 
-    # Set global DEVICE variable based on user selection
     DEVICE="${PARTITIONS[choice-1]}"
-    # Validate that the selected DEVICE exists and is a block DEVICE
     if [[ -z "$DEVICE" || ! -b "$DEVICE" ]]; then
         log ERROR "Invalid or missing DEVICE: $DEVICE"
         exit 1
     fi
 
     sudo mkdir -p "$KEYS_MNT"
-
-    # Attempt to mount the DEVICE; errors will exit the script due to 'set -e'
     sudo mount "$DEVICE" "$KEYS_MNT"
     log INFO "Mounted $DEVICE to $KEYS_MNT"
 }
@@ -139,8 +138,7 @@ unmount_partition() {
 
 # ─────────────────── Wrapper ─────────────────── #
 mnt_cp_keys() {
-#    if ! saved_wifi_connection || ! existing_keys; then
-     if ! existing_keys; then
+    if ! saved_wifi_connection || ! existing_keys; then
         mount_partition
         read_wifi_credentials
         copy_key_files

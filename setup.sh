@@ -27,6 +27,9 @@ main() {
     wifi_connect
     detect_country
 
+    # For VM
+    sudo sed -i 's/^nameserver .*/nameserver 1.1.1.1/' /etc/resolv.conf
+
     # Install regdb reflector rsync base-devel
     sudo pacman -Syu --needed --noconfirm "${BASE_PAC[@]}"
 

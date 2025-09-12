@@ -1,5 +1,5 @@
 # ──────────────── SERVICES ──────────────── #
-SERVENABLE=(
+SERV_ENABLE=(
   avahi-daemon.service
   bluetooth.service
   chronyd.service
@@ -15,11 +15,18 @@ SERVENABLE=(
   reflector.timer
 )
 
-SERVDISABLE=(
+SERV_USER_ENABLE=(
+    pipewire.service
+    pipewire-pulse.service
+    wireplumber.service
+    gcr-ssh-agent.socket
+)
+
+SERV_DISABLE=(
   systemd-timesyncd.service
 )
 
-SERVMASK=(
+SERV_MASK=(
     auditd.service
     audit-rules.service
     ebtables.service

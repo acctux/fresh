@@ -18,9 +18,10 @@ readonly LOG_FILE="$HOME/bootstrap.log"
 readonly BACKUP_DIR="$HOME/overwrittendots"
 
 readonly GIT_REPOS=(
-    "scripts"
+    "docs"
     "dotfiles"
     "fresh"
+    "scripts"
     "Templates"
 )
 KEY_FILES=(
@@ -56,9 +57,10 @@ CLEANUP_SUDO_ITEMS=(
 
 CLEANUP_USER_ITEMS=(
     #Installation Helpers
-    $HOME/.ssh/keys_permissions_set
+    "$HOME/.ssh/keys_permissions_set"
     # Else
-    $HOME/Public
-    $HOME/.cache
-    $HOME/.cargo
+    "$HOME/Public"
+    "$HOME/.cache"
+    "$HOME/.cargo"
+    "$HOME/.keychain"
 )

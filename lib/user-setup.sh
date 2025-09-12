@@ -23,8 +23,13 @@ setup_folders() {
 }
 
 refresh_caches() {
-    command -v kbuildsycoca6 &>/dev/null && XDG_MENU_PREFIX=arch- kbuildsycoca6 ||
-        log WARNING "Failed to update KDE menu cache."
+    if command -v kbuildsycoca6 &>/dev/null; then
+        XDG_MENU_PREFIX=arch- kbuildsycoca6 || log WARNING "Failed to update KDE menu cache."
+        # prevent script exit on failure
+        true
+    else
+        log WARNING "kbuildsycoca6 not found."
+    fi
 }
 
 change_shell() {

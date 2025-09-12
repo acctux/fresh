@@ -25,16 +25,6 @@ list_and_store_PARTITIONS() {
 }
 
 # ─────────────────── Functions ─────────────────── #
-saved_wifi_connection() {
-    if nmcli connection show | grep -q "802-11-wireless"; then
-        log INFO "Previous wifi connection found."
-        return 0
-    else
-        log INFO "No previous wifi connection found."
-        return 1
-    fi
-}
-
 existing_keys() {
     for key_file in "${KEY_FILES[@]}"; do
         if [[ ! -f "$KEY_DIR/$key_file" ]]; then
@@ -138,7 +128,7 @@ unmount_partition() {
 
 # ─────────────────── Wrapper ─────────────────── #
 mnt_cp_keys() {
-    if ! saved_wifi_connection || ! existing_keys; then
+    if ! existing_keys; then
         mount_partition
         read_wifi_credentials
         copy_key_files

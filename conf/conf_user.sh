@@ -14,8 +14,8 @@ readonly MY_RECIPES="$KEY_DIR/recipes.asc"
 readonly DOTFILES_DIR="$HOME/Lit/dotfiles"
 readonly LOG_FILE="$HOME/bootstrap.log"
 readonly BACKUP_DIR="$HOME/overwrittendots"
-readonly ICON_REPO="https://github.com/vinceliuice/WhiteSur-icon-theme.git
-"
+readonly ICON_REPO="https://www.github.com/vinceliuice/WhiteSur-icon-theme.git"
+readonly ICON_DIR="$HOME/.local/share/icons/WhiteSur-grey-dark"
 
 readonly GIT_REPOS=(
     "docs"

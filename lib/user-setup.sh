@@ -53,14 +53,30 @@ install_whitesur_icons() {
 }
 
 change_icon_color() {
-    if command -v fd &>/dev/null && command -v sd &>/dev/null; then
-        log INFO "Replacing icon colors with fd and sd..."
-        fd -e svg --exclude '*/scalable/*' . "$ICON_DIR" | sd --string-mode "dedede" "d3dae3"
+    local src_color="dedede"
+    local dst_color="d3dae3"
+
+    if command -v rg &>/dev/null && command -v xmlstarlet &>/dev/null; then
+        log INFO "Replacing icon colors with rg and xmlstarlet..."
+
+        rg --files-with-matches "$src_color" "$ICON_DIR" \
+            --glob '*.svg' \
+            --glob '!*scalable/*' \
+        | while IFS= read -r file; do
+            xmlstarlet ed -L \
+                -u "//@fill[.='$src_color']" -v "$dst_color" \
+                -u "//@stroke[.='$src_color']" -v "$dst_color" \
+                "$file"
+        done
+
     else
-        log INFO "Replacing icon colors with find and sed..."
-        find "$ICON_DIR" -type f -name "*.svg" ! -path "*/scalable/*" -exec \
-            sed -i 's/dedede/d3dae3/g' {} +
+        log INFO "Replacing icon colors with find and sed fallback..."
+
+        find "$ICON_DIR" -type f -name "*.svg" ! -path "*/scalable/*" \
+        -exec grep -q "$src_color" {} \; -exec \
+            sed -i "s/$src_color/$dst_color/g" {} +
     fi
+
     rm -f "$HOME/.local/share/icons/WhiteSur-grey/apps/scalable/preferences-system.svg" || true
 }
 

@@ -1,4 +1,3 @@
-#!/bin/bash
 readonly ICON_REPO="https://www.github.com/vinceliuice/WhiteSur-icon-theme.git"
 readonly ICON_DIR="$HOME/.local/share/icons/WhiteSur-grey-dark"
 

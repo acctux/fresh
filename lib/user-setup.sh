@@ -1,3 +1,7 @@
+bootloader_time() {
+    sudo sed -i 's/timeout 3/timeout 1/' /boot/loader/loader.conf
+}
+
 ensure_root_label() {
     local mount_point="/"
     local current_label
@@ -57,6 +61,7 @@ change_shell() {
 }
 
 user_setup() {
+    bootloader_time
     ensure_root_label
     setup_folders
     refresh_caches

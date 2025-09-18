@@ -1,5 +1,4 @@
 clone_git_repos() {
-    mkdir -p "$GIT_LIT"
     cd "$GIT_LIT"
 
     ssh-keyscan github.com >> ~/.ssh/known_hosts 2>/dev/null

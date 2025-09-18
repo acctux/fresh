@@ -66,7 +66,7 @@ detect_or_setup_aur_helper() {
 
 install_pacman_packages() {
     log INFO "Installing packages..."
-    $AUR_HELPER -S --needed --noconfirm "${PACMAN[@]}" || {
+    $AUR_HELPER -S --needed "${PACMAN[@]}" || {
         log ERROR "Failed to install Pacman packages."
         return 1
     }
@@ -74,7 +74,7 @@ install_pacman_packages() {
 
 install_aur_packages() {
     log INFO "Installing AUR packages with paru..."
-    $AUR_HELPER -S --needed --noconfirm "${AUR[@]}" || {
+    $AUR_HELPER -S --needed "${AUR[@]}" || {
         log ERROR "Failed to install AUR packages."
         return 1
     }

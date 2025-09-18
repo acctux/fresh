@@ -41,8 +41,8 @@ main() {
     # remove previously created config
     rm ~/.ssh/config
     install_icons
-    git_dots_etc
     user_setup
+    git_dots_etc
     hide_apps
     handle_services
     cleanup_and_autorun

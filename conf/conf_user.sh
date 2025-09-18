@@ -1,4 +1,3 @@
-
 # User Configuration
 readonly ROOT_LABEL="Arch"
 readonly GIT_USER="acctux"
@@ -12,8 +11,7 @@ readonly LOG_FILE="$HOME/bootstrap.log"
 readonly BACKUP_DIR="$HOME/overwrittendots"
 
 # ─────── IMPORTANT ────── #
-# Ensure DEFAULT_WIFI_SSID=""  DEFAULT_WIFI_SSID="" set in file
-# Otherwise, won't be sourced
+# Needs DEFAULT_WIFI_SSID=""  DEFAULT_WIFI_SSID="" or won't be sourced
 readonly WIFI_CREDENTIALS="$KEYS_MNT/.ssh/wifi.env"
 
 readonly GIT_REPOS=(
@@ -25,10 +23,24 @@ readonly GIT_REPOS=(
 )
 
 KEY_FILES=(
-    id_ed25519
-    id_ed25519.pub
-    my-private-key.asc
-    my-public-key.asc
+    "id_ed25519"
+    "id_ed25519.pub"
+    "my-private-key.asc"
+    "my-public-key.asc"
+)
+
+USER_GROUPS=(
+    input
+    audio
+    video
+    network
+    storage
+    rfkill
+#    kvm
+    docker
+    games
+    gamemode
+    log
 )
 
 HIDE_APP_FILES=(
@@ -59,4 +71,6 @@ CLEANUP_USER_ITEMS=(
     "$HOME/.cache"
     "$HOME/.cargo"
     "$HOME/.keychain"
+    "$HOME/.parallel"
+    "$HOME/.nv"
 )

@@ -26,7 +26,9 @@ setup_folders() {
     grep -q '^XDG_LIT_DIR=' "$HOME/.config/user-dirs.dirs" ||
         echo 'XDG_LIT_DIR="$HOME/Lit"' >>"$HOME/.config/user-dirs.dirs"
     mkdir -p "$HOME/Games"
+    mkdir -p "$GIT_LIT"
     echo -e "[Desktop Entry]\nIcon=folder-games" >"$HOME/Games/.directory"
+    echo -e "[Desktop Entry]\nIcon=folder-github" >"$GIT_LIT/.directory"
     xdg-user-dirs-update
 
     touch "$user_folder_flag"

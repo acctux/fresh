@@ -219,7 +219,6 @@ PACMAN=(
     python-pandas           # Data analysis library
     python-plotly           # Interactive visualization library
     python-xlsxwriter       # Excel writing library
-    pyright                 # Python, find common bugs and enforce type hints.
     shfmt                   # Shell script formatter
     rust-analyzer           # Rust language server
     tree-sitter-bash        # Bash grammar for tree-sitter

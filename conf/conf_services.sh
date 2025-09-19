@@ -20,6 +20,7 @@ SERV_USER_ENABLE=(
     pipewire.service
     pipewire-pulse.service
     wireplumber.service
+    wallpaper.timer
     gcr-ssh-agent.socket
 )
 

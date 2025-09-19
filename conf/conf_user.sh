@@ -18,6 +18,7 @@ readonly GIT_REPOS=(
     "docs"
     "dotfiles"
     "fresh"
+    "post"
     "scripts"
     "Templates"
 )

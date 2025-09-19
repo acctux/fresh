@@ -98,18 +98,19 @@ PACMAN=(
     swayosd                 # On-screen display for Sway
     uwsm                    # Window/session manager
     waybar                  # Status bar for Wayland compositors
+    wofi
     wl-clipboard            # Clipboard utilities for Wayland
     xdg-desktop-portal-gtk  # XDG portal for GTK apps
     xdg-desktop-portal-hyprland # XDG portal for Hyprland
     xdg-user-dirs           # User directories management
 
     # waybar
-    # gobject-introspection
-    # libappindicator-gtk3
+    gobject-introspection
+    libappindicator-gtk3
     # ninja-1.12.1-2
-    # chrono-date-3.0.4-1
+    chrono-date-3.0.4-1
     # meson-1.9.0-1
-    # scdoc-1.11.3-1
+    scdoc-1.11.3-1
 
     # ---------- Appearance / Fonts / Icons / Cursors -----------
     capitaine-cursors       # Cursor theme

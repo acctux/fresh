@@ -1,10 +1,11 @@
 # ──────────────── PACMAN ──────────────── #
 BASE_PAC=(
-    openssh
+    base-devel
     keychain
+    networkmanager          # Network manager daemon
+    openssh
     reflector
     rsync
-    base-devel
     wireless-regdb
 )
 
@@ -42,24 +43,21 @@ PACMAN=(
     man-db                  # Manual page database
     man-pages               # POSIX and GNU man pages
     tealdeer                # Fast tldr client
-    tlp                     # Power management tool
-    procs                   # Process viewer
+    tuned-ppd               # Power management tool
     protonmail-bridge       # ProtonMail IMAP bridge
     powertop                # Power consumption monitor
     solaar                  # Logitech device manager
 
     # ------ Networking / Internet / DNS ------
-    bind                    # DNS server tools
     blueman                 # Bluetooth manager
     bluez-tools
     chrony                  # Time sync service (NTP)
     dnsmasq                 # Lightweight DNS/DHCP server
-    ethtool                 # Ethernet tool
-    networkmanager          # Network manager daemon
+    ldns                    # DNS tools
+    network-manager-applet
     nss-mdns                # Multicast DNS support
     openresolv              # DNS resolver config support
     sshfs                   # Filesystem over SSH
-    wireless-regdb          # Wireless regulatory database
     iwd                     # Wireless daemon
     firewalld               # Firewall management
 
@@ -75,8 +73,6 @@ PACMAN=(
     alsa-firmware
     alsa-utils
     gst-plugin-pipewire     # PipeWire GStreamer plugin
-    pamixer                 # CLI audio control
-    pavucontrol             # PulseAudio volume control
     pipewire-alsa           # ALSA compatibility for PipeWire
     pipewire-pulse          # PulseAudio compatibility for PipeWire
 
@@ -94,43 +90,46 @@ PACMAN=(
     nwg-look                # GTK theme preview & changer
     polkit-gnome
     satty
-    swaybg                  # Background setter for Sway
-    swayosd                 # On-screen display for Sway
+    swww
     uwsm                    # Window/session manager
     waybar                  # Status bar for Wayland compositors
     wofi
     wl-clipboard            # Clipboard utilities for Wayland
+    wlogout
     xdg-desktop-portal-gtk  # XDG portal for GTK apps
     xdg-desktop-portal-hyprland # XDG portal for Hyprland
     xdg-user-dirs           # User directories management
-
     # waybar
     gobject-introspection
     libappindicator-gtk3
-    # ninja-1.12.1-2
     chrono-date-3.0.4-1
-    # meson-1.9.0-1
     scdoc-1.11.3-1
 
-    # ---------- Appearance / Fonts / Icons / Cursors -----------
+    # ---------- Appearance -----------
     capitaine-cursors       # Cursor theme
+    dconf-editor
+    kvantum
     noto-fonts              # Noto font family
     otf-font-awesome        # Font Awesome icons
-    kvantum                 # Qt theming engine
     ttf-caladea             # Caladea font
     ttf-cascadia-mono-nerd  # Cascadia Mono Nerd Font
     ttf-dejavu              # DejaVu fonts
     ttf-roboto-mono-nerd    # Roboto Mono Nerd Font
 
-    # ----------- KDE Applications --------------
-    ark                     # Archive manager
-    dolphin                 # KDE file manager
-    filelight               # Disk usage viewer
-    gwenview                # KDE image viewer
-    haruna                  # Music player
-    kamoso                  # Webcam app
-    ksystemlog              # KDE log viewer
-    kio-admin               # KDE admin tools helper
+    # ----------- Gtk Applications --------------
+    nemo-fileroller
+    nemo-image-converter
+    nemo-seahorse
+    nemo-image-converter
+    nemo-emblems
+    nemo-audio-tab
+    nemo-preview
+    gvfs-mtp
+    gvfs-gphoto2
+    cheese
+    gthumb
+    baobab
+    gnome-logs
     kdeconnect              # Device integration
 
     # --------- Databases / SQL / Data Tools ----------
@@ -138,7 +137,7 @@ PACMAN=(
     csvkit                  # CSV tools
     miller                  # CSV processor
     mariadb-libs            # MariaDB client libraries
-    mariadb                 # MariaDB server (long-term support)
+    mariadb                 # MariaDB server
 
     # ------------ Multimedia --------------
     gimp                    # Image editor
@@ -148,7 +147,7 @@ PACMAN=(
     handbrake               # Video transcoder
     inkscape                # Vector graphics editor
     playerctl               # Control media players from CLI
-    qt6-multimedia-ffmpeg   # Qt multimedia plugins
+    haruna                  # Music player, KDE but didn't like celluloid
 
     # ----------- CLI environment -------------
     alacritty               # GPU-accelerated terminal
@@ -160,7 +159,6 @@ PACMAN=(
     navi                    # Interactive cheatsheets
     skim                    # Fuzzy finder (alternative to fzf)
     starship                # Shell prompt
-    zellij                  # Terminal workspace manager
     zsh-autocomplete        # Zsh autocomplete plugin
     zsh-completions         # Zsh completions
     zsh-syntax-highlighting # Zsh syntax highlighting
@@ -191,7 +189,6 @@ PACMAN=(
     git-delta               # Git diff viewer
     github-cli              # GitHub CLI tool
     lazygit                 # Git TUI client
-    plocate                 # Locate alternative
     remind                  # Reminder and calendar program.
     stow                    # Symlink farm manager
     zoxide                  # Smarter cd alternative
@@ -203,7 +200,6 @@ PACMAN=(
     pacutils                # Pacman helper tools
     pacman-contrib          # Pacman extras (paccache, checkupdates)
     rebuild-detector        # Detect package rebuilds
-    run-parts               # For cron jobs
 
     # --------- Programming / Dev Tools -------------
     ccache                  # Compiler caching
@@ -218,6 +214,7 @@ PACMAN=(
     python-polars           # Dataframe library
     python-pandas           # Data analysis library
     python-plotly           # Interactive visualization library
+    python-statsmodels
     python-xlsxwriter       # Excel writing library
     shfmt                   # Shell script formatter
     rust-analyzer           # Rust language server
@@ -248,15 +245,18 @@ PACMAN=(
 
     # ------------ Miscellaneous / Other Tools --------------
     tesseract-data-eng      # OCR data
+    webkit2gtk
     unarchiver              # Archive extraction tool
     yt-dlp                  # Youtube downloader
 
     # ------------ Chaotic-Aur --------------
     anki
+    ayugram-desktop-git
     betterbird-bin
     dxvk-mingw-git
     brave-bin
     localsend
+    logiops
     ocrmypdf
     octopi
     onlyoffice-bin
@@ -270,11 +270,21 @@ PACMAN=(
 
 # ──────────────── AUR ──────────────── #
 AUR=(
-    ayugram-desktop-bin
-    logiops
     mycli
+    python-gs-quant
     python-yfinance
+    python-quantlib
+    quantlib
     surfshark-client
-    wl-screenrec
-    walker-bin
 )
+
+    # ----------- KDE Applications --------------
+    # ark                     # Archive manager
+    # dolphin                 # KDE file manager
+    # filelight               # Disk usage viewer
+    # gwenview                # KDE image viewer
+    # haruna                  # Music player
+    # kamoso                  # Webcam app
+    # ksystemlog              # KDE log viewer
+    # kio-admin               # KDE admin tools helper
+    # kdeconnect              # Device integration

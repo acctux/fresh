@@ -1,19 +1,19 @@
 # ──────────────── SERVICES ──────────────── #
 SERV_ENABLE=(
-  avahi-daemon.service
-  bluetooth.service
-  chronyd.service
-  dnsmasq.service
-  firewalld.service
-  logid-check.service
-  ly.service
-  NetworkManager.service
-  tlp.service
-  fstrim.timer
-  logrotate.timer
-  man-db.timer
-  paccache.timer
-  reflector.timer
+    avahi-daemon.service
+    bluetooth.service
+    chronyd.service
+    dnsmasq.service
+    firewalld.service
+    logid-check.service
+    ly.service
+    NetworkManager.service
+    tuned-ppd.service
+    fstrim.timer
+    logrotate.timer
+    man-db.timer
+    paccache.timer
+    reflector.timer
 )
 
 SERV_USER_ENABLE=(
@@ -25,7 +25,7 @@ SERV_USER_ENABLE=(
 )
 
 SERV_DISABLE=(
-  systemd-timesyncd.service
+    systemd-timesyncd.service
 )
 
 SERV_MASK=(

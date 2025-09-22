@@ -21,6 +21,7 @@ source "$(dirname "$0")/lib/pacman-aur-packages.sh"
 source "$(dirname "$0")/lib/install-icons.sh"
 source "$(dirname "$0")/lib/user-setup.sh"
 source "$(dirname "$0")/lib/git-dots-etc.sh"
+source "$(dirname "$0")/lib/add-user-to-groups.sh"
 source "$(dirname "$0")/lib/handle-services.sh"
 source "$(dirname "$0")/lib/cleanup-and-autorun.sh"
 
@@ -45,6 +46,7 @@ main() {
     git_dots_etc
     hide_apps
     handle_services
+    add_user_to_groups
     cleanup_and_autorun
     log INFO "Setup Completed Successfully!"
     reboot_prompt

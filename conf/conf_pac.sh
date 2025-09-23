@@ -79,6 +79,7 @@ PACMAN=(
     # ---------- Hyprland / Desktop Components -----------
     archlinux-xdg-menu
     brightnessctl           # Backlight controller
+    bc                      # for cpu/memory modules
     hyprland                # Wayland compositor
     hypridle                # Idle manager for Hyprland
     hyprlock                # Lock screen

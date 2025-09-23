@@ -63,6 +63,7 @@ reboot_prompt() {
     echo
     if [[ $REPLY =~ ^[Yy]$ ]]; then
       log "INFO" "Rebooting system..."
-      sudo reboot
+    else
+      return 1
     fi
 }

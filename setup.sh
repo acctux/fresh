@@ -18,6 +18,7 @@ source "$(dirname "$0")/lib/regdom-reflector.sh"
 source "$(dirname "$0")/lib/import-personal-keys.sh"
 source "$(dirname "$0")/lib/chaotic-aur-setup.sh"
 source "$(dirname "$0")/lib/pacman-aur-packages.sh"
+source "$(dirname "$0")/lib/setup-folders.sh"
 source "$(dirname "$0")/lib/install-icons.sh"
 source "$(dirname "$0")/lib/user-setup.sh"
 source "$(dirname "$0")/lib/git-dots-etc.sh"
@@ -32,24 +33,25 @@ main() {
     wifi_connect
     detect_country
 
-    # Install regdb reflector/rsync base-devel openssh/keychain
     sudo pacman -Syu --needed --noconfirm "${BASE_PAC[@]}"
     regdom_reflector
     import_personal_keys
     chaotic_aur_setup
     pacman_aur_packages
-
-    # remove previously created config
-    rm ~/.ssh/config
+    setup_folders
     install_icons
     user_setup
     git_dots_etc
     hide_apps
     handle_services
     add_user_to_groups
-    cleanup_and_autorun
+
     log INFO "Setup Completed Successfully!"
-    reboot_prompt
+
+    if reboot_prompt; then
+        cleanup_and_autorun
+        sudo reboot
+    fi
 }
 
 main "$@"

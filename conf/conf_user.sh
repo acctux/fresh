@@ -4,6 +4,7 @@ readonly GIT_USER="acctux"
 readonly GIT_LIT="$HOME/Lit"
 readonly KEY_DIR="$HOME/.ssh"
 readonly DEFAULT_COUNTRY_CODE="US"
+readonly BOOKMARKS="$HOME/.local/bin/bookmarks"
 readonly GPG_KEYFILE="$KEY_DIR/my-private-key.asc"
 readonly MY_PASS="$KEY_DIR/recipes.asc"
 readonly DOTFILES_DIR="$HOME/Lit/dotfiles"
@@ -17,6 +18,7 @@ readonly WIFI_CREDENTIALS="$KEYS_MNT/.ssh/wifi.env"
 readonly GIT_REPOS=(
     "docs"
     "dotfiles"
+    "fresh"
     "freshpy"
     "post"
 )
@@ -48,11 +50,6 @@ CLEANUP_SUDO_ITEMS=(
 )
 
 CLEANUP_USER_ITEMS=(
-    "$HOME/Desktop"
-    "$HOME/Documents"
-    "$HOME/Public"
-    "$HOME/fresh"
-    "$HOME/.cache"
     "$HOME/.cargo"
     "$HOME/.keychain"
     "$HOME/.parallel"

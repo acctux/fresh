@@ -5,6 +5,7 @@ SERV_ENABLE=(
     chronyd.service
     dnsmasq.service
     firewalld.service
+    logid.service
     logid-check.service
     ly.service
     NetworkManager.service

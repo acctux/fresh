@@ -32,6 +32,17 @@ backup_files_in_dir() {
     done
 }
 
+remove_symlinks() {
+    local dotfiles_dir="$HOME/Lit/dotfiles"
+
+    if [ ! -d "$dotfiles_dir" ]; then
+        log WARN "Directory does not exist: $dotfiles_dir"
+        return
+    fi
+    log INFO "Removing symlinks in $dotfiles_dir"
+    find "$dotfiles_dir" -type l -print -exec rm -v {} \;
+}
+
 stow_dotfiles() {
     log INFO "Backing up dotfiles before stowing..."
     backup_files_in_dir "$DOTFILES_DIR/Home" "$HOME"
@@ -39,7 +50,7 @@ stow_dotfiles() {
     log INFO "Stowing dotfiles..."
     check_cmd stow || { log ERROR "stow not installed."; return 1; }
 
-    stow -v --no-folding -d "$DOTFILES_DIR" -t "$HOME" Home ||
+    stow -v --no-folding --adopt -d "$DOTFILES_DIR" -t "$HOME" Home ||
         { log ERROR "Failed to stow dotfiles."; return 1; }
 
     log INFO "Creating GTK theme symlinks..."
@@ -83,6 +94,7 @@ copy_system_files() {
 
 git_dots_etc() {
     clone_git_repos
+    remove_symlinks
     stow_dotfiles
     copy_system_files
 }

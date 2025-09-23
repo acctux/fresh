@@ -42,8 +42,10 @@ PACMAN=(
     logrotate               # Rotates system logs
     man-db                  # Manual page database
     man-pages               # POSIX and GNU man pages
+    rebuild-detector        # Detect package rebuilds
     tealdeer                # Fast tldr client
     tuned-ppd               # Power management tool
+    pacman-contrib          # Pacman extras (paccache, checkupdates)
     protonmail-bridge       # ProtonMail IMAP bridge
     powertop                # Power consumption monitor
     solaar                  # Logitech device manager
@@ -52,6 +54,7 @@ PACMAN=(
     blueman                 # Bluetooth manager
     bluez-tools
     chrony                  # Time sync service (NTP)
+    # unbound                  # Validating, recursive, and caching DNS resolver
     dnsmasq                 # Lightweight DNS/DHCP server
     ldns                    # DNS tools
     network-manager-applet
@@ -72,14 +75,13 @@ PACMAN=(
     # -------------- Audio / Sound -------------
     alsa-firmware
     alsa-utils
-    gst-plugin-pipewire     # PipeWire GStreamer plugin
     pipewire-alsa           # ALSA compatibility for PipeWire
     pipewire-pulse          # PulseAudio compatibility for PipeWire
 
     # ---------- Hyprland / Desktop Components -----------
     archlinux-xdg-menu
     brightnessctl           # Backlight controller
-    bc                      # for cpu/memory modules
+    fuzzel
     hyprland                # Wayland compositor
     hypridle                # Idle manager for Hyprland
     hyprlock                # Lock screen
@@ -94,21 +96,22 @@ PACMAN=(
     swww
     uwsm                    # Window/session manager
     waybar                  # Status bar for Wayland compositors
-    wofi
+    # wofi
     wl-clipboard            # Clipboard utilities for Wayland
     wlogout
     xdg-desktop-portal-gtk  # XDG portal for GTK apps
     xdg-desktop-portal-hyprland # XDG portal for Hyprland
     xdg-user-dirs           # User directories management
-    # waybar
+    # -- waybar depends --
+    bc                      # for cpu/memory modules
     gobject-introspection
     libappindicator-gtk3
-    chrono-date-3.0.4-1
-    scdoc-1.11.3-1
+    chrono-date
+    scdoc
 
     # ---------- Appearance -----------
     capitaine-cursors       # Cursor theme
-    dconf-editor
+    # dconf-editor            # GNOME Settings program
     kvantum
     noto-fonts              # Noto font family
     otf-font-awesome        # Font Awesome icons
@@ -143,8 +146,8 @@ PACMAN=(
     # ------------ Multimedia --------------
     gimp                    # Image editor
     graphicsmagick          # Image processing tools
-    gst-libav               # GStreamer plugin for libav
-    gst-plugin-mp4          # GStreamer MP4 plugin
+    ffmpeg
+    qt6-multimedia-ffmpeg
     handbrake               # Video transcoder
     inkscape                # Vector graphics editor
     playerctl               # Control media players from CLI
@@ -168,6 +171,7 @@ PACMAN=(
     aria2                   # Download utility
     choose                  # CLI selector
     dasel                   # YAML/JSON/TOML query/update tool
+    expac                   # Query pacman database, size, install date, etc.
     fd                      # Fast file search
     grex                    # Regex generator
     parallel                # Parallel command runner
@@ -181,7 +185,7 @@ PACMAN=(
     # ------------ GUI Non-KDE ----------------
     gnucash                 # Personal finance manager
     gnumeric                # Spreadsheet app
-    hledger                 # Accounting tool
+    # hledger                 # Accounting tool
     qbittorrent             # Qt BitTorrent client
     qalculate-qt            # Calculator app (Qt)
 
@@ -193,35 +197,23 @@ PACMAN=(
     remind                  # Reminder and calendar program.
     stow                    # Symlink farm manager
     zoxide                  # Smarter cd alternative
-    watchexec
-    visidata                # Interactive data exploration
-
-    # ---------- Shell / Scripting Enhancements -----------
-    expac                   # Query pacman database
-    pacutils                # Pacman helper tools
-    pacman-contrib          # Pacman extras (paccache, checkupdates)
-    rebuild-detector        # Detect package rebuilds
+    watchexec               # can trigger any shell command when files change
+    visidata                # Interactive data exploration CSV, TSV, Excel, SQLite, JSON, YAML
 
     # --------- Programming / Dev Tools -------------
     ccache                  # Compiler caching
     clang                   # C/C++ compiler
     eslint                  # JavaScript linter
-    ipython
+    jdk-openjdk             # JRE is a dependency, may as well have the kit
     lua-sec                 # SSL support for Lua
     luarocks                # Lua package manager
     mise                    # Version/environment manager
     neovim-lspconfig        # LSP config for Neovim
-    python-mysqlclient      # MySQL client for Python
-    python-polars           # Dataframe library
-    python-pandas           # Data analysis library
-    python-plotly           # Interactive visualization library
-    python-statsmodels
-    python-xlsxwriter       # Excel writing library
     shfmt                   # Shell script formatter
     rust-analyzer           # Rust language server
     tree-sitter-bash        # Bash grammar for tree-sitter
     tree-sitter-python      # Python grammar for tree-sitter
-    uv
+    uv                      # Python virtenv all-in-one
     zed                     # A high-performance, collaborative code editor.
 
     # ----------- Spell Checking / Hyphenation --------------
@@ -271,11 +263,7 @@ PACMAN=(
 
 # ──────────────── AUR ──────────────── #
 AUR=(
-    mycli
-    python-gs-quant
-    python-yfinance
-    python-quantlib
-    quantlib
+    # quantlib          # C++ quant finance library
     surfshark-client
 )
 
@@ -289,3 +277,16 @@ AUR=(
     # ksystemlog              # KDE log viewer
     # kio-admin               # KDE admin tools helper
     # kdeconnect              # Device integration
+    #
+    # -------- Python --------
+    # ipython
+    # python-mysqlclient      # MySQL client for Python
+    # python-polars           # Dataframe library
+    # python-pandas           # Data analysis library
+    # python-plotly           # Interactive visualization library
+    # python-statsmodels
+    # python-xlsxwriter       # Excel writing library
+    # python-gs-quant
+    # python-yfinance
+    # python-quantlib
+    # mycli

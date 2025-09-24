@@ -1,4 +1,4 @@
-# ──────────────── USER  ──────────────── #
+# ──────────────── USER  GROUPS──────────────── #
 readonly USER_GROUPS=(
     input
     audio
@@ -13,7 +13,7 @@ readonly USER_GROUPS=(
     log
 )
 
-# User services
+# ──────────────── USER  SERVICES──────────────── #
 SERV_USER_ENABLE=(
     pipewire.service
     pipewire-pulse.service

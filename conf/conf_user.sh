@@ -1,8 +1,8 @@
 # ------ User Configuration ------
 readonly ROOT_LABEL="Arch"
-readonly LOG_FILE="$HOME/bootstrap.log"
-readonly BOOKMARKS="$HOME/.local/bin/bookmarks"
 readonly ICON_REPO="https://www.github.com/vinceliuice/WhiteSur-icon-theme.git"
+DOTS_DIR="/home/nick/Lit/dotfiles/etc"     # Directory with reference files
+DIFFS_DIR="$HOME/dotcetera"            # Directory to store diff files
 
 # --------- Keys -----------
 readonly KEY_DIR="$HOME/.ssh"
@@ -18,7 +18,7 @@ readonly KEY_FILES=(
 # --------- Git -----------
 readonly GIT_USER="acctux"
 readonly GIT_DIR="$HOME/Lit"
-readonly DOTFILES_DIR="$HOME/Lit/dotfiles"
+readonly DOTFILES_DIR="$GIT_DIR/dotfiles"
 readonly BACKUP_DIR="$HOME/overwrittendots"
 readonly GIT_REPOS=(
     "docs"

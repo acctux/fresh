@@ -14,7 +14,7 @@ source "$(dirname "$0")/lib/core/core-setup.sh"
 source "$(dirname "$0")/lib/country/country-setup.sh"
 source "$(dirname "$0")/lib/packages/package-setup.sh"
 source "$(dirname "$0")/lib/user-env/user-env.sh"
-source "$(dirname "$0")/lib/git-dots-etc.sh"
+source "$(dirname "$0")/lib/replace-files/replace-files.sh"
 source "$(dirname "$0")/lib/add-user-to-groups.sh"
 source "$(dirname "$0")/lib/handle-services.sh"
 source "$(dirname "$0")/lib/hide-apps.sh"
@@ -26,9 +26,7 @@ main() {
     setup_core
     setup_country
     setup_packages
-    setup_folders
-    install_icons
-    user_setup
+    user_env
     git_dots_etc
     handle_services
     add_user_to_groups

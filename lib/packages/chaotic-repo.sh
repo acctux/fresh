@@ -1,26 +1,14 @@
 readonly CHAOTIC_KEY_ID="3056513887B78AEB"
 
 sign_chaotic_key() {
-    log INFO "Locally signing Chaotic AUR key..."
-    sudo pacman-key --lsign-key "$CHAOTIC_KEY_ID" || {
-        log ERROR "Failed to sign Chaotic AUR key."
-        return 1
-    }
+    sudo pacman-key --lsign-key "$CHAOTIC_KEY_ID"
     return 0
 }
 
 chaotic_key_installed() {
     if sudo pacman-key --list-keys "$CHAOTIC_KEY_ID" &>/dev/null; then
-        if gpg --homedir /etc/pacman.d/gnupg --list-sigs "$CHAOTIC_KEY_ID" 2>/dev/null | grep -q "^\s*sig\s*L"; then
-            log INFO "Chaotic AUR GPG key is installed and locally signed."
-            return 0
-        else
-            log INFO "Chaotic AUR GPG key is installed but not locally signed. Attempting to sign..."
-            sign_chaotic_key
-        fi
-    else
-        log INFO "Chaotic AUR GPG key not found."
-        return 1
+        log INFO "Chaotic Key installed."
+        return 0
     fi
 }
 
@@ -41,44 +29,22 @@ chaotic_key() {
     return 1
 }
 
-chaotic_key_from_github() {
-    log INFO "Attempting to download Chaotic AUR key from GitHub..."
+chaotic_key_from_github() (
     local key_url="https://raw.githubusercontent.com/chaotic-aur/keyring/master/chaotic.gpg"
     local tmpfile
     tmpfile=$(mktemp /tmp/chaotic_gpg.XXXXXX)
 
-    trap rm -f "$tmpfile"
-    if ! curl -fLo "$tmpfile" "$key_url"; then
-        log ERROR "Failed to download Chaotic GPG key from GitHub."
-        return 1
-    fi
-
-    log INFO "Adding key to pacman keyring..."
-    if ! sudo pacman-key --add "$tmpfile"; then
-        log ERROR "pacman-key --add failed."
-        rm -f "$tmpfile"
-        return 1
-    fi
-
-    sign_chaotic_key || true
-
-    log INFO "Key installed and signed."
-    rm -f "$tmpfile"
-    return 0
-}
+    trap rm -f "$tmpfile" EXIT
+    curl -fLo "$tmpfile" "$key_url"
+    sudo pacman-key --add "$tmpfile"
+    sign_chaotic_key
+)
 
 init_chaotic_aur() {
-    if ! pacman -Qs chaotic-keyring > /dev/null || ! pacman -Qs chaotic-mirrorlist > /dev/null; then
         log INFO "Installing Chaotic AUR keyring and mirrorlist..."
         sudo pacman -U --noconfirm \
             https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-keyring.pkg.tar.zst \
-            https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-mirrorlist.pkg.tar.zst || {
-                log ERROR "Failed to install Chaotic AUR packages."
-                return 1
-            }
-    else
-        log INFO "Chaotic AUR keyring already installed."
-    fi
+            https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-mirrorlist.pkg.tar.zst
 }
 
 write_chaotic_pacman() {
@@ -91,9 +57,9 @@ write_chaotic_pacman() {
 }
 
 chaotic_repo() {
-    if ! chaotic_key_installed; then
-        chaotic_key || chaotic_key_from_github
-    fi
+    chaotic_key_installed
+    chaotic_key
+    chaotic_key_from_github
     init_chaotic_aur
     write_chaotic_pacman
     sudo pacman -Sy

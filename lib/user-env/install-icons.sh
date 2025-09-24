@@ -1,14 +1,12 @@
 readonly ICON_DIR="$HOME/.local/share/icons/WhiteSur-grey-dark"
 
 install_whitesur_icons() {
-    [[ -d "$ICON_DIR" ]] && { log INFO "Icon theme already installed."; return; }
-
     log INFO "Installing icon theme..."
     local tmp_dir
-    tmp_dir=$(mktemp -d) || { log ERROR "Failed to create temporary directory."; return 1; }
-    git clone "$ICON_REPO" "$tmp_dir" || { log ERROR "Failed to clone icon repository."; rm -rf "$tmp_dir"; return 1; }
+    tmp_dir=$(mktemp -d)
+    git clone "$ICON_REPO" "$tmp_dir"
     (
-        cd "$tmp_dir" || { log ERROR "Failed to change to temporary directory."; rm -rf "$tmp_dir"; return 1; }
+        cd "$tmp_dir"
         ./install.sh -t grey
     )
 }

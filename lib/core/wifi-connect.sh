@@ -5,11 +5,11 @@ STATION="wlan0"
 # ---- Helpers -------
 # Check if system is online
 check_online() {
-    local ping_count=3
+    local ping_count=5
     local ping_interval=1
     local ping_target="1.1.1.1"
 
-    ping -q -c "$PING_COUNT" -W "$PING_INTERVAL" "$PING_TARGET" &>/dev/null
+    ping -q -c "$ping_count" -W "$ping_interval" "$ping_target" &>/dev/null
     return $?
 }
 

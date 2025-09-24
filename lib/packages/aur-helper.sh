@@ -22,13 +22,16 @@ install_via_git() {
 }
 
 aur_helper() {
-    if [[ ! -z $AUR_HELPER ]]; then
-        choose_helper
+    if ! check_cmd paru; then
+	if ! chek_cmd yay; then
+	    choose_helper
+	else
+	    AUR_HELPER="yay"
+	fi
+    else
+	AUR_HELPER="paru"
     fi
-    if ! check_cmd $AUR_HELPER; then
-        if ! sudo pacman -Sy --noconfirm "$AUR_HELPER"; then
-            install_via_git
-        fi
-        return 1
+    if ! sudo pacman -Sy --needed "$AUR_HELPER"; then
+	install_via_git
     fi
 }

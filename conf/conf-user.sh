@@ -1,7 +1,7 @@
 # ------ User Configuration ------
 readonly ROOT_LABEL="Arch"
 readonly ICON_REPO="https://www.github.com/vinceliuice/WhiteSur-icon-theme.git"
-DOTS_DIR="/home/nick/Lit/dotfiles/etc"     # Directory with reference files
+ETC_DOTS_DIR="/home/nick/Lit/dotfiles/etc"     # Directory with reference files
 DIFFS_DIR="$HOME/dotcetera"            # Directory to store diff files
 
 # --------- Keys -----------

@@ -3,10 +3,11 @@ generate_diff() {
     local dot_file="$2"
     local rel_path="$3"
 
+
     # Define the output path for the diff file. The forward slashes in the relative path
     # are replaced with underscores to create a valid filename.
     local output_diff="$DIFFS_DIR/$(echo "$rel_path" | tr '/' '_').diff"
-
+    
     # Case 1: Both files exist.
     if [[ -f "$src_file" && -f "$dot_file" ]]; then
         # 'cmp' compare, '-s' flag suppresses all output.
@@ -16,7 +17,7 @@ generate_diff() {
             diff -u "$src_file" "$dot_file" > "$output_diff"
         fi
     # Case 2: The file exists only in the ETC_DOTS_DIR.
-    elif [[ -f "$dot_file" ]]; then
+    elif  [[ -f "$dot_file"]]; then
         echo "Generating diff for new file: $rel_path"
         diff -u /dev/null "$dot_file" > "$output_diff"
     fi

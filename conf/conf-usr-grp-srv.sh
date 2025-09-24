@@ -14,7 +14,7 @@ readonly USER_GROUPS=(
 )
 
 # ──────────────── USER  SERVICES──────────────── #
-SERV_USER_ENABLE=(
+readonly SERV_USER_ENABLE=(
     pipewire.service
     pipewire-pulse.service
     wireplumber.service
@@ -24,7 +24,7 @@ SERV_USER_ENABLE=(
 
 # ──────────────── SYSTEM ──────────────── #
 # Enable
-SERV_ENABLE=(
+readonly SERV_ENABLE=(
     avahi-daemon.service
     bluetooth.service
     chronyd.service
@@ -42,11 +42,11 @@ SERV_ENABLE=(
     reflector.timer
 )
 # Disable
-SERV_DISABLE=(
+readonly SERV_DISABLE=(
     systemd-timesyncd.service
 )
 # Mask
-SERV_MASK=(
+readonly SERV_MASK=(
     auditd.service
     audit-rules.service
     ebtables.service

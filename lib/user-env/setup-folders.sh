@@ -28,7 +28,7 @@ add_xdg_dirs () {
 setup_folders() {
     local folder_flag="$HOME/.cache/fresh/user_folders.done"
 
-    if [ -f "$user_folder_flag" ]; then
+    if [ -f "$folder_flag" ]; then
         log INFO "Folder setup already completed, skipping..."
         return
     fi

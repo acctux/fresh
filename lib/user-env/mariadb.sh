@@ -31,8 +31,8 @@ set_db_password() {
 }
 # Main
 setup_mariadb() {
+    sudo systemctl start mariadb
     install_db
     log INFO "Starting MariaDB service..."
-    sudo systemctl start mariadb
     set_db_password
 }

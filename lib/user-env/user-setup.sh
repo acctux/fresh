@@ -1,13 +1,13 @@
 bootloader_time() {
     sudo sed -i 's/timeout 3/timeout 1/' /boot/loader/loader.conf
 }
-find_current_label() (
+find_current_label() {
     blkid -s LABEL -o value "$(findmnt -n -o SOURCE "$mount_point")"
-)
+}
 ensure_root_label() {
     local mount_point="/"
     local current_label
-    [[ "$current_label" != "$ROOT_LABEL" ]] &&
+    [[ "$(current_label)" != "$ROOT_LABEL" ]] &&
         sudo btrfs filesystem label "$mount_point" "$ROOT_LABEL" &&
         log INFO "Set root label to $ROOT_LABEL" ||
         log INFO "Root label already set to $ROOT_LABEL"
@@ -19,16 +19,13 @@ refresh_caches() {
     if [ ! -f "$cache_update_flag" ]; then
         XDG_MENU_PREFIX=arch- kbuildsycoca6
         log INFO "kbuildsycoca6 ran successfully."
-    else
-        echo "kbuildsycoca6 already ran, skipping."
+    	fc-cache -f
+	if command -v tldr &>/dev/null; then
+	    tldr --update || true
+	fi
+    	touch "$cache_update_flag"
     fi
-    # don't replace with check_cmd, not critical
-    if command -v tldr &>/dev/null; then
-        tldr --update || true
-    fi
-
-    fc-cache -f
-    touch "$cache_update_flag"
+    echo "kbuildsycoca6 already ran, skipping."
 }
 
 change_shell() {

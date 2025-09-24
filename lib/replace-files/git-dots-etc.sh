@@ -10,10 +10,10 @@ clone_git_repos() {
             log ERROR "Failed to clone $repo."
     done
 }
-
+#----- Needs to be recursive one file at a time like it was. -----
 stow_dotfiles() {
     log INFO "Stowing dotfiles..."
-    if stow -v --no-folding -d "$GIT_DIR" -t "$HOME" dotfiles; then
+    if stow --no-folding -d "$GIT_DIR" -t "$HOME" dotfiles; then
        return 0
     fi
     log ERROR "Failed to stow dotfiles."
@@ -28,6 +28,7 @@ gtk_symlinks() {
 }
 
 git_dots_etc() {
+    rm -f ~/.ssh/config
     clone_git_repos
     stow_dotfiles
     gtk_symlinks

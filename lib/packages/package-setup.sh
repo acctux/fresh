@@ -1,9 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# ───────── Variables ──────── #
-readonly LOG_FILE="$HOME/bootstrap.log"
-
 # ─────── Source Configuration ────── #
 source "$(dirname "$0")/conf/conf_pac.sh"
 
@@ -13,9 +10,9 @@ source "$(dirname "$0")/lib/packages/chaotic-repo.sh"
 source "$(dirname "$0")/lib/packages/aur-helper.sh"
 
 # ─────── Run Main ────── #
-setup_country() {
-    chaotic_repo_setup
-    aur_helper_install
+package_setup() {
+    chaotic_repo
+    aur_helper
     $AUR_HELPER -S --needed "${PACMAN[@]}"
     $AUR_HELPER -S --needed "${AUR[@]}"
 }

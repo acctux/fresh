@@ -1,3 +1,6 @@
+readonly BOOKMARKS="$HOME/.local/bin/bookmarks"
+readonly GIT_LIT="$HOME/Lit"
+
 declare -A CUSTOM_FOLDERS=(
     ["$HOME/Games"]="folder-games"
     ["$GIT_LIT"]="folder-github"

@@ -75,7 +75,7 @@ declare -A COUNTRY_NAMES=(
     [VN]="Vietnam"
 )
 
-detect_country() {
+country_api() {
     local cc input
 
     # Attempt to get the 2-letter country code from public API and make it uppercase
@@ -84,12 +84,10 @@ detect_country() {
     # Check 2-letter country code is uppercase and exists in the COUNTRY_NAMES array else use DEFAULT_COUNTRY_CODE
     if [[ "$cc" =~ ^[A-Z]{2}$ && -n "${COUNTRY_NAMES[$cc]}" ]]; then
         COUNTRY_CODE="$cc"
-    else
-        log WARNING "Could not detect valid country code via API. Falling back to default: $DEFAULT_COUNTRY_CODE."
-        COUNTRY_CODE="$DEFAULT_COUNTRY_CODE"
     fi
+}
 
-    # As a last resort, if both the API and default codes are invalid or empty
+input_country() {
     if [[ -z "$COUNTRY_CODE" || -z "${COUNTRY_NAMES[$COUNTRY_CODE]}" ]]; then
         echo "Please enter your 2-letter country code:"
         read -r input
@@ -104,7 +102,10 @@ detect_country() {
             COUNTRY_CODE="WW"
         fi
     fi
-
+}
+detect_country() {
+    country_api
+    input_country
     # Look up the full country name using the final country code
     COUNTRY_NAME="${COUNTRY_NAMES[$COUNTRY_CODE]}"
     export COUNTRY_CODE COUNTRY_NAME

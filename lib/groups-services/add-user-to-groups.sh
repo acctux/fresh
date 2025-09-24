@@ -1,5 +1,18 @@
+readonly USER_GROUPS=(
+    input
+    audio
+    video
+    network
+    storage
+    rfkill
+#    kvm
+#    docker
+    games
+    gamemode
+    log
+)
+
 add_user_to_groups() {
-    local username="$USER"
     local existing_groups
     local target_groups=()
 
@@ -21,7 +34,7 @@ add_user_to_groups() {
     done
 
     if [ "${#target_groups[@]}" -gt 0 ]; then
-        echo "Adding user '$username' to groups: ${target_groups[*]}"
+        echo "Adding user '$USER' to groups: ${target_groups[*]}"
         sudo usermod -aG "$(IFS=,; echo "${target_groups[*]}")" "$username"
         echo "Done. You may need to log out and back in for group changes to take effect."
     else

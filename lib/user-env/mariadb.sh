@@ -10,32 +10,15 @@ prompt_for_mariadb() {
         log WARNING "Passwords do not match or are empty. Try again."
     done
 }
-
-# Main
-setup_mariadb() {
-    check_cmd mariadb || { log ERROR "MariaDB not installed."; return 1; }
+install_db() {
     local db_data_dir="/var/lib/mysql"
 
     if [[ ! -d "$db_data_dir" ]]; then
         log INFO "Initializing MariaDB data directory..."
-        # Use DB_USER and DB_BASE_DIR from config.sh
-        sudo mariadb-install-db --user="$DB_USER" --basedir="/usr/" --datadir="$db_data_dir" ||
-            { log ERROR "MariaDB init failed."; return 1; }
-    else
-        log INFO "MariaDB data directory exists."
+        sudo mariadb-install-db --user="$USER" --basedir="/usr/" --datadir="$db_data_dir"
     fi
-
-    log INFO "Starting MariaDB service..."
-    sudo systemctl start mariadb || { log ERROR "Failed to start MariaDB."; return 1; }
-
-    local timeout=60
-    while [[ "$timeout" -gt 0 ]]; do
-        sudo mariadb -e "SELECT 1;" &>/dev/null && break
-        sleep 1
-        timeout=$((timeout - 1))
-    done
-    [[ "$timeout" -eq 0 ]] && { log ERROR "MariaDB failed to start."; return 1; }
-
+}
+set_db_password() {
     if sudo mariadb -u root -e "QUIT" 2>/dev/null; then
         log INFO "Setting MariaDB root password..."
         local db_root_password
@@ -45,4 +28,11 @@ setup_mariadb() {
     else
         log INFO "MariaDB root user already configured."
     fi
+}
+# Main
+setup_mariadb() {
+    install_db
+    log INFO "Starting MariaDB service..."
+    sudo systemctl start mariadb
+    set_db_password
 }

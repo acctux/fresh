@@ -1,15 +1,4 @@
 # ──────────────── PACMAN ──────────────── #
-BASE_PAC=(
-    base-devel
-    keychain
-    networkmanager          # Network manager daemon
-    openssh
-    reflector
-    rsync
-    wireless-regdb
-)
-
-# ──────────────── PACMAN ──────────────── #
 PACMAN=(
     # ------- System Core / Kernel / Boot / Firmware --------
     acpi                    # Power & thermal info
@@ -56,8 +45,10 @@ PACMAN=(
     chrony                  # Time sync service (NTP)
     # unbound                  # Validating, recursive, and caching DNS resolver
     dnsmasq                 # Lightweight DNS/DHCP server
+    iwd
     ldns                    # DNS tools
     network-manager-applet
+    networkmanager          # Network manager daemon
     nss-mdns                # Multicast DNS support
     openresolv              # DNS resolver config support
     sshfs                   # Filesystem over SSH
@@ -90,7 +81,7 @@ PACMAN=(
     ly                      # TUI display manager
     mako                    # Wayland notification daemon
     nwg-clipman             # Clipboard manager for Wayland
-    nwg-look                # GTK theme preview & changer
+    # nwg-look                # GTK theme preview & changer but handled through gsettings currently
     polkit-gnome
     satty
     swww
@@ -198,6 +189,7 @@ PACMAN=(
     stow                    # Symlink farm manager
     zoxide                  # Smarter cd alternative
     watchexec               # can trigger any shell command when files change
+    rsync
     visidata                # Interactive data exploration CSV, TSV, Excel, SQLite, JSON, YAML
 
     # --------- Programming / Dev Tools -------------

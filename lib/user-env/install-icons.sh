@@ -1,4 +1,3 @@
-readonly ICON_REPO="https://www.github.com/vinceliuice/WhiteSur-icon-theme.git"
 readonly ICON_DIR="$HOME/.local/share/icons/WhiteSur-grey-dark"
 
 install_whitesur_icons() {
@@ -12,7 +11,6 @@ install_whitesur_icons() {
         cd "$tmp_dir" || { log ERROR "Failed to change to temporary directory."; rm -rf "$tmp_dir"; return 1; }
         ./install.sh -t grey
     )
-    rm -rf "$tmp_dir" "$HOME/.local/share/icons/WhiteSur-grey-light"
 }
 
 change_icon_color() {
@@ -36,11 +34,16 @@ change_icon_color() {
             -exec grep -q "$src_color" {} \; \
             -exec sed -i "s/$src_color/$dst_color/g" {} +
     fi
-    log INFO "Icon color changed."
-    rm -f "$HOME/.local/share/icons/WhiteSur-grey/apps/scalable/preferences-system.svg" || true
 }
 
 install_icons() {
-    install_whitesur_icons
-    change_icon_color
+    if [[ ! -d "$ICON_DIR" ]]; then
+        install_whitesur_icons
+        rm -rf "$tmp_dir" "$HOME/.local/share/icons/WhiteSur-grey-light"
+        change_icon_color
+        log INFO "Icon color changed."
+        rm -f "$HOME/.local/share/icons/WhiteSur-grey/apps/scalable/preferences-system.svg" || true
+    else
+        log INFO "WhiteSur icons already installed. Skipping."
+    fi
 }

@@ -1,3 +1,5 @@
+readonly ROOT_LABEL="Arch"
+
 bootloader_time() {
     sudo sed -i 's/timeout 3/timeout 1/' /boot/loader/loader.conf
 }
@@ -12,30 +14,8 @@ ensure_root_label() {
         log INFO "Root label already set to $ROOT_LABEL"
 }
 
-setup_folders() {
-    local user_folder_flag="$HOME/.cache/user_folders.done"
-
-    if [ -f "$user_folder_flag" ]; then
-        log INFO "Folder setup already completed, skipping..."
-        return
-    fi
-
-    log INFO "Configuring user settings..."
-    xdg-user-dirs-update
-    sed -i '/^XDG_\(PUBLICSHARE\|DOCUMENTS\|DESKTOP\)_DIR=/d' "$HOME/.config/user-dirs.dirs"
-    grep -q '^XDG_LIT_DIR=' "$HOME/.config/user-dirs.dirs" ||
-        echo 'XDG_LIT_DIR="$HOME/Lit"' >>"$HOME/.config/user-dirs.dirs"
-    mkdir -p "$HOME/Games"
-    mkdir -p "$GIT_LIT"
-    echo -e "[Desktop Entry]\nIcon=folder-games" >"$HOME/Games/.directory"
-    echo -e "[Desktop Entry]\nIcon=folder-github" >"$GIT_LIT/.directory"
-    xdg-user-dirs-update
-
-    touch "$user_folder_flag"
-}
-
 refresh_caches() {
-    local cache_update_flag="$HOME/.cache/refresh_cache.done"
+    local cache_update_flag="$HOME/.cache/fresh/refresh_cache.done"
 
     if [ ! -f "$cache_update_flag" ]; then
         if XDG_MENU_PREFIX=arch- kbuildsycoca6; then
@@ -49,7 +29,7 @@ refresh_caches() {
     fi
     # don't replace with check_cmd, not critical
     if command -v tldr &>/dev/null; then
-        tldr --update || log WARNING "Failed to update tldr cache."
+        tldr --update || true
     fi
 
     fc-cache -f || log WARNING "Failed to update font cache."

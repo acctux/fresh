@@ -1,4 +1,29 @@
-# ──────────────── SERVICES ──────────────── #
+# ──────────────── USER  ──────────────── #
+readonly USER_GROUPS=(
+    input
+    audio
+    video
+    network
+    storage
+    rfkill
+#    kvm
+    docker
+    games
+    gamemode
+    log
+)
+
+# User services
+SERV_USER_ENABLE=(
+    pipewire.service
+    pipewire-pulse.service
+    wireplumber.service
+    wallpaper.timer
+    gcr-ssh-agent.socket
+)
+
+# ──────────────── SYSTEM ──────────────── #
+# Enable
 SERV_ENABLE=(
     avahi-daemon.service
     bluetooth.service
@@ -16,19 +41,11 @@ SERV_ENABLE=(
     paccache.timer
     reflector.timer
 )
-
-SERV_USER_ENABLE=(
-    pipewire.service
-    pipewire-pulse.service
-    wireplumber.service
-    wallpaper.timer
-    gcr-ssh-agent.socket
-)
-
+# Disable
 SERV_DISABLE=(
     systemd-timesyncd.service
 )
-
+# Mask
 SERV_MASK=(
     auditd.service
     audit-rules.service

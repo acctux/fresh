@@ -5,16 +5,10 @@ IP_VERSION="all"
 
 update_wireless_regdom() {
     local file="/etc/conf.d/wireless-regdom"
-    if grep -q -E "^[[:space:]]*WIRELESS_REGDOM=\"$COUNTRY_CODE\"" "$file" 2>/dev/null; then
-        log INFO "Wireless regulatory domain already set to $COUNTRY_CODE in $file. Skipping."
-        return 0
-    fi
 
-    # Remove any uncommented WIRELESS_REGDOM= lines
-    sudo sed -i '/^[[:space:]]*WIRELESS_REGDOM=/d' "$file"
-
-    # Append new setting
-    echo "WIRELESS_REGDOM=\"$COUNTRY_CODE\"" | sudo tee -a "$file" > /dev/null
+    # -e '/^[[:space:]]*WIRELESS_REGDOM=/d': Any line that starts with zero or more spaces followed by WIRELESS_REGDOM=, deletes it (d).
+    # -e "\$aWIRELESS_REGDOM=\"$COUNTRY_CODE\"": $ refers to the last line of the file. a=append
+    sudo sed -i -E -e '/^[[:space:]]*WIRELESS_REGDOM=/d' -e "\$aWIRELESS_REGDOM=\"$COUNTRY_CODE\"" "$file"
 
     # Apply immediately
     sudo iw reg set "$COUNTRY_CODE"
@@ -24,15 +18,12 @@ update_wireless_regdom() {
 
 update_mirrorlist_if_changed() {
     local mirrorlist_file="/etc/pacman.d/mirrorlist"
-    local today_date=$(date +%F)
     local reflector_conf="/etc/xdg/reflector/reflector.conf"
+    local reflector_flag="$HOME/.cache/fresh/reflector.flag"
 
-    if [[ -f "$mirrorlist_file" ]]; then
-        local file_date=$(date -r "$mirrorlist_file" +%F)
-        if [[ "$file_date" == "$today_date" ]]; then
-            echo "Mirrorlist already updated today ($today_date). Skipping."
-            return 0
-        fi
+    if [[ -f "$reflector_flag" ]]; then
+        echo "Mirrorlist already updated. Skipping."
+        return 0
     fi
     sudo tee "$reflector_conf" > /dev/null <<EOF
 
@@ -55,6 +46,7 @@ EOF
 
     echo "Updating mirrorlist..."
     sudo reflector --country "$COUNTRY_NAME" --latest 10 --sort rate --save "$mirrorlist_file"
+    touch $reflector_flag
 }
 
 regdom_reflector() {

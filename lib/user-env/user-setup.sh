@@ -1,13 +1,12 @@
-readonly ROOT_LABEL="Arch"
-
 bootloader_time() {
     sudo sed -i 's/timeout 3/timeout 1/' /boot/loader/loader.conf
 }
-
+find_current_label() (
+    blkid -s LABEL -o value "$(findmnt -n -o SOURCE "$mount_point")"
+)
 ensure_root_label() {
     local mount_point="/"
     local current_label
-    current_label=$(blkid -s LABEL -o value "$(findmnt -n -o SOURCE "$mount_point")" 2>/dev/null || echo "")
     [[ "$current_label" != "$ROOT_LABEL" ]] &&
         sudo btrfs filesystem label "$mount_point" "$ROOT_LABEL" &&
         log INFO "Set root label to $ROOT_LABEL" ||
@@ -18,12 +17,8 @@ refresh_caches() {
     local cache_update_flag="$HOME/.cache/fresh/refresh_cache.done"
 
     if [ ! -f "$cache_update_flag" ]; then
-        if XDG_MENU_PREFIX=arch- kbuildsycoca6; then
-            echo "kbuildsycoca6 ran successfully."
-        else
-            echo "kbuildsycoca6 failed." >&2
-            exit 1
-        fi
+        XDG_MENU_PREFIX=arch- kbuildsycoca6
+        log INFO "kbuildsycoca6 ran successfully."
     else
         echo "kbuildsycoca6 already ran, skipping."
     fi
@@ -32,7 +27,7 @@ refresh_caches() {
         tldr --update || true
     fi
 
-    fc-cache -f || log WARNING "Failed to update font cache."
+    fc-cache -f
     touch "$cache_update_flag"
 }
 

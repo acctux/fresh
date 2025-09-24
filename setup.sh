@@ -15,8 +15,7 @@ source "$(dirname "$0")/lib/country/country-setup.sh"
 source "$(dirname "$0")/lib/packages/package-setup.sh"
 source "$(dirname "$0")/lib/user-env/user-env.sh"
 source "$(dirname "$0")/lib/replace-files/replace-files.sh"
-source "$(dirname "$0")/lib/add-user-to-groups.sh"
-source "$(dirname "$0")/lib/handle-services.sh"
+source "$(dirname "$0")/lib/groups-services/groups-services.sh"
 source "$(dirname "$0")/lib/hide-apps.sh"
 source "$(dirname "$0")/lib/cleanup-files.sh"
 
@@ -27,9 +26,8 @@ main() {
     setup_country
     setup_packages
     user_env
-    git_dots_etc
-    handle_services
-    add_user_to_groups
+    replace_files
+    group_services
     hide_apps
 
     log INFO "Setup Completed Successfully!"

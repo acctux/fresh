@@ -16,8 +16,8 @@ source "$(dirname "$0")/lib/utils.sh"
 #source "$(dirname "$0")/lib/country/country-setup.sh"
 #source "$(dirname "$0")/lib/packages/package-setup.sh"
 #source "$(dirname "$0")/lib/user-env/user-env.sh"
-source "$(dirname "$0")/lib/replace-files/replace-files.sh"
-#source "$(dirname "$0")/lib/groups-services/groups-services.sh"
+#source "$(dirname "$0")/lib/replace-files/replace-files.sh"
+source "$(dirname "$0")/lib/services/services.sh"
 #source "$(dirname "$0")/lib/post/hide-apps.sh"
 #source "$(dirname "$0")/lib/post/cleanup-files.sh"
 
@@ -28,8 +28,8 @@ main() {
 #    setup_country
 #    package_setup
 #    user_env
-    replace_files
-#    group_services
+#    replace_files
+    handle_services
 #    hide_apps
 
 #    log INFO "Setup Completed Successfully!"

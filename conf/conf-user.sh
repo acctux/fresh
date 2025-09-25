@@ -1,6 +1,6 @@
 # ------ User Configuration ------
-readonly ROOT_LABEL="Arch"
-readonly ICON_REPO="https://www.github.com/vinceliuice/WhiteSur-icon-theme.git"
+ROOT_LABEL="Arch"
+ICON_REPO="https://www.github.com/vinceliuice/WhiteSur-icon-theme.git"
 ETC_DOTS_DIR="/home/nick/Lit/dotfiles/etc"
 DIFFS_DIR="$HOME/dotcetera"
 CHAOTIC_KEY_FILE="$HOME/Lit/dotfiles/chaotic.gpg"

@@ -28,7 +28,6 @@ gtk_symlinks() {
 }
 
 git_dots_etc() {
-    rm -f ~/.ssh/config
     clone_git_repos
     stow_dotfiles
     gtk_symlinks

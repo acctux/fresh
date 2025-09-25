@@ -25,6 +25,7 @@ PACMAN=(
     nvidia-prime            # Nvidia PRIME support
 
     # ------ System Utilities / Admin Tools ------
+    ansible-core
     btop                    # Resource monitor
     firejail                # Sandboxing
     keyd                    # Keyboard remapping daemon
@@ -43,13 +44,13 @@ PACMAN=(
     blueman                 # Bluetooth manager
     bluez-tools
     chrony                  # Time sync service (NTP)
-    # unbound                  # Validating, recursive, and caching DNS resolver
-    dnsmasq                 # Lightweight DNS/DHCP server
+    unbound                  # Validating, recursive, and caching DNS resolver
+    # dnsmasq                 # Lightweight DNS/DHCP server
     ldns                    # DNS tools
     network-manager-applet
     networkmanager          # Network manager daemon
     nss-mdns                # Multicast DNS support
-    openresolv              # DNS resolver config support
+    # openresolv              # DNS resolver config support
     sshfs                   # Filesystem over SSH
     iwd                     # Wireless daemon
     firewalld               # Firewall management
@@ -164,6 +165,8 @@ PACMAN=(
     fd                      # Fast file search
     grex                    # Regex generator
     parallel                # Parallel command runner
+    pkgfile
+    pkgdiff
     pv                      # Pipe viewer
     sd                      # Sed alternative
     trash-cli               # Trash management CLI

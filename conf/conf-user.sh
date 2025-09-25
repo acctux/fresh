@@ -1,26 +1,27 @@
 # ------ User Configuration ------
 readonly ROOT_LABEL="Arch"
 readonly ICON_REPO="https://www.github.com/vinceliuice/WhiteSur-icon-theme.git"
-ETC_DOTS_DIR="/home/nick/Lit/dotfiles/etc"     # Directory with reference files
-DIFFS_DIR="$HOME/dotcetera"            # Directory to store diff files
+ETC_DOTS_DIR="/home/nick/Lit/dotfiles/etc"
+DIFFS_DIR="$HOME/dotcetera"
+CHAOTIC_KEY_FILE="$HOME/Lit/dotfiles/chaotic.gpg"
 
 # --------- Keys -----------
-readonly KEY_DIR="$HOME/.ssh"
-readonly GPG_KEYFILE="$KEY_DIR/my-private-key.asc"
-readonly SSH_KEY="$KEY_DIR/id_ed25519"
-readonly KEY_FILES=(
-    "$GPG_KEYFILE"
-    "$SSH_KEY"
+KEY_DIR="$HOME/.ssh"
+GPG_KEYFILE="$KEY_DIR/my-private-key.asc"
+SSH_KEY="$KEY_DIR/id_ed25519"
+KEY_FILES=(
+    "my-private-key.asc"
+    "id_ed25519"
     "my-public-key.asc"
     "id_ed25519.pub"
 )
 
 # --------- Git -----------
-readonly GIT_USER="acctux"
-readonly GIT_DIR="$HOME/Lit"
-readonly DOTFILES_DIR="$GIT_DIR/dotfiles"
-readonly BACKUP_DIR="$HOME/overwrittendots"
-readonly GIT_REPOS=(
+GIT_USER="acctux"
+GIT_DIR="$HOME/Lit"
+DOTFILES_DIR="$GIT_DIR/dotfiles"
+BACKUP_DIR="$HOME/overwrittendots"
+GIT_REPOS=(
     "docs"
     "dotfiles"
     "fresh"

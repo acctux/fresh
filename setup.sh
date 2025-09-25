@@ -6,7 +6,7 @@ readonly LOG_FILE="$HOME/bootstrap.log"
 
 # ─────── Source Configuration ────── #
 source "$(dirname "$0")/conf/conf-pac.sh"
-source "$(dirname "$0")/conf/conf-groups-services.sh"
+source "$(dirname "$0")/conf/conf-grp-srv.sh"
 source "$(dirname "$0")/conf/conf-user.sh"
 source "$(dirname "$0")/conf/conf-folders.sh"
 

@@ -25,12 +25,6 @@ change_icon_color() {
                 sd "'"$src_color"'" "'"$dst_color"'" "$file"
             done
         '
-    else
-        log INFO "Fallback: replacing icon colors with grep and sed..."
-
-        find "$ICON_DIR" -type f -name "*.svg" ! -path "*/scalable/*" \
-            -exec grep -q "$src_color" {} \; \
-            -exec sed -i "s/$src_color/$dst_color/g" {} +
     fi
 }
 
@@ -38,9 +32,9 @@ install_icons() {
     if [[ ! -d "$ICON_DIR" ]]; then
         install_whitesur_icons
         rm -rf "$tmp_dir" "$HOME/.local/share/icons/WhiteSur-grey-light"
+        rm -f "$HOME/.local/share/icons/WhiteSur-grey/apps/scalable/preferences-system.svg"
         change_icon_color
-        log INFO "Icon color changed."
-        rm -f "$HOME/.local/share/icons/WhiteSur-grey/apps/scalable/preferences-system.svg" || true
+        log INFO "Icons installed."
     else
         log INFO "WhiteSur icons already installed. Skipping."
     fi

@@ -6,9 +6,6 @@ create_custom_folders() {
 }
 
 remove_xdg_dirs() {
-    log INFO "Updating XDG user directories..."
-
-    # Remove unwanted XDG dirs
     for xdg_var in "${REMOVE_XDG_DIRS[@]}"; do
         rm -rf "$xdg_var"
         sed -i "/^$xdg_var=/d" "$HOME/.config/user-dirs.dirs"

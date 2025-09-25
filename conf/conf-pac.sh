@@ -45,7 +45,6 @@ PACMAN=(
     chrony                  # Time sync service (NTP)
     # unbound                  # Validating, recursive, and caching DNS resolver
     dnsmasq                 # Lightweight DNS/DHCP server
-    iwd
     ldns                    # DNS tools
     network-manager-applet
     networkmanager          # Network manager daemon
@@ -113,7 +112,6 @@ PACMAN=(
 
     # ----------- Gtk Applications --------------
     nemo-fileroller
-    nemo-image-converter
     nemo-seahorse
     nemo-image-converter
     nemo-emblems

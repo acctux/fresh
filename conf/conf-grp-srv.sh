@@ -1,18 +1,3 @@
-# ──────────────── USER  GROUPS──────────────── #
-readonly USER_GROUPS=(
-    input
-    audio
-    video
-    network
-    storage
-    rfkill
-#    kvm
-    docker
-    games
-    gamemode
-    log
-)
-
 # ──────────────── USER  SERVICES──────────────── #
 readonly SERV_USER_ENABLE=(
     pipewire.service

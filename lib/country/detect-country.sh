@@ -88,7 +88,6 @@ country_api() {
 }
 
 input_country() {
-    if [[ -z "$COUNTRY_CODE" || -z "${COUNTRY_NAMES[$COUNTRY_CODE]}" ]]; then
         echo "Please enter your 2-letter country code:"
         read -r input
         # Convert the input to uppercase
@@ -103,9 +102,12 @@ input_country() {
         fi
     fi
 }
+
 detect_country() {
     country_api
-    input_country
+    if [[ -z "$COUNTRY_CODE" || -z "${COUNTRY_NAMES[$COUNTRY_CODE]}" ]]; then
+        input_country
+    fi
     # Look up the full country name using the final country code
     COUNTRY_NAME="${COUNTRY_NAMES[$COUNTRY_CODE]}"
     export COUNTRY_CODE COUNTRY_NAME

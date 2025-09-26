@@ -5,9 +5,10 @@ source "$(dirname "$0")/lib/packages/aur-helper.sh"
 
 # ─────── Run Main ────── #
 package_setup() {
-# wrap in one sudo	
+    # Caches sudo password for remainder of script
+    sudo -v
     chaotic_repo
     aur_helper
-    $AUR_HELPER -S --needed "${PACMAN[@]}"
+    $AUR_HELPER -S --needed "${CHAOTIC[@]}"
     $AUR_HELPER -S --needed "${AUR[@]}"
 }

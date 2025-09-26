@@ -1,0 +1,44 @@
+PATCH_LIST = [
+    {
+        "src": "etc/conf.d/pacman-contrib.diff",
+        "dest": "/etc/conf.d/pacman-contrib",
+    },
+    {
+        "src": "etc/conf.d/wireless-regdom.diff",
+        "dest": "/etc/conf.d/wireless-regdom",
+    },
+    {
+        "src": "etc/firewalld/firewalld.conf.diff",
+        "dest": "/etc/firewalld/firewalld.conf",
+    },
+    {
+        "src": "etc/firewalld/zones/block.xml.diff",
+        "dest": "/etc/firewalld/zones/block.xml",
+    },
+    {"src": "etc/iwd/main.conf.diff", "dest": "/etc/iwd/main.conf"},
+    {"src": "etc/logid.cfg.diff", "dest": "/etc/logid.cfg"},
+    {"src": "etc/ly/config.ini.diff", "dest": "/etc/ly/config.ini"},
+    {"src": "etc/ly/save.ini.diff", "dest": "/etc/ly/save.ini"},
+    {
+        "src": "etc/makepkg.conf.d/99-parallel.conf.diff",
+        "dest": "/etc/makepkg.conf.d/99-parallel.conf",
+    },
+    {"src": "etc/mkinitcpio.conf.diff", "dest": "/etc/mkinitcpio.conf"},
+    {
+        "src": "etc/modprobe.d/wifi.conf.diff",
+        "dest": "/etc/modprobe.d/wifi.conf",
+    },
+    {
+        "src": "etc/networkmanager/conf.d/dns.conf.diff",
+        "dest": "/etc/networkmanager/conf.d/dns.conf",
+    },
+    {"src": "etc/nsswitch.conf.diff", "dest": "/etc/nsswitch.conf"},
+    {"src": "etc/pacman.conf.diff", "dest": "/etc/pacman.conf"},
+    {"src": "etc/pam.d/login.diff", "dest": "/etc/pam.d/login"},
+    {"src": "etc/paru.conf.diff", "dest": "/etc/paru.conf"},
+    {
+        "src": "etc/polkit-1/rules.d/10-udisks2-mount.rules.diff",
+        "dest": "/etc/polkit-1/rules.d/10-udisks2-mount.rules",
+    },
+    {"src": "etc/sudoers.d/mysudo.diff", "dest": "/etc/sudoers.d/mysudo"},
+]

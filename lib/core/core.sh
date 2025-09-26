@@ -1,5 +1,4 @@
 # ─────── Source Functions ────── #
-source "$(dirname "$0")/lib/utils.sh"
 source "$(dirname "$0")/lib/core/wifi-connect.sh"
 source "$(dirname "$0")/lib/core/mnt-cp-keys.sh"
 source "$(dirname "$0")/lib/core/import-personal-keys.sh"

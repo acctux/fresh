@@ -1,5 +1,6 @@
 # ───────────────── Global Variables ───────────────── #
 DEVICE=""
+CHOICE=""
 PARTITIONS=()
 KEYS_MNT=$(mktemp -d)
 
@@ -42,7 +43,7 @@ existing_keys() {
     return 0
 }
 
-mount_partition() {
+make_choice() {
     while true; do
         list_and_store_PARTITIONS
 
@@ -55,20 +56,32 @@ mount_partition() {
     done
 
     printf "Select partition where keys can be located in the base directory: "
-    read -r choice
+    read -r CHOICE
+}
 
-    # Validate that choice is a number and within valid range
-    if [[ ! "$choice" =~ ^[0-9]+$ ]] || (( choice < 1 || choice > ${#PARTITIONS[@]} )); then
-        log ERROR "Invalid selection: $choice"
+validate_choice() {
+    # Validate that 'CHOICE' is a positive integer and within the valid range of PARTITIONS array
+    if [[ ! "$CHOICE" =~ ^[0-9]+$ ]]; then
+        # Check if 'CHOICE' is not a valid number (contains non-digits)
+        log ERROR "Invalid selection: '$CHOICE' is not a valid number"
+        exit 1
+    elif (( CHOICE < 1 || CHOICE > ${#PARTITIONS[@]} )); then
+        # Check if 'CHOICE' is outside the valid range (less than 1 or greater than the number of partitions)
+        log ERROR "Invalid selection: '$CHOICE' is out of range (1 to ${#PARTITIONS[@]})"
         exit 1
     fi
+    DEVICE="${PARTITIONS[CHOICE-1]}"
+}
 
-    DEVICE="${PARTITIONS[choice-1]}"
+validate_partition() {
+    # check if zero "-z" or not a block device
     if [[ -z "$DEVICE" || ! -b "$DEVICE" ]]; then
         log ERROR "Invalid or missing DEVICE: $DEVICE"
         exit 1
     fi
+}
 
+mount_CHOICE() {
     sudo mkdir -p "$KEYS_MNT"
     sudo mount "$DEVICE" "$KEYS_MNT"
     log INFO "Mounted $DEVICE to $KEYS_MNT"
@@ -76,12 +89,6 @@ mount_partition() {
 
 # Copy keys to home directory.
 copy_key_files() {
-    # Confirm mount point directory exists
-    if [[ ! -d "$KEYS_MNT" ]]; then
-        log ERROR "Mount point $KEYS_MNT not found"
-        return 1
-    fi
-
     log INFO "Copying files from USB..."
     mkdir -p "$KEY_DIR"
     # Copy .ssh directory if present
@@ -109,13 +116,16 @@ unmount_partition() {
 # not only on failure
 mnt_cp_keys() (
     if ! existing_keys; then
-        trap unmount_partition EXIT  # Now this runs when the subshell ends
+        make_choice
+        validate_choice || make_choice
+        validate_partition || make_choice
 
-        mount_partition || exit 1
-        copy_key_files || exit 1
+        trap unmount_partition EXIT
+        mount_choice || exit 1 && log ERROR "Failed to mount selection."
+        copy_key_files
 
-        echo "Running key and wifi setup because both Wi-Fi and key files are missing."
+        log INFO "Keys copied."
     else
-        echo "All requirements met. Skipping external sourcing setup."
+        log INFO "All requirements met. Skipping external sourcing setup."
     fi
 )

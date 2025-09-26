@@ -20,11 +20,7 @@ set_correct_permissions() {
 create_ssh_config() {
     mkdir -p "$KEY_DIR"
     if [[ ! -f "$KEY_DIR/config" ]]; then
-        cat << EOF > "$KEY_DIR/config"
-Host *
-    AddKeysToAgent yes
-    IdentityFile ~/.ssh/id_ed25519
-EOF
+        cp "$HOME/fresh/lib/core/config" "~/.ssh"
         ensure_mode "$KEY_DIR/config" 600
     else
         log INFO "SSH config already set. Skipping."
@@ -33,12 +29,10 @@ EOF
 
 # Key import
 setup_ssh_agent() {
-    local keychain_env="$HOME/.keychain/$(uname -n)-sh"
-
     # Start keychain only if SSH agent is not running or socket missing
-    if [[ ! -S "${SSH_AUTH_SOCK-}" ]]; then
-        keychain --quiet --eval "$SSH_KEY" >/dev/null
-        source "$keychain_env"
+    if [[ ! -S "${SSH_AUTH_SOCK}" ]]; then
+        systemctl --user enable --now gcr-ssh-agent.socket
+        export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/gcr/ssh"
     fi
 }
 
@@ -46,6 +40,8 @@ import_ssh_keys() {
     if ! ssh-add -l 2>/dev/null | grep -q "$(ssh-keygen -lf "$SSH_KEY")"; then
         ssh-add "$SSH_KEY"
         echo "INFO: $SSH_KEY successfully added to agent."
+    else
+        log INFO "SSH keys already added."
     fi
 }
 

@@ -1,0 +1,13 @@
+Host *
+    # Use GNOME Keyring's SSH agent for key management
+    AddKeysToAgent yes
+    IdentityFile ~/.ssh/id_ed25519
+
+    # Multiplexing setup for efficient connections
+    ControlPath ~/.ssh/cm-%r@%h:%p.sock
+    ControlMaster auto
+    ControlPersist 30m
+
+    # Additional settings for reliability
+    ServerAliveInterval 120
+    ServerAliveCountMax 3

@@ -1,0 +1,43 @@
+---
+patches:
+  vars:
+    patches:
+      - {
+          src: etc/conf.d/pacman-contrib.patch,
+          dest: /etc/conf.d/pacman-contrib,
+        }
+      - {
+          src: etc/conf.d/wireless-regdom.patch,
+          dest: /etc/conf.d/wireless-regdom,
+        }
+      - {
+          src: etc/firewalld/firewalld.conf.patch,
+          dest: /etc/firewalld/firewalld.conf,
+        }
+      - {
+          src: etc/firewalld/zones/block.xml.patch,
+          dest: /etc/firewalld/zones/block.xml,
+        }
+      - { src: etc/iwd/main.conf.patch, dest: /etc/iwd/main.conf }
+      - { src: etc/logid.cfg.patch, dest: /etc/logid.cfg }
+      - { src: etc/ly/config.ini.patch, dest: /etc/ly/config.ini }
+      - { src: etc/ly/save.ini.patch, dest: /etc/ly/save.ini }
+      - {
+          src: etc/makepkg.conf.d/99-parallel.conf.patch,
+          dest: /etc/makepkg.conf.d/99-parallel.conf,
+        }
+      - { src: etc/mkinitcpio.conf.patch, dest: /etc/mkinitcpio.conf }
+      - { src: etc/modprobe.d/wifi.conf.patch, dest: /etc/modprobe.d/wifi.conf }
+      - {
+          src: etc/NetworkManager/conf.d/dns.conf.patch,
+          dest: /etc/NetworkManager/conf.d/dns.conf,
+        }
+      - { src: etc/nsswitch.conf.patch, dest: /etc/nsswitch.conf }
+      - { src: etc/pacman.conf.patch, dest: /etc/pacman.conf }
+      - { src: etc/pam.d/login.patch, dest: /etc/pam.d/login }
+      - { src: etc/paru.conf.patch, dest: /etc/paru.conf }
+      - {
+          src: etc/polkit-1/rules.d/10-udisks2-mount.rules.patch,
+          dest: /etc/polkit-1/rules.d/10-udisks2-mount.rules,
+        }
+      - { src: etc/sudoers.d/mysudo.patch, dest: /etc/sudoers.d/mysudo }

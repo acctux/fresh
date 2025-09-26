@@ -152,7 +152,6 @@ PACMAN=(
     # ------------ CLI Script tools ------------
     aria2                   # Download utility
     choose                  # CLI selector
-    dasel                   # YAML/JSON/TOML query/update tool
     expac                   # Query pacman database, size, install date, etc.
     fd                      # Fast file search
     grex                    # Regex generator
@@ -227,10 +226,13 @@ PACMAN=(
     webkit2gtk
     unarchiver              # Archive extraction tool
     yt-dlp                  # Youtube downloader
+)
 
     # ------------ Chaotic-Aur --------------
+CHAOTIC=(
     anki
     betterbird-bin
+#    dasel                   # YAML/JSON/TOML query/update tool
     dxvk-mingw-git
     brave-bin
     localsend

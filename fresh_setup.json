@@ -10,9 +10,7 @@
   "archinstall-language": "English",
   "auth_config": {},
   "bootloader": "Systemd-boot",
-  "custom_commands": [
-    "git clone https://github.com/acctux/fresh.git"
-  ],
+  "custom_commands": ["git clone https://github.com/acctux/fresh.git"],
   "disk_config": {
     "btrfs_options": {
       "snapshot_config": null
@@ -20,15 +18,12 @@
     "config_type": "default_layout",
     "device_modifications": [
       {
-        "device": "/dev/nvme0n1",
+        "device": "/dev/*",
         "partitions": [
           {
             "btrfs": [],
             "dev_path": null,
-            "flags": [
-              "boot",
-              "esp"
-            ],
+            "flags": ["boot", "esp"],
             "fs_type": "fat32",
             "mount_options": [],
             "mountpoint": "/boot",
@@ -74,9 +69,7 @@
             "dev_path": null,
             "flags": [],
             "fs_type": "btrfs",
-            "mount_options": [
-              "compress=zstd"
-            ],
+            "mount_options": ["compress=zstd"],
             "mountpoint": null,
             "obj_id": "9ba5dd4f-0367-47c6-90e6-0efc7d7b53cf",
             "size": null,
@@ -98,15 +91,11 @@
     "disk_encryption": {
       "encryption_type": "luks",
       "lvm_volumes": [],
-      "partitions": [
-        "9ba5dd4f-0367-47c6-90e6-0efc7d7b53cf"
-      ]
+      "partitions": ["9ba5dd4f-0367-47c6-90e6-0efc7d7b53cf"]
     }
   },
   "hostname": "arch",
-  "kernels": [
-    "linux"
-  ],
+  "kernels": ["linux"],
   "locale_config": {
     "kb_layout": "us",
     "sys_enc": "UTF-8",
@@ -246,9 +235,7 @@
         "https://arch.hugeblank.dev/$repo/os/$arch"
       ]
     },
-    "optional_repositories": [
-      "multilib"
-    ]
+    "optional_repositories": ["multilib"]
   },
   "network_config": {
     "type": "iso"
@@ -259,7 +246,6 @@
     "alacritty",
     "alsa-firmware",
     "alsa-utils",
-    "ansible-core",
     "archlinux-xdg-menu",
     "aria2",
     "baobab",
@@ -279,11 +265,9 @@
     "clang",
     "csvkit",
     "dbeaver",
-    "diffuse",
     "dkms",
     "dosfstools",
     "eslint",
-    "etckeeper",
     "exfatprogs",
     "expac",
     "eza",
@@ -323,7 +307,6 @@
     "jdk-openjdk",
     "kdeconnect",
     "keepassxc",
-    "keyd",
     "kvantum",
     "lazygit",
     "ldns",
@@ -333,6 +316,7 @@
     "lib32-nvidia-utils",
     "libappindicator-gtk3",
     "libgnome-keyring",
+    "libsecret",
     "libva-nvidia-driver",
     "libxnvctrl",
     "linux-headers",
@@ -347,6 +331,7 @@
     "man-pages",
     "mariadb",
     "mariadb-libs",
+    "mesa",
     "mesa-utils",
     "mgba-qt",
     "miller",
@@ -370,6 +355,9 @@
     "otf-font-awesome",
     "pacman-contrib",
     "parallel",
+    "pipewire-alsa",
+    "pipewire-pulse",
+    "pipewire-jack",
     "pkgdiff",
     "pkgfile",
     "playerctl",

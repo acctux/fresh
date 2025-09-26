@@ -82,7 +82,6 @@ PACMAN=(
     waybar                  # Status bar for Wayland compositors
     # wofi
     wl-clipboard            # Clipboard utilities for Wayland
-    wlogout
     xdg-desktop-portal-gtk  # XDG portal for GTK apps
     xdg-desktop-portal-hyprland # XDG portal for Hyprland
     xdg-user-dirs           # User directories management
@@ -242,6 +241,7 @@ PACMAN=(
     proton-ge-custom-bin
     qt6ct-kde
     rpcs3-git
+    wlogout
     zapzap
     zsh-vi-mode
 )

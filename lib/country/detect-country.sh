@@ -100,7 +100,6 @@ input_country() {
             log ERROR "Invalid input or no valid default country. Defaulting to Worldwide"
             COUNTRY_CODE="WW"
         fi
-    fi
 }
 
 detect_country() {

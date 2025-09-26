@@ -9,6 +9,7 @@ install_whitesur_icons() {
         cd "$tmp_dir"
         ./install.sh -t grey
     )
+    rm -rf "$tmp_dir" "$HOME/.local/share/icons/WhiteSur-grey-light"
 }
 
 change_icon_color() {
@@ -31,7 +32,6 @@ change_icon_color() {
 install_icons() {
     if [[ ! -d "$ICON_DIR" ]]; then
         install_whitesur_icons
-        rm -rf "$tmp_dir" "$HOME/.local/share/icons/WhiteSur-grey-light"
         rm -f "$HOME/.local/share/icons/WhiteSur-grey/apps/scalable/preferences-system.svg"
         change_icon_color
         log INFO "Icons installed."

@@ -2,13 +2,10 @@
 PACMAN=(
     # ------- System Core / Kernel / Boot / Firmware --------
     acpi                    # Power & thermal info
-    amd-ucode               # CPU microcode updates for AMD CPUs
     dosfstools
     exfatprogs              # exFAT filesystem tools
     fwupd                   # Firmware updater
-    mesa
     mesa-utils
-    sof-firmware            # Sound Open Firmware
     smartmontools           # SMART disk monitoring tools
     udisks2-btrfs           # Btrfs support for UDisks2
     vulkan-icd-loader       # Vulkan loader
@@ -28,6 +25,7 @@ PACMAN=(
     ansible-core
     btop                    # Resource monitor
     firejail                # Sandboxing
+    etckeeper
     keyd                    # Keyboard remapping daemon
     logrotate               # Rotates system logs
     man-db                  # Manual page database
@@ -52,22 +50,17 @@ PACMAN=(
     nss-mdns                # Multicast DNS support
     # openresolv              # DNS resolver config support
     sshfs                   # Filesystem over SSH
-    iwd                     # Wireless daemon
     firewalld               # Firewall management
 
     # ---------- Security / Secrets ----------
     gnome-keyring           # Keyring daemon
     keepassxc               # Password manager (Qt)
     libgnome-keyring        # Library for GNOME keyring
-    libsecret               # Secret storage API
-    pinentry                # GPG password prompt
     seahorse                # GNOME key manager
 
     # -------------- Audio / Sound -------------
     alsa-firmware
     alsa-utils
-    pipewire-alsa           # ALSA compatibility for PipeWire
-    pipewire-pulse          # PulseAudio compatibility for PipeWire
 
     # ---------- Hyprland / Desktop Components -----------
     archlinux-xdg-menu
@@ -175,6 +168,7 @@ PACMAN=(
     yq                      # YAML processor
 
     # ------------ GUI Non-KDE ----------------
+    diffuse
     gnucash                 # Personal finance manager
     gnumeric                # Spreadsheet app
     # hledger                 # Accounting tool
@@ -237,7 +231,6 @@ PACMAN=(
 
     # ------------ Chaotic-Aur --------------
     anki
-    ayugram-desktop-git
     betterbird-bin
     dxvk-mingw-git
     brave-bin
@@ -246,7 +239,6 @@ PACMAN=(
     ocrmypdf
     octopi
     onlyoffice-bin
-    paru
     proton-ge-custom-bin
     qt6ct-kde
     rpcs3-git
@@ -258,6 +250,7 @@ PACMAN=(
 AUR=(
     # quantlib          # C++ quant finance library
     surfshark-client
+    ayugram-desktop-bin
 )
 
     # ----------- KDE Applications --------------

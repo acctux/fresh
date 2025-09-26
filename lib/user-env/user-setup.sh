@@ -1,13 +1,11 @@
 bootloader_time() {
     sudo sed -i 's/timeout 3/timeout 1/' /boot/loader/loader.conf
 }
-find_current_label() {
-    blkid -s LABEL -o value "$(findmnt -n -o SOURCE "$mount_point")"
-}
 ensure_root_label() {
     local mount_point="/"
     local current_label
-    [[ "$(current_label)" != "$ROOT_LABEL" ]] &&
+    current_label=(blkid -s LABEL -o value "$(findmnt -n -o SOURCE $mount_point)")
+    [[ "$current_label" != "$ROOT_LABEL" ]] &&
         sudo btrfs filesystem label "$mount_point" "$ROOT_LABEL" &&
         log INFO "Set root label to $ROOT_LABEL" ||
         log INFO "Root label already set to $ROOT_LABEL"
@@ -37,7 +35,6 @@ change_shell() {
 user_setup() {
     bootloader_time
     ensure_root_label
-    setup_folders
     refresh_caches
     change_shell
 }

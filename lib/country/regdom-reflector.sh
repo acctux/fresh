@@ -19,8 +19,9 @@ update_wireless_regdom() {
 update_mirrorlist_if_changed() {
     local mirrorlist_file="/etc/pacman.d/mirrorlist"
     local reflector_conf="/etc/xdg/reflector/reflector.conf"
-    local reflector_flag="$HOME/.cache/fresh/reflector.flag"
-
+    local fresh_cache="$HOME/.cache/fresh"
+    local reflector_flag="$fresh_cache/reflector.flag"
+    mkdir -p "$fresh_cache"
     if [[ -f "$reflector_flag" ]]; then
         echo "Mirrorlist already updated. Skipping."
         return 0

@@ -30,15 +30,6 @@ readonly SERV_DISABLE=(
 )
 # Mask
 readonly SERV_MASK=(
-    auditd.service
-    audit-rules.service
-    ebtables.service
-    ipset.service
     ntpd.service
     ntpdate.service
-    plymouth-quit-wait.service
-    plymouth-start.service
-    sntp.service
-    syslog.service
-    systemd-timesyncd.service
 )

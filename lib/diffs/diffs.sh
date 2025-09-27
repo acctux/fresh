@@ -1,7 +1,6 @@
 # ─────── Source Functions ────── #
 source "$(dirname "$0")/lib/diffs/create-patches.sh"
 source "$(dirname "$0")/lib/diffs/etckeeper.sh"
-source "$(dirname "$0")/lib/diffs/ansterrible.sh"
 # ─────── Run Main ────── #
 apply_diffs() {
     if [ ! -d "/etc/.git" ]; then #    check permissions for the patch udev rules and sudoers
@@ -15,6 +14,6 @@ apply_diffs() {
     # ansible_plugins
     log INFO "Applying patches."
     cd "$DIFFS_DIR"
-    sudo python /home/nick/Lit/fresh/lib/diffs/diffs.py
+    sudo python /home/nick/Lit/fresh/lib/pydiffs/diffs.py
     # apply_ansible
 }

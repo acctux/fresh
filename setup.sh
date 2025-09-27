@@ -21,15 +21,14 @@ source "$(dirname "$0")/lib/stow/files.sh"
 source "$(dirname "$0")/lib/services/services.sh"
 source "$(dirname "$0")/lib/post/hide-apps.sh"
 source "$(dirname "$0")/lib/post/cleanup-files.sh"
-
+source "$(dirname "$0")/py/launch_python.sh"
 run_sudo() {
-    # log INFO "Starting system setup"
-    # setup_core
-    # log INFO "Wifi established and keys copied."
-    # setup_country
-    # log INFO "Country specific changes applied."
-    # package_setup
-    apply_diffs
+     log INFO "Starting system setup"
+     setup_core
+     log INFO "Wifi established and keys copied."
+     setup_country
+     log INFO "Country specific changes applied."
+     package_setup
 }
 run_user() {
     user_env
@@ -41,7 +40,8 @@ run_user() {
 
 # ─────── Run Main ────── #
 main() {
-    run_sudo
+    # run_sudo
+    launch_python
 #    run_user
 #    if reboot_prompt; then
 #        cleanup_files

@@ -1,22 +1,8 @@
-import os
 import subprocess
 from pathlib import Path
-from patches import PATCH_LIST
 
 
-def ensure_file_ready(dest_path):
-    """Creates the parent directory and ensures the destination file exists."""
-    path = Path(dest_path)
-    try:
-        path.parent.mkdir(parents=True, exist_ok=True)
-        path.touch(exist_ok=True)
-        return True
-    except OSError as e:
-        print(f"  [ERROR] Cannot touch file {path}: {e}")
-        return False
-
-
-def apply_patch(src_diff, dest_file):
+def apply_patch(src_diff: Path, dest_file: Path):
     """Applies the diff file to the destination file using the 'patch' command."""
     src_path = Path(src_diff)
     if not src_path.is_file():
@@ -62,29 +48,3 @@ def apply_patch(src_diff, dest_file):
 
     except Exception as e:
         print(f"  [FATAL] Unexpected error: {e}")
-
-
-def main():
-    """Main execution function."""
-    print("--- Starting Patch Application ---")
-
-    for i, item in enumerate(PATCH_LIST):
-        src = item["src"]
-        dest = item["dest"]
-        print(f"\n[{i + 1}/{len(PATCH_LIST)}] Processing {dest}...")
-
-        if ensure_file_ready(dest):
-            apply_patch(src, dest)
-        else:
-            print(f"  [CRITICAL] Skipping diff due to destination file issue.")
-
-    print("\n--- Patch Application Complete ---")
-
-
-if __name__ == "__main__":
-    # Check for root privileges since operations often target /etc.
-    if os.geteuid() != 0:
-        print("\n[ERROR] This script must be run with root privileges (sudo).\n")
-        exit(1)
-
-    main()

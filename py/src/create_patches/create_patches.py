@@ -1,9 +1,8 @@
 import subprocess
 from pathlib import Path
 
-# --- Configuration ---
-ETC_DOTS_DIR = Path("./etc-dots")
-DIFFS_DIR = Path("./diffs")
+DIFFS_DIR = Path("~/dotcetera").expanduser()
+ETC_DOTS_DIR = Path("~/Lit/dotfiles/etc")
 
 
 def create_patch_for_file(src_file: Path, rel_path: str):
@@ -27,9 +26,11 @@ def create_patch_for_file(src_file: Path, rel_path: str):
             print(f"✅ No changes for {rel_path}")
             patch_file.unlink(missing_ok=True)
         elif result.returncode == 1:
-            patch_file.write_text(result.stdout)
-            status = "NEW" if old_file == "/dev/null" else "PATCHED"
-            print(f"📦 {status}: {patch_file}")
+            _ = subprocess.run(
+                ["diff", "-u", "/dev/null", str(src_file)],
+                stdout=open(patch_file, "w"),
+                check=True,
+            )
         else:
             print(f"❌ Error during diff for {rel_path} (Code {result.returncode})")
 
@@ -52,7 +53,3 @@ def create_patches():
             create_patch_for_file(src_file, rel_path)
 
     print("--- Complete ---")
-
-
-if __name__ == "__main__":
-    create_patches()

@@ -232,7 +232,6 @@ PACMAN=(
 CHAOTIC=(
     anki
     betterbird-bin
-#    dasel                   # YAML/JSON/TOML query/update tool
     dxvk-mingw-git
     brave-bin
     localsend

@@ -1,7 +1,0 @@
-In short ansible was way too complicated and advanced
-for my consumer needs. Then, "cp -r" to /etc
-didn't make me feel comfortable. ChatGPT said
-I therefor am writing a python script to make
-the process safer, but mostly easier to track changes/reverse.
-
-Besides the basic wallpaper script my first real attempt in python

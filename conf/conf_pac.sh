@@ -12,14 +12,14 @@ PACMAN=(
     vulkan-radeon           # Vulkan driver for AMD
 
     # ------- NVIDIA --------
-    dkms                    # Kernel module manager
-    lib32-nvidia-utils      # 32-bit NVIDIA driver support
-    libva-nvidia-driver     # Nvidia VA-API driver
-    linux-headers           # Kernel headers (needed for DKMS)
-    libxnvctrl              # Nvidia X control library
-    ntfs-3g                 # NTFS filesystem support
-    nvidia-dkms             # Nvidia kernel modules
-    nvidia-prime            # Nvidia PRIME support
+    # dkms                    # Kernel module manager
+    # lib32-nvidia-utils      # 32-bit NVIDIA driver support
+    # libva-nvidia-driver     # Nvidia VA-API driver
+    # linux-headers           # Kernel headers (needed for DKMS)
+    # libxnvctrl              # Nvidia X control library
+    # ntfs-3g                 # NTFS filesystem support
+    # nvidia-dkms             # Nvidia kernel modules
+    # nvidia-prime            # Nvidia PRIME support
 
     # ------ System Utilities / Admin Tools ------
     ansible-core

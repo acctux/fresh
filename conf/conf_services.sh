@@ -13,7 +13,6 @@ readonly SERV_ENABLE=(
     avahi-daemon.service
     bluetooth.service
     chronyd.service
-    dnsmasq.service
     firewalld.service
     logid.service
     ly.service

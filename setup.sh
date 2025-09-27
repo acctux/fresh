@@ -5,10 +5,10 @@ set -euo pipefail
 readonly LOG_FILE="$HOME/bootstrap.log"
 
 # ─────── Source Configuration ────── #
-source "$(dirname "$0")/conf/conf-pac.sh"
-source "$(dirname "$0")/conf/conf-grp-srv.sh"
-source "$(dirname "$0")/conf/conf-user.sh"
-source "$(dirname "$0")/conf/conf-folders.sh"
+source "$(dirname "$0")/conf/conf_pac.sh"
+source "$(dirname "$0")/conf/conf_grp-srv.sh"
+source "$(dirname "$0")/conf/conf_user.sh"
+source "$(dirname "$0")/conf/conf_folders.sh"
 
 # ─────── Source Functions ────── #
 source "$(dirname "$0")/lib/utils.sh"
@@ -16,7 +16,7 @@ source "$(dirname "$0")/lib/core/core.sh"
 source "$(dirname "$0")/lib/country/country.sh"
 source "$(dirname "$0")/lib/packages/packages.sh"
 source "$(dirname "$0")/lib/diffs/diffs.sh"
-source "$(dirname "$0")/lib/user-env/user-env.sh"
+source "$(dirname "$0")/lib/user/user-env.sh"
 source "$(dirname "$0")/lib/stow/files.sh"
 source "$(dirname "$0")/lib/services/services.sh"
 source "$(dirname "$0")/lib/post/hide-apps.sh"

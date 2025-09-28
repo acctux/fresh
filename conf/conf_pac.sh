@@ -48,7 +48,7 @@ PACMAN=(
     network-manager-applet
     networkmanager          # Network manager daemon
     nss-mdns                # Multicast DNS support
-    # openresolv              # DNS resolver config support
+    openresolv              # DNS resolver config support
     sshfs                   # Filesystem over SSH
     firewalld               # Firewall management
 

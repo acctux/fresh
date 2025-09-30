@@ -226,13 +226,12 @@ cleanup() {
             umount "$MOUNT_POINT/$sub" || true
         fi
     done
+    if mountpoint -q "$MOUNT_POINT"; then
+        umount "$MOUNT_POINT" || true
     fi
-  if mountpoint -q "$MOUNT_POINT"; then
-      umount "$MOUNT_POINT" || true
-  fi
-  if [[ -n "$SWAP_PARTITION" ]]; then
-      swapoff "$SWAP_PARTITION" || true
-  fi
+    if [[ -n "$SWAP_PARTITION" ]]; then
+        swapoff "$SWAP_PARTITION" || true
+    fi
 }
 
 ansible_etc_playbook() {

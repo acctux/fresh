@@ -124,7 +124,7 @@ configure_pacman() {
     fi
     # Uncomment [multilib], set ParallelDownloads = 10,
     #  Append [chaotic-aur] repo
-    sed -i '/^\[multilib\]/,/^Include/ s/^#//' "$pacman_conf"
+    sed -i '/^#\[multilib\]/,/^#Include/ s/^#//' "$pacman_conf"
     sed -i 's/^ParallelDownloads *= *.*/ParallelDownloads = 10/' "$pacman_conf"
     echo -e '\n[chaotic-aur]\nInclude = /etc/pacman.d/chaotic-mirrorlist' >> "$pacman_conf"
 

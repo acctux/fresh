@@ -2,11 +2,30 @@
 
 # Robust Arch Linux base installer – improved version
 set -Eeuo pipefail
+source "$(dirname "$0")/utils.sh"
 
-source "$(dirname "$0")/lib/services/services.sh"
-source "$(dirname "$0")/lib/mnt-cp-keys.sh"
-source "$(dirname "$0")/lib/conf/conf_user.sh"
-source "$(dirname "$0")/lib/conf/conf_services.sh"
+source "$(dirname "$0")/utils/passwords_util.sh"
+source "$(dirname "$0")/utils/select_from_menu.sh"
+source "$(dirname "$0")/utils/timezone_util.sh"
+source "$(dirname "$0")/utils/yes_no.sh"
+
+source "$(dirname "$0")/lib/system_services.sh"
+source "$(dirname "$0")/lib/mnt_cp_keys.sh"
+source "$(dirname "$0")/lib/disk_management.sh"
+source "$(dirname "$0")/lib/regdom_reflector.sh"
+
+source "$(dirname "$0")/conf/conf_user.sh"
+source "$(dirname "$0")/conf/conf_services.sh"
+source "$(dirname "$0")/conf/conf_pac.sh"
+
+
+# Runtime variables (initially empty)
+DISK=""
+ROOT_PASSWORD=""
+USER_PASSWORD=""
+SWAP_PARTITION=""
+TIMEZONE=""
+BTRFS_MOUNT_OPTIONS="compress=zstd,noatime"
 
 #######################################
 # Disk management functions
@@ -253,6 +272,8 @@ main() {
     install_base_system
     chaotic_repo
     configure_pacman
+    update_wireless_regdom
+    update_reflector
     install_additional_packages
     configure_system
     arch-chroot "$MOUNT_POINT" systemctl enable "${SERV_ENABLE}"

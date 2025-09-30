@@ -1,15 +1,15 @@
 BASE_PAC=(
+    amd-ucode
     base
+    base-devel
+    btrfs-progs
+    git
+    impala                  # IWD TUI interface
     linux
     linux-firmware
-    amd-ucode
-    btrfs-progs
-    base-devel
-    openssh
-    git
+    neovim-lspconfig
     reflector
     wireless-regdb
-    neovim-lspconfig
 )
 
 # ──────────────── PACMAN ──────────────── #
@@ -59,8 +59,6 @@ FRESH_PAC=(
     unbound                  # Validating, recursive, and caching DNS resolver
     # dnsmasq                 # Lightweight DNS/DHCP server
     ldns                    # DNS tools
-    network-manager-applet
-    networkmanager          # Network manager daemon
     nss-mdns                # Multicast DNS support
     openresolv              # DNS resolver config support
     protonmail-bridge       # ProtonMail IMAP bridge
@@ -78,6 +76,7 @@ FRESH_PAC=(
     gnome-keyring           # Keyring daemon
     keepassxc               # Password manager (Qt)
     libgnome-keyring        # Library for GNOME keyring
+    openssh
     seahorse                # GNOME key manager
 
     # -------------- Audio / Sound -------------

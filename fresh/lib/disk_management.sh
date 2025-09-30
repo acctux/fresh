@@ -95,8 +95,8 @@ get_disk_selection() {
 }
 
 
-Only edit below this line, what can be replaced by the above?
-──────────────────────────────────
+Only edit below this line, what is repeated compared to above or could be condensed if the top was split?
+# ──────────────────────────────────
 DEVICE=""
 CHOICE=""
 PARTITIONS=()
@@ -130,57 +130,34 @@ list_and_store_PARTITIONS() {
 }
 
 # ─────────────────── Functions ─────────────────── #
-existing_keys() {
-    for key_file in "${KEY_FILES[@]}"; do
-        if [[ ! -f "$KEY_DIR/$key_file" ]]; then
-            log INFO "$KEY_DIR/$key_file not found."
-            return 1
+list_unmounted_partitions() {
+    local labels=()
+    local devices=()
+    while read -r line; do
+        eval "$line"
+        if [[ "$TYPE" == "part" && -z "$MOUNTPOINT" ]]; then
+            local dev="/dev/$NAME"
+            devices+=("$dev")
+            labels+=("$dev (Size: $SIZE, FS: $FSTYPE, Removable: $RM)")
+        fi
+    done < <(lsblk -P -o NAME,SIZE,FSTYPE,TYPE,MOUNTPOINT,RM)
+
+    if [[ ${#devices[@]} -eq 0 ]]; then
+        fatal "No unmounted partitions found"
+    fi
+
+    local selection
+    selection=$(select_from_menu "Available partitions:" "${labels[@]}")
+    for i in "${!labels[@]}"; do
+        if [[ "${labels[i]}" == "$selection" ]]; then
+            DEVICE="${devices[i]}"
+            break
         fi
     done
-    log info "Keys already found."
-    return 0
 }
 
-make_choice() {
-    while true; do
-        list_and_store_PARTITIONS
-
-        if [[ ${#PARTITIONS[@]} -gt 0 ]]; then
-            break  # Partitions found, exit loop
-        fi
-
-        echo "No partitions detected. Please insert your device and press Enter to retry..."
-        read -r  # Wait for user to press Enter
-    done
-
-    printf "Select partition where keys can be located in the base directory: "
-    read -r CHOICE
-}
-
-validate_choice() {
-    # Validate that 'CHOICE' is a positive integer and within the valid range of PARTITIONS array
-    if [[ ! "$CHOICE" =~ ^[0-9]+$ ]]; then
-        # Check if 'CHOICE' is not a valid number (contains non-digits)
-        log ERROR "Invalid selection: '$CHOICE' is not a valid number"
-        exit 1
-    elif (( CHOICE < 1 || CHOICE > ${#PARTITIONS[@]} )); then
-        # Check if 'CHOICE' is outside the valid range (less than 1 or greater than the number of partitions)
-        log ERROR "Invalid selection: '$CHOICE' is out of range (1 to ${#PARTITIONS[@]})"
-        exit 1
-    fi
-    DEVICE="${PARTITIONS[CHOICE-1]}"
-}
-
-validate_partition() {
-    # check if zero "-z" or not a block device
-    if [[ -z "$DEVICE" || ! -b "$DEVICE" ]]; then
-        log ERROR "Invalid or missing DEVICE: $DEVICE"
-        exit 1
-    fi
-}
-
-mount_CHOICE() {
-    sudo mkdir -p "$KEYS_MNT"
+mount_choice() {
+    KEYS_MNT=$(mktemp -d)
     sudo mount "$DEVICE" "$KEYS_MNT"
     log INFO "Mounted $DEVICE to $KEYS_MNT"
 }

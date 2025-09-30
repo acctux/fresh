@@ -1,18 +1,21 @@
 #######################################
 # Global configuration and constants
 #######################################
-readonly SCRIPT_NAME="archinstall"
+readonly SCRIPT_NAME="fresh_arch"
 readonly LOG_FILE="/tmp/${SCRIPT_NAME}.log"
+readonly COUNTRY_NAME='United States'
+readonly COUNTRY_CODE="US"
 readonly MOUNT_POINT="/mnt"
-readonly FILESYSTEM_TYPE="btrfs"
 readonly USERNAME="nick"
 readonly HOSTNAME="arch"
 readonly SWAP_SIZE="28G"
 readonly EFI_SIZE="512M"
 readonly LOCALE="en_US.UTF-8"
+readonly MOUNT_USER="$MOUNT_POINT/home/$USERNAME"
 readonly DEFAULT_TIMEZONE="America/Eastern"
-readonly EDITOR_CHOICE="nvim"
+
 KEY_DIR="$MOUNT_POINT/.ssh"
+
 KEY_FILES=(
     "my-private-key.asc"
     "id_ed25519"
@@ -26,11 +29,3 @@ readonly GREEN='\033[0;32m'
 readonly YELLOW='\033[1;33m'
 readonly BLUE='\033[0;34m'
 readonly NC='\033[0m'
-
-# Runtime variables (initially empty)
-DISK=""
-ROOT_PASSWORD=""
-USER_PASSWORD=""
-SWAP_PARTITION=""
-TIMEZONE=""
-BTRFS_MOUNT_OPTIONS="compress=zstd,noatime"

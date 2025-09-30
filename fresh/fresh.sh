@@ -26,7 +26,7 @@ USER_PASSWORD=""
 SWAP_PARTITION=""
 TIMEZONE=""
 BTRFS_MOUNT_OPTIONS="compress=zstd,noatime"
-SWAP_PARTITION="$swap_partition"
+SWAP_PARTITION="swap_partition"
 
 #######################################
 # Disk management functions

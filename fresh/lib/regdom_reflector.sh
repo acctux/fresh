@@ -1,6 +1,6 @@
-readonly mirror_age=24
-readonly mirror_quant=20
+readonly ref_quant=20
 readonly ref_timeout=2
+
 update_wireless_regdom() {
     local regdom_conf="$MOUNT_POINT/etc/conf.d/wireless-regdom"
 

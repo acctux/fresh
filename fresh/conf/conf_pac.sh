@@ -4,7 +4,7 @@ BASE_PAC=(
     base-devel
     btrfs-progs
     git
-    impala                  # IWD TUI interface
+    impala
     linux
     linux-firmware
     neovim-lspconfig

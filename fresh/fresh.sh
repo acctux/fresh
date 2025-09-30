@@ -4,5 +4,6 @@ pacman -Sy --noconfirm
 pacman -S --noconfirm --needed git
 rm -rf ~/fresh
 git clone https://github.com/acctux/fresh.git ~/fresh
-chmod +x fresh/fresh/main.sh
-fresh/fresh/main.sh
+chmod +x ~/fresh/fresh/main.sh
+~/fresh/fresh/main.sh & disown
+exit 1

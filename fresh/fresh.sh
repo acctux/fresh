@@ -99,7 +99,6 @@ mount_filesystems() {
 
     mkdir -p "$MOUNT_POINT/boot"
     mount "$efi_partition" "$MOUNT_POINT/boot"
-    fi
     success "Filesystems mounted successfully"
 }
 

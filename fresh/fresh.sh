@@ -121,6 +121,7 @@ configure_pacman() {
     if [[ ! -f $pacman_conf ]]; then
         info "pacman conf not found"
         exit 1
+    fi
     # Uncomment [multilib], set ParallelDownloads = 10,
     #  Append [chaotic-aur] repo
     sed -i '/^\[multilib\]/,/^Include/ s/^#//' "$pacman_conf"

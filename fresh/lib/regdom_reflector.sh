@@ -19,7 +19,7 @@ update_reflector() {
 		--completion-percent 100 \
 		--number $mirror_quant \
 		--sort rate \
-		--timeout mirror_timeout \
+		--timeout $mirror_timeout \
 		--save /etc/pacman.d/mirrorlist
 }
 

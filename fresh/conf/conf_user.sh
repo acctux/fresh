@@ -3,7 +3,6 @@
 #######################################
 readonly SCRIPT_NAME="fresh_arch"
 readonly LOG_FILE="/tmp/${SCRIPT_NAME}.log"
-readonly COUNTRY_NAME='United States'
 readonly COUNTRY_CODE="US"
 readonly MOUNT_POINT="/mnt"
 readonly USERNAME="nick"

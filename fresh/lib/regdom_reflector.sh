@@ -10,7 +10,7 @@ update_wireless_regdom() {
 
 update_reflector() {
     reflector \
-  		--country $COUNTRY_NAME \
+  		--country $COUNTRY_CODE \
 		--latest 25 \
 		--age 24 \
 		--protocol https \
@@ -23,7 +23,7 @@ mirrors_config() {
 	print "Configuring reflector."
 
 	cat > /mnt/etc/xdg/reflector/reflector.conf <<- EOF
-		--country $COUNTRY_NAME
+		--country $COUNTRY_CODE
 		--latest 25
 		--age 24
 		--protocol https

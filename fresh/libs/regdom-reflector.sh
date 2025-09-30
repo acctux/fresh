@@ -16,19 +16,11 @@ update_wireless_regdom() {
     log INFO "Set wireless regulatory domain to $COUNTRY_CODE and updated $file"
 }
 
-update_mirrorlist_if_changed() {
-    local mirrorlist_file="/etc/pacman.d/mirrorlist"
+update_mirrorlist() {
     local reflector_conf="/etc/xdg/reflector/reflector.conf"
-    local fresh_cache="$HOME/.cache/fresh"
-    local reflector_flag="$fresh_cache/reflector.flag"
-    mkdir -p "$fresh_cache"
-    if [[ -f "$reflector_flag" ]]; then
-        echo "Mirrorlist already updated. Skipping."
-        return 0
-    fi
     sudo tee "$reflector_conf" > /dev/null <<EOF
 
---save $mirrorlist_file
+--save "/etc/pacman.d/mirrorlist"
 
 --protocol https
 

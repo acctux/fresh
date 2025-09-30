@@ -1,5 +1,19 @@
+BASE_PAC=(
+    base
+    linux
+    linux-firmware
+    amd-ucode
+    btrfs-progs
+    base-devel
+    openssh
+    git
+    reflector
+    wireless-regdb
+    neovim-lspconfig
+)
+
 # ──────────────── PACMAN ──────────────── #
-PACMAN=(
+FRESH_PAC=(
     # ------- System Core / Kernel / Boot / Firmware --------
     acpi                    # Power & thermal info
     dosfstools
@@ -21,22 +35,22 @@ PACMAN=(
     # nvidia-dkms             # Nvidia kernel modules
     # nvidia-prime            # Nvidia PRIME support
 
-    # ------ System Utilities / Admin Tools ------
-    ansible-core
+    # ------ System Utilities ------ #
+    ananicy-cpp
+    powertop                # Power consumption monitor
     btop                    # Resource monitor
-    firejail                # Sandboxing
-    etckeeper
+    solaar                  # Logitech device manager
     keyd                    # Keyboard remapping daemon
+    tuned-ppd               # Power management tool
+
+    # ------ Admin Tools ------
+    ansible-core
+    etckeeper
+    firejail                # Sandboxing
     logrotate               # Rotates system logs
     man-db                  # Manual page database
     man-pages               # POSIX and GNU man pages
-    rebuild-detector        # Detect package rebuilds
     tealdeer                # Fast tldr client
-    tuned-ppd               # Power management tool
-    pacman-contrib          # Pacman extras (paccache, checkupdates)
-    protonmail-bridge       # ProtonMail IMAP bridge
-    powertop                # Power consumption monitor
-    solaar                  # Logitech device manager
 
     # ------ Networking / Internet / DNS ------
     blueman                 # Bluetooth manager
@@ -49,8 +63,16 @@ PACMAN=(
     networkmanager          # Network manager daemon
     nss-mdns                # Multicast DNS support
     openresolv              # DNS resolver config support
+    protonmail-bridge       # ProtonMail IMAP bridge
     sshfs                   # Filesystem over SSH
     firewalld               # Firewall management
+
+    # ----- Software Handling -----
+    rebuild-detector        # Detect package rebuilds
+    expac                   # Query pacman database, size, install date, etc.
+    pacman-contrib          # Pacman extras (paccache, checkupdates)
+    pkgfile
+    pkgdiff
 
     # ---------- Security / Secrets ----------
     gnome-keyring           # Keyring daemon
@@ -152,12 +174,9 @@ PACMAN=(
     # ------------ CLI Script tools ------------
     aria2                   # Download utility
     choose                  # CLI selector
-    expac                   # Query pacman database, size, install date, etc.
     fd                      # Fast file search
     grex                    # Regex generator
     parallel                # Parallel command runner
-    pkgfile
-    pkgdiff
     pv                      # Pipe viewer
     sd                      # Sed alternative
     trash-cli               # Trash management CLI
@@ -226,10 +245,8 @@ PACMAN=(
     webkit2gtk
     unarchiver              # Archive extraction tool
     yt-dlp                  # Youtube downloader
-)
 
-    # ------------ Chaotic-Aur --------------
-CHAOTIC=(
+    # ------------ Chaotic AUR packages ----------
     anki
     betterbird-bin
     dxvk-mingw-git

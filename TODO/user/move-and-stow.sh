@@ -27,6 +27,7 @@ stow_dotfiles() {
 }
 
 move_and_stow() {
+    sudo cp ~/.gitconfig /root
     echo "[INFO] Generating target file list..."
     generate_target_list
 

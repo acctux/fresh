@@ -1,0 +1,5 @@
+all:
+  hosts:
+    chroot_env:
+      ansible_connection: community.general.chroot
+      ansible_chroot_path: /mnt

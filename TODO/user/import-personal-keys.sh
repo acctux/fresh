@@ -16,17 +16,6 @@ set_correct_permissions() {
     done
 }
 
-# cat needs to be exactly as written in destination (don't indent)
-create_ssh_config() {
-    mkdir -p "$KEY_DIR"
-    if [[ ! -f "$KEY_DIR/config" ]]; then
-        cp "$HOME/fresh/lib/core/config" "~/.ssh"
-        ensure_mode "$KEY_DIR/config" 600
-    else
-        log INFO "SSH config already set. Skipping."
-    fi
-}
-
 # Key import
 setup_ssh_agent() {
     # Start keychain only if SSH agent is not running or socket missing

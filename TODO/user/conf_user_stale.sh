@@ -6,15 +6,8 @@ DIFFS_DIR="$HOME/dotcetera"
 CHAOTIC_KEY_FILE="$HOME/Lit/dotfiles/chaotic.gpg"
 
 # --------- Keys -----------
-KEY_DIR="$HOME/.ssh"
 GPG_KEYFILE="$KEY_DIR/my-private-key.asc"
 SSH_KEY="$KEY_DIR/id_ed25519"
-KEY_FILES=(
-    "my-private-key.asc"
-    "id_ed25519"
-    "my-public-key.asc"
-    "id_ed25519.pub"
-)
 
 # --------- Git -----------
 GIT_USER="acctux"

@@ -1,4 +1,4 @@
-# ──────────────── USER  SERVICES──────────────── #
+# ──────────────── USER  Enable──────────────── #
 readonly SERV_USER_ENABLE=(
     pipewire.service
     pipewire-pulse.service
@@ -7,9 +7,9 @@ readonly SERV_USER_ENABLE=(
     gcr-ssh-agent.socket
 )
 
-# ──────────────── SYSTEM ──────────────── #
-# Enable
+# ──────────────── SYSTEM Enable ──────────────── #
 readonly SERV_ENABLE=(
+    ananicy-cpp.service
     avahi-daemon.service
     bluetooth.service
     chronyd.service
@@ -24,11 +24,13 @@ readonly SERV_ENABLE=(
     paccache.timer
     reflector.timer
 )
-# Disable
+
+# ──────────────── SYSTEM Disable ──────────────── #
 readonly SERV_DISABLE=(
     systemd-timesyncd.service
 )
-# Mask
+
+# ──────────────── SYSTEM Mask ──────────────── #
 readonly SERV_MASK=(
     ntpd.service
     ntpdate.service

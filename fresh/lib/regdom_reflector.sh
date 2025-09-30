@@ -1,3 +1,6 @@
+readonly mirror_age=12
+readonly mirror_quant=15
+
 update_wireless_regdom() {
     local regdom_conf="$MOUNT_POINT/etc/conf.d/wireless-regdom"
 
@@ -11,24 +14,23 @@ update_wireless_regdom() {
 update_reflector() {
     reflector \
   		--country $COUNTRY_CODE \
-		--latest 25 \
-		--age 24 \
+		--age $mirror_age \
 		--protocol https \
 		--completion-percent 100 \
+		--number $mirror_quant \
 		--sort rate \
 		--save /etc/pacman.d/mirrorlist
 }
 
 update_reflector_conf() {
-	print "Configuring reflector."
-
+    info "Writing reflector configuration."
 	cat > /mnt/etc/xdg/reflector/reflector.conf <<- EOF
-		--country $COUNTRY_CODE
-		--latest 25
-		--age 24
-		--protocol https
-		--completion-percent 100
-		--sort rate
-		--save /etc/pacman.d/mirrorlist
+	--country $COUNTRY_CODE \
+	--age $mirror_age \
+	--protocol https \
+	--completion-percent 100 \
+	--number $mirror_quant \
+	--sort rate \
+	--save /etc/pacman.d/mirrorlist
 	EOF
 }

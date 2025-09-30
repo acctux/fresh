@@ -108,6 +108,7 @@ mount_filesystems() {
 install_base_system() {
     info "Installing base system (minimal)"
     pacman -Sy --noconfirm
+    echo $MOUNT_POINT ${BASE_PAC[@]}
     pacstrap --noconfirm "$MOUNT_POINT" "${BASE_PAC[@]}"
     success "Base system installed successfully"
 }

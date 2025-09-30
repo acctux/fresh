@@ -119,13 +119,12 @@ configure_pacman() {
     info "Configuring pacman"
     local pacman_conf="$MOUNT_POINT/etc/pacman.conf"
 
-    sed -i -e '/^\[multilib\]/,/^Include/ s/^#//' \
-        -e '/^\[chaotic-aur\]/q' \
-        -e '$a\
-[chaotic-aur]\
-Include = /etc/pacman.d/chaotic-mirrorlist' "$pacman_conf"
+    # Uncomment [multilib], set ParallelDownloads = 10,
+    #  Append [chaotic-aur] repo
+    sed -i '/^\[multilib\]/,/^Include/ s/^#//' "$pacman_conf"
+    sed -i 's/^ParallelDownloads *= *.*/ParallelDownloads = 10/' "$pacman_conf"
+    echo -e '\n[chaotic-aur]\nInclude = /etc/pacman.d/chaotic-mirrorlist' >> "$pacman_conf"
 
-    sed -i 's/^ParallelDownloads *= *5/ParallelDownloads = 10/' $pacman_conf
     arch-chroot "$MOUNT_POINT" pacman -Sy --noconfirm
     success "Pacman configured successfully"
 }

@@ -1,5 +1,5 @@
 readonly ref_quant=20
-readonly ref_timeout=2
+readonly ref_timeout=3
 
 update_wireless_regdom() {
     local regdom_conf="$MOUNT_POINT/etc/conf.d/wireless-regdom"

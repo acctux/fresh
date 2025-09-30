@@ -26,6 +26,7 @@ USER_PASSWORD=""
 SWAP_PARTITION=""
 TIMEZONE=""
 BTRFS_MOUNT_OPTIONS="compress=zstd,noatime"
+SWAP_PARTITION="$swap_partition"
 
 #######################################
 # Disk management functions
@@ -60,7 +61,6 @@ format_partitions() {
     local swap_partition="${prefix}2"
     local root_partition="${prefix}3"
 
-    SWAP_PARTITION="$swap_partition"
     mkfs.fat -F32 "$efi_partition"
     mkswap "$swap_partition"
     swapon "$swap_partition"

@@ -118,7 +118,7 @@ chaotic_repo() {
 configure_pacman() {
     info "Configuring pacman"
     local pacman_conf="$MOUNT_POINT/etc/pacman.conf"
-    if [[ ! -f $pacman_conf ]]:
+    if [[ ! -f $pacman_conf ]]; then
         info "pacman conf not found"
         exit 1
     # Uncomment [multilib], set ParallelDownloads = 10,

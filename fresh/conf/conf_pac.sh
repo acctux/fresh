@@ -3,8 +3,6 @@ BASE_PAC=(
     base
     base-devel
     btrfs-progs
-    git
-    impala
     linux
     linux-firmware
     neovim-lspconfig
@@ -58,6 +56,7 @@ FRESH_PAC=(
     chrony                  # Time sync service (NTP)
     unbound                  # Validating, recursive, and caching DNS resolver
     # dnsmasq                 # Lightweight DNS/DHCP server
+    impala
     ldns                    # DNS tools
     nss-mdns                # Multicast DNS support
     openresolv              # DNS resolver config support
@@ -193,6 +192,7 @@ FRESH_PAC=(
 
     # ---------- Console Applications ---------------
     fdupes                  # Find duplicate files
+    git
     git-delta               # Git diff viewer
     github-cli              # GitHub CLI tool
     lazygit                 # Git TUI client
@@ -210,7 +210,6 @@ FRESH_PAC=(
     jdk-openjdk             # JRE is a dependency, may as well have the kit
     lua-sec                 # SSL support for Lua
     luarocks                # Lua package manager
-    mise                    # Version/environment manager
     neovim-lspconfig        # LSP config for Neovim
     shfmt                   # Shell script formatter
     rust-analyzer           # Rust language server

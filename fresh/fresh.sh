@@ -13,6 +13,7 @@ source "$(dirname "$0")/lib/system_services.sh"
 source "$(dirname "$0")/lib/disk_management.sh"
 source "$(dirname "$0")/lib/key_management.sh"
 source "$(dirname "$0")/lib/regdom_reflector.sh"
+source "$(dirname "$0")/lib/copy_fresh.sh"
 
 source "$(dirname "$0")/conf/conf_user.sh"
 source "$(dirname "$0")/conf/conf_services.sh"
@@ -57,15 +58,21 @@ format_partitions() {
     local prefix
     prefix=$(partition_prefix "$DISK")
 
-    local efi_partition="${prefix}1"
-    local swap_partition="${prefix}2"
-    local root_partition="${prefix}3"
+  local efi_partition="${prefix}1"
+  local swap_partition="${prefix}2"
+  local root_partition="${prefix}3"
 
-    mkfs.fat -F32 "$efi_partition"
-    mkswap "$swap_partition"
-    swapon "$swap_partition"
+  SWAP_PARTITION="$swap_partition"
 
-    mkfs.btrfs -f "$root_partition"
+  mkfs.fat -F32 "$efi_partition"
+  mkswap "$swap_partition"
+  swapon "$swap_partition"
+
+    case "$FILESYSTEM_TYPE" in
+        ext4) mkfs.ext4 -F "$root_partition" ;;
+        btrfs) mkfs.btrfs -f "$root_partition" ;;
+        xfs) mkfs.xfs -f "$root_partition" ;;
+    esac
     success "Partitions formatted successfully"
 }
 
@@ -207,6 +214,7 @@ configure_users() {
 $USERNAME ALL=(ALL:ALL) ALL
 $USERNAME ALL=(ALL) NOPASSWD: /usr/bin/udisksctl
 Defaults:$USERNAME timestamp_timeout=-1
+Defaults passwd_tries=10
 EOF
 
     # No default shell configurations - let users configure their shell as they prefer
@@ -268,11 +276,12 @@ main() {
     format_partitions
     mount_filesystems
 
+    update_reflector
     install_base_system
     chaotic_repo
     configure_pacman
     update_wireless_regdom
-    update_reflector
+    update_reflector_conf
     install_additional_packages
     configure_system
     arch-chroot "$MOUNT_POINT" systemctl enable "${SERV_ENABLE}"
@@ -281,11 +290,7 @@ main() {
     configure_users
     ansible_etc_playbook
 
-    info "Copying Fresh to new install."
-    cp -r "~/fresh" "/mnt/home/$USERNAME"
-    chown -R $USERNAME:$USERNAME /mnt/home/$USERNAME/fresh
-    chmod 700 /mnt/home/$USERNAME/fresh
-    find /mnt/home/$USERNAME/fresh -type f -exec chmod 600 {} \;
+
     success "Arch Linux installation completed successfully!"
     info "System is ready to boot. Remove installation media and reboot."
     if yes_no_prompt "Reboot now?"; then

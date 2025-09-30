@@ -1,25 +1,3 @@
-select_from_menu() {
-    # Generic menu selection helper
-    local prompt="$1"
-    shift
-    local options=("$@")
-    local num="${#options[@]}"
-    local choice
-    while true; do
-        info "$prompt" >&2
-        for i in "${!options[@]}"; do
-            printf '%d) %s\n' "$((i+1))" "${options[i]}" >&2
-        done
-        if ! read -rp "Select an option (1-${num}): " choice; then
-            fatal "Input aborted"
-        fi
-        if [[ "$choice" =~ ^[0-9]+$ ]] && (( choice >= 1 && choice <= num )); then
-            echo "${options[$((choice-1))]}"
-            return 0
-        fi
-        warning "Invalid choice. Please select a number between 1 and ${num}." >&2
-    done
-}
 #######################################
 # Prompt helpers
 #######################################
@@ -57,6 +35,8 @@ validate_disk_size() {
 #######################################
 # User input functions
 #######################################
+
+
 get_disk_selection() {
     info "Detecting available disks..."
     local disks=()
@@ -94,35 +74,139 @@ get_disk_selection() {
     yes_no_prompt "WARNING: All data on $DISK will be destroyed. Continue?" || fatal "Installation cancelled by user"
 }
 
-# ─────────────────── Functions ─────────────────── #
-list_unmounted_partitions() {
-    local labels=()
-    local devices=()
-    while read -r line; do
-        eval "$line"
-        if [[ "$TYPE" == "part" && -z "$MOUNTPOINT" ]]; then
-            local dev="/dev/$NAME"
-            devices+=("$dev")
-            labels+=("$dev (Size: $SIZE, FS: $FSTYPE, Removable: $RM)")
-        fi
-    done < <(lsblk -P -o NAME,SIZE,FSTYPE,TYPE,MOUNTPOINT,RM)
+get_filesystem_type() {
+    FILESYSTEM_TYPE=$(select_from_menu \
+        "Select filesystem type:" \
+        "ext4 (traditional, stable)" \
+        "btrfs (modern, with snapshots)" \
+        "xfs (high performance)" \
+    )
+    case "$FILESYSTEM_TYPE" in
+        ext4*) FILESYSTEM_TYPE="ext4" ;;
+        btrfs*) FILESYSTEM_TYPE="btrfs" ;;
+        xfs*) FILESYSTEM_TYPE="xfs" ;;
+    esac
+    success "Selected filesystem: $FILESYSTEM_TYPE"
+}
 
-    if [[ ${#devices[@]} -eq 0 ]]; then
-        fatal "No unmounted partitions found"
+get_btrfs_layout() {
+    if yes_no_prompt "Use the default Btrfs subvolume layout?"; then
+        info "Using default Btrfs layout"
+    else
+        warning "Custom Btrfs layouts are not implemented in this script. Falling back to default layout."
     fi
 
-    local selection
-    selection=$(select_from_menu "Available partitions:" "${labels[@]}")
-    for i in "${!labels[@]}"; do
-        if [[ "${labels[i]}" == "$selection" ]]; then
-            DEVICE="${devices[i]}"
-            break
+    if yes_no_prompt "Use default Btrfs mount options (compress=zstd,noatime)?"; then
+        info "Using default mount options"
+    else
+        if ! read -rp "Enter Btrfs mount options (e.g. compress=lzo,noatime): " BTRFS_MOUNT_OPTIONS; then
+            fatal "Input aborted"
         fi
-    done
+        success "Btrfs mount options set to: $BTRFS_MOUNT_OPTIONS"
+    fi
 }
 
-mount_choice() {
-    KEYS_MNT=$(mktemp -d)
-    sudo mount "$DEVICE" "$KEYS_MNT"
-    log INFO "Mounted $DEVICE to $KEYS_MNT"
+get_bootloader_selection() {
+    BOOTLOADER=$(select_from_menu \
+        "Select bootloader:" \
+        "grub (traditional)" "systemd-boot (simple UEFI)" "refind (graphical)" \
+    )
+    case "$BOOTLOADER" in
+        grub*)        BOOTLOADER="grub" ;;
+        systemd-boot*) BOOTLOADER="systemd-boot" ;;
+        refind*)      BOOTLOADER="refind" ;;
+    esac
+    success "Selected bootloader: $BOOTLOADER"
+
+    if [[ "$BOOTLOADER" == "systemd-boot" ]]; then
+        if ! read -rp "Enter bootloader timeout in seconds [default 3]: " timeout; then
+            fatal "Input aborted"
+        fi
+        if [[ -n "$timeout" && "$timeout" =~ ^[0-9]+$ ]]; then
+            BOOTLOADER_TIMEOUT="$timeout"
+            success "Bootloader timeout set to $BOOTLOADER_TIMEOUT seconds"
+        else
+            info "Using default timeout of 3 seconds"
+        fi
+    fi
 }
+
+#######################################
+# Disk management functions
+#######################################
+partition_prefix() {
+    local disk="$1"
+    if [[ "$disk" =~ (nvme|mmcblk|loop) ]]; then
+        echo "${disk}p"
+    else
+        echo "$disk"
+    fi
+}
+
+create_partitions() {
+    info "Creating partitions on $DISK"
+    wipefs -af "$DISK"
+    sgdisk --zap-all "$DISK" >/dev/null
+    sgdisk -n 1:0:+${EFI_SIZE} -t 1:ef00 "$DISK"
+    sgdisk -n 2:0:+${SWAP_SIZE} -t 2:8200 "$DISK"
+    sgdisk -n 3:0:0 -t 3:8300 "$DISK"
+    partprobe "$DISK"
+    sleep 2
+    success "Partitions created successfully"
+}
+
+format_partitions() {
+    info "Formatting partitions"
+    local prefix
+    prefix=$(partition_prefix "$DISK")
+
+  local efi_partition="${prefix}1"
+  local swap_partition="${prefix}2"
+  local root_partition="${prefix}3"
+
+  SWAP_PARTITION="$swap_partition"
+
+  mkfs.fat -F32 "$efi_partition"
+  mkswap "$swap_partition"
+  swapon "$swap_partition"
+
+    case "$FILESYSTEM_TYPE" in
+        ext4) mkfs.ext4 -F "$root_partition" ;;
+        btrfs) mkfs.btrfs -f "$root_partition" ;;
+        xfs) mkfs.xfs -f "$root_partition" ;;
+    esac
+    success "Partitions formatted successfully"
+}
+
+mount_filesystems() {
+    info "Mounting filesystems"
+    local prefix
+    prefix=$(partition_prefix "$DISK")
+
+    local efi_partition="${prefix}1"
+    local root_partition="${prefix}3"
+
+    mount "$root_partition" "$MOUNT_POINT"
+    mkdir -p "$MOUNT_POINT/boot"
+    mount "$efi_partition" "$MOUNT_POINT/boot"
+
+    if [[ "$FILESYSTEM_TYPE" == "btrfs" ]]; then
+        btrfs subvolume create "$MOUNT_POINT/@"
+        btrfs subvolume create "$MOUNT_POINT/@home"
+        btrfs subvolume create "$MOUNT_POINT/@log"
+        btrfs subvolume create "$MOUNT_POINT/@pkg"
+
+        umount "$MOUNT_POINT/boot"
+        umount "$MOUNT_POINT"
+
+        mount -o subvol=@,$BTRFS_MOUNT_OPTIONS "$root_partition" "$MOUNT_POINT"
+
+        mkdir -p "$MOUNT_POINT/home" "$MOUNT_POINT/var/log" "$MOUNT_POINT/var/cache/pacman/pkg"
+        mount -o subvol=@home,$BTRFS_MOUNT_OPTIONS "$root_partition" "$MOUNT_POINT/home"
+        mount -o subvol=@log,$BTRFS_MOUNT_OPTIONS "$root_partition" "$MOUNT_POINT/var/log"
+        mount -o subvol=@pkg,$BTRFS_MOUNT_OPTIONS "$root_partition" "$MOUNT_POINT/var/cache/pacman/pkg"
+
+        mkdir -p "$MOUNT_POINT/boot"
+        mount "$efi_partition" "$MOUNT_POINT/boot"
+    fi
+    success "Filesystems mounted successfully"

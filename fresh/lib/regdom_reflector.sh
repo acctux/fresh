@@ -5,31 +5,30 @@ update_wireless_regdom() {
     # -e "\$aWIRELESS_REGDOM=\"$COUNTRY_CODE\"": $ refers to the last line of the file. a=append
     sudo sed -i -E -e '/^[[:space:]]*WIRELESS_REGDOM=/d' -e "\$aWIRELESS_REGDOM=\"$COUNTRY_CODE\"" "$regdom_conf"
 
-    info "Set wireless regulatory domain to $COUNTRY_CODE and updated $file"
+    info "Set wireless regulatory domain to $COUNTRY_CODE and updated $regdom_conf"
 }
 
 update_reflector() {
-    local reflector_conf="$MOUNT_POINT/etc/xdg/reflector/reflector.conf"
-    sudo tee "$reflector_conf" > /dev/null <<EOF
+    reflector \
+  		--country $COUNTRY_NAME \
+		--latest 25 \
+		--age 24 \
+		--protocol https \
+		--completion-percent 100 \
+		--sort rate \
+		--save /etc/pacman.d/mirrorlist
+}
 
---save "/etc/pacman.d/mirrorlist"
+mirrors_config() {
+	print "Configuring reflector."
 
---protocol https
-
---country $COUNTRY_NAME
-
---latest 15
-
---sort rate
-
---fastest 5
-
---timeout 2
-
---ip-version all
-EOF
-
-    echo "Updating mirrorlist..."
-    sudo reflector --country "$COUNTRY_NAME" --latest 10 --sort rate --save "$mirrorlist_file"
-    touch $reflector_flag
+	cat > /mnt/etc/xdg/reflector/reflector.conf <<- EOF
+		--country $COUNTRY_NAME
+		--latest 25
+		--age 24
+		--protocol https
+		--completion-percent 100
+		--sort rate
+		--save /etc/pacman.d/mirrorlist
+	EOF
 }

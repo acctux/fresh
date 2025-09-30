@@ -94,41 +94,6 @@ get_disk_selection() {
     yes_no_prompt "WARNING: All data on $DISK will be destroyed. Continue?" || fatal "Installation cancelled by user"
 }
 
-
-Only edit below this line, what is repeated compared to above or could be condensed if the top was split?
-# ──────────────────────────────────
-DEVICE=""
-CHOICE=""
-PARTITIONS=()
-KEYS_MNT=$(mktemp -d)
-
-# ─────────────────── Helpers ─────────────────── #
-list_and_store_PARTITIONS() {
-    log INFO "Detecting available PARTITIONS..."
-
-    # Reset PARTITIONS=()
-    PARTITIONS=()
-    local index=1
-
-    while read -r line; do
-        # Parse using eval
-        eval "$line"
-
-        # Check if it's an unmounted partition
-        if [[ "$TYPE" == "part" && -z "$MOUNTPOINT" ]]; then
-            local dev="/dev/$NAME"
-            PARTITIONS+=("$dev")
-
-            local mount_status="UNMOUNTED"
-
-            printf "%d) %-10s Size: %-6s FS: %-6s Mounted: %-12s Removable: %s\n" \
-                "$index" "$dev" "$SIZE" "$FSTYPE" "$mount_status" "$RM"
-
-            ((index++))
-        fi
-    done < <(lsblk -P -o NAME,SIZE,FSTYPE,TYPE,MOUNTPOINT,RM)
-}
-
 # ─────────────────── Functions ─────────────────── #
 list_unmounted_partitions() {
     local labels=()

@@ -28,7 +28,6 @@ USER_PASSWORD=""
 SWAP_PARTITION=""
 TIMEZONE=""
 BTRFS_MOUNT_OPTIONS="compress=zstd,noatime"
-SWAP_PARTITION="swap_partition"
 
 #######################################
 # Disk management functions
@@ -236,7 +235,6 @@ main() {
     info "Starting Arch Linux installation"
 
     get_disk_selection
-    configure_swap_size
     validate_disk_size
     choose_timezone
     ROOT_PASSWORD=$(get_password "Enter root password")

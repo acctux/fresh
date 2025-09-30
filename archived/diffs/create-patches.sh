@@ -1,4 +1,4 @@
-# Create patch for one file
+
 create_patch_for_file() {
     local src_file="$1"
     local rel_path="$2"
@@ -22,7 +22,6 @@ create_patch_for_file() {
     fi
 }
 
-# Loop through all files and create patches
 create_patches() {
     find "$ETC_DOTS_DIR" -type f | while read -r src_file; do
         rel_path="${src_file#$ETC_DOTS_DIR/}"

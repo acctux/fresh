@@ -19,7 +19,7 @@ update_reflector() {
 		--save /etc/pacman.d/mirrorlist
 }
 
-mirrors_config() {
+update_reflector_conf() {
 	print "Configuring reflector."
 
 	cat > /mnt/etc/xdg/reflector/reflector.conf <<- EOF

@@ -125,7 +125,7 @@ configure_pacman() {
 [chaotic-aur]\
 Include = /etc/pacman.d/chaotic-mirrorlist' "$pacman_conf"
 
-    sudo sed -i 's/^ParallelDownloads *= *5/ParallelDownloads = 10/' $pacman_conf
+    sed -i 's/^ParallelDownloads *= *5/ParallelDownloads = 10/' $pacman_conf
     arch-chroot "$MOUNT_POINT" pacman -Sy --noconfirm
     success "Pacman configured successfully"
 }
@@ -259,6 +259,7 @@ main() {
     configure_pacman
     update_wireless_regdom
     update_reflector_conf
+    arch-chroot "$MOUNT_POINT" pacman -Sy
     install_additional_packages
     configure_system
     arch-chroot "$MOUNT_POINT" systemctl enable "${SERV_ENABLE}"

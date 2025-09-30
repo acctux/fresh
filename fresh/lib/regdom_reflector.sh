@@ -1,6 +1,6 @@
-readonly mirror_age=12
-readonly mirror_quant=15
-
+readonly mirror_age=24
+readonly mirror_quant=20
+readonly mirror_timeout=2
 update_wireless_regdom() {
     local regdom_conf="$MOUNT_POINT/etc/conf.d/wireless-regdom"
 
@@ -19,6 +19,7 @@ update_reflector() {
 		--completion-percent 100 \
 		--number $mirror_quant \
 		--sort rate \
+		--timeout mirror_timeout \
 		--save /etc/pacman.d/mirrorlist
 }
 
@@ -31,6 +32,7 @@ update_reflector_conf() {
 	--completion-percent 100 \
 	--number $mirror_quant \
 	--sort rate \
+	--timeout $mirror_timeout \
 	--save /etc/pacman.d/mirrorlist
 	EOF
 }

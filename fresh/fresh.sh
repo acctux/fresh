@@ -10,8 +10,8 @@ source "$(dirname "$0")/utils/timezone_util.sh"
 source "$(dirname "$0")/utils/yes_no.sh"
 
 source "$(dirname "$0")/lib/system_services.sh"
-source "$(dirname "$0")/lib/mnt_cp_keys.sh"
 source "$(dirname "$0")/lib/disk_management.sh"
+source "$(dirname "$0")/lib/key_management.sh"
 source "$(dirname "$0")/lib/regdom_reflector.sh"
 
 source "$(dirname "$0")/conf/conf_user.sh"

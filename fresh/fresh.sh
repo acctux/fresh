@@ -118,7 +118,9 @@ chaotic_repo() {
 configure_pacman() {
     info "Configuring pacman"
     local pacman_conf="$MOUNT_POINT/etc/pacman.conf"
-
+    if [[ ! -f $pacman_conf ]]:
+        info "pacman conf not found"
+        exit 1
     # Uncomment [multilib], set ParallelDownloads = 10,
     #  Append [chaotic-aur] repo
     sed -i '/^\[multilib\]/,/^Include/ s/^#//' "$pacman_conf"
@@ -229,7 +231,7 @@ ansible_etc_playbook() {
 main() {
     require_root
     check_dependencies
-    trap cleanup EXIT
+    # trap cleanup EXIT
     trap 'error_trap $LINENO $BASH_COMMAND' ERR
     info "Starting Arch Linux installation"
 

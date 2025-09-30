@@ -1,41 +1,6 @@
 #######################################
-# Prompt helpers
-#######################################
-
-validate_disk() {
-    local disk="$1"
-    if [[ ! -b "$disk" ]]; then
-        fatal "Disk $disk does not exist or is not a block device"
-    fi
-
-    if [[ $(lsblk -dn -o TYPE "$disk") != "disk" ]]; then
-        fatal "Target $disk is not a disk device"
-    fi
-
-    if lsblk -rno MOUNTPOINT "$disk" | grep -qE '\S'; then
-        fatal "Disk $disk has mounted partitions. Please unmount them before proceeding."
-    fi
-
-    success "Disk $disk validated"
-}
-
-validate_disk_size() {
-    local disk_bytes efi_bytes swap_bytes root_min bytes_required
-    disk_bytes=$(lsblk -b -dn -o SIZE "$DISK")
-    efi_bytes=$(numfmt --from=iec "$EFI_SIZE")
-    swap_bytes=$(numfmt --from=iec "$SWAP_SIZE")
-    root_min=$((1 * 1024 * 1024 * 1024))
-    bytes_required=$((efi_bytes + swap_bytes + root_min))
-    if (( disk_bytes < bytes_required )); then
-        fatal "Disk size $(numfmt --to=iec $disk_bytes) is smaller than required $(numfmt --to=iec $bytes_required)"
-    fi
-    success "Disk has sufficient capacity: $(numfmt --to=iec $disk_bytes)"
-}
-
-#######################################
 # User input functions
 #######################################
-
 
 get_disk_selection() {
     info "Detecting available disks..."
@@ -72,21 +37,6 @@ get_disk_selection() {
     validate_disk "$DISK"
 
     yes_no_prompt "WARNING: All data on $DISK will be destroyed. Continue?" || fatal "Installation cancelled by user"
-}
-
-get_filesystem_type() {
-    FILESYSTEM_TYPE=$(select_from_menu \
-        "Select filesystem type:" \
-        "ext4 (traditional, stable)" \
-        "btrfs (modern, with snapshots)" \
-        "xfs (high performance)" \
-    )
-    case "$FILESYSTEM_TYPE" in
-        ext4*) FILESYSTEM_TYPE="ext4" ;;
-        btrfs*) FILESYSTEM_TYPE="btrfs" ;;
-        xfs*) FILESYSTEM_TYPE="xfs" ;;
-    esac
-    success "Selected filesystem: $FILESYSTEM_TYPE"
 }
 
 get_btrfs_layout() {
@@ -160,21 +110,16 @@ format_partitions() {
     local prefix
     prefix=$(partition_prefix "$DISK")
 
-  local efi_partition="${prefix}1"
-  local swap_partition="${prefix}2"
-  local root_partition="${prefix}3"
+    local efi_partition="${prefix}1"
+    local swap_partition="${prefix}2"
+    local root_partition="${prefix}3"
 
-  SWAP_PARTITION="$swap_partition"
+    SWAP_PARTITION="$swap_partition"
 
-  mkfs.fat -F32 "$efi_partition"
-  mkswap "$swap_partition"
-  swapon "$swap_partition"
-
-    case "$FILESYSTEM_TYPE" in
-        ext4) mkfs.ext4 -F "$root_partition" ;;
-        btrfs) mkfs.btrfs -f "$root_partition" ;;
-        xfs) mkfs.xfs -f "$root_partition" ;;
-    esac
+    mkfs.fat -F32 "$efi_partition"
+    mkswap "$swap_partition"
+    swapon "$swap_partition"
+    mkfs.btrfs -f "$root_partition" ;;
     success "Partitions formatted successfully"
 }
 
@@ -210,3 +155,4 @@ mount_filesystems() {
         mount "$efi_partition" "$MOUNT_POINT/boot"
     fi
     success "Filesystems mounted successfully"
+}

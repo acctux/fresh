@@ -53,28 +53,6 @@ create_partitions() {
     success "Partitions created successfully"
 }
 
-format_partitions() {
-    info "Formatting partitions"
-    local prefix
-    prefix=$(partition_prefix "$DISK")
-
-  local efi_partition="${prefix}1"
-  local swap_partition="${prefix}2"
-  local root_partition="${prefix}3"
-
-  SWAP_PARTITION="$swap_partition"
-
-  mkfs.fat -F32 "$efi_partition"
-  mkswap "$swap_partition"
-  swapon "$swap_partition"
-
-    case "$FILESYSTEM_TYPE" in
-        ext4) mkfs.ext4 -F "$root_partition" ;;
-        btrfs) mkfs.btrfs -f "$root_partition" ;;
-        xfs) mkfs.xfs -f "$root_partition" ;;
-    esac
-    success "Partitions formatted successfully"
-}
 
 mount_filesystems() {
     info "Mounting filesystems"
@@ -257,8 +235,8 @@ main() {
     info "Starting Arch Linux installation"
 
     get_disk_selection
+    configure_swap_size
     validate_disk_size
-
     choose_timezone
     ROOT_PASSWORD=$(get_password "Enter root password")
     success "Root password set"

@@ -119,7 +119,7 @@ format_partitions() {
     mkfs.fat -F32 "$efi_partition"
     mkswap "$swap_partition"
     swapon "$swap_partition"
-    mkfs.btrfs -f "$root_partition" ;;
+    mkfs.btrfs -f "$root_partition"
     success "Partitions formatted successfully"
 }
 

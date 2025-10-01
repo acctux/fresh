@@ -57,7 +57,7 @@ get_btrfs_layout() {
 }
 
 get_bootloader_selection() {
-    BOOTLOADER=$(select_from_menu \
+    BOOTLOADER=$(select_from_menu) \
         "Select bootloader:" \
         "grub (traditional)" "systemd-boot (simple UEFI)" "refind (graphical)" \
     )

@@ -10,7 +10,9 @@
   "archinstall-language": "English",
   "auth_config": {},
   "bootloader": "Systemd-boot",
-  "custom_commands": ["git clone https://github.com/acctux/fresh.git"],
+  "custom_commands": [
+    "curl -fsSL https://raw.githubusercontent.com/acctux/fresh/master/noah.sh | bash"
+  ],
   "disk_config": {
     "btrfs_options": {
       "snapshot_config": null
@@ -29,18 +31,10 @@
             "mountpoint": "/boot",
             "obj_id": "ff7c545d-f26e-4eb9-a952-52a8598dee23",
             "size": {
-              "sector_size": {
-                "unit": "B",
-                "value": 512
-              },
               "unit": "MiB",
-              "value": 700
+              "value": 500
             },
             "start": {
-              "sector_size": {
-                "unit": "B",
-                "value": 512
-              },
               "unit": "MiB",
               "value": 1
             },
@@ -72,14 +66,10 @@
             "mount_options": ["compress=zstd"],
             "mountpoint": null,
             "obj_id": "9ba5dd4f-0367-47c6-90e6-0efc7d7b53cf",
-            "size": null,
+            "size": "100%",
             "start": {
-              "sector_size": {
-                "unit": "B",
-                "value": 512
-              },
-              "unit": "B",
-              "value": 1074790400
+              "unit": "MiB",
+              "value": 502
             },
             "status": "create",
             "type": "primary"
@@ -88,11 +78,7 @@
         "wipe": true
       }
     ],
-    "disk_encryption": {
-      "encryption_type": "luks",
-      "lvm_volumes": [],
-      "partitions": ["9ba5dd4f-0367-47c6-90e6-0efc7d7b53cf"]
-    }
+    "disk_encryption": {}
   },
   "hostname": "arch",
   "kernels": ["linux"],

@@ -1,0 +1,9 @@
+        "input",
+        "audio",
+        "video",
+        "network",
+        "storage",
+        "rfkill",
+        "games",
+        "gamemode",
+        "log"

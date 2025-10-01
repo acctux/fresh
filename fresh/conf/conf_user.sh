@@ -12,7 +12,7 @@ readonly FILESYSTEM_TYPE="btrfs"
 readonly EFI_SIZE="512M"
 readonly LOCALE="en_US.UTF-8"
 readonly MOUNT_USER="$MOUNT_POINT/home/$USERNAME"
-readonly DEFAULT_TIMEZONE="America/Eastern"
+readonly DEFAULT_TIMEZONE="US/Eastern"
 
 KEY_DIR="$MOUNT_POINT/.ssh"
 

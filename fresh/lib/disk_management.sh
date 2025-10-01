@@ -94,15 +94,20 @@ partition_prefix() {
 }
 
 create_partitions() {
-    info "Creating partitions on $DISK"
     wipefs -af "$DISK"
-    sgdisk --zap-all "$DISK" >/dev/null
-    sgdisk -n 1:0:+${EFI_SIZE} -t 1:ef00 "$DISK"
-    sgdisk -n 2:0:+${SWAP_SIZE} -t 2:8200 "$DISK"
-    sgdisk -n 3:0:0 -t 3:8300 "$DISK"
+    sgdisk --zap-all "$DISK"
+
+    # GPT with 2048-sector alignment (1 MiB)
+    sgdisk -a 2048 -o "$DISK"
+
+    # EFI System Partition (FAT32, mounted at /boot or /boot/efi)
+    sgdisk -n 1:2048:+${EFI_SIZE} -t 1:ef00 -c 1:"EFIBOOT" "$DISK"
+
+    # Btrfs ROOT partition
+    sgdisk -n 2:0:0 -t 2:8300 -c 2:"$drive_name" "$DISK"
+
+    # Inform the kernel
     partprobe "$DISK"
-    sleep 2
-    success "Partitions created successfully"
 }
 
 format_partitions() {
@@ -128,6 +133,7 @@ mount_filesystems() {
     local prefix
     prefix=$(partition_prefix "$DISK")
 
+    local btrfs_opts="compress=lzo,noatime"
     local efi_partition="${prefix}1"
     local root_partition="${prefix}3"
 
@@ -144,12 +150,12 @@ mount_filesystems() {
         umount "$MOUNT_POINT/boot"
         umount "$MOUNT_POINT"
 
-        mount -o subvol=@,$BTRFS_MOUNT_OPTIONS "$root_partition" "$MOUNT_POINT"
+        mount -o subvol=@,$btrfs_opts "$root_partition" "$MOUNT_POINT"
 
         mkdir -p "$MOUNT_POINT/home" "$MOUNT_POINT/var/log" "$MOUNT_POINT/var/cache/pacman/pkg"
-        mount -o subvol=@home,$BTRFS_MOUNT_OPTIONS "$root_partition" "$MOUNT_POINT/home"
-        mount -o subvol=@log,$BTRFS_MOUNT_OPTIONS "$root_partition" "$MOUNT_POINT/var/log"
-        mount -o subvol=@pkg,$BTRFS_MOUNT_OPTIONS "$root_partition" "$MOUNT_POINT/var/cache/pacman/pkg"
+        mount -o subvol=@home,$btrfs_opts "$root_partition" "$MOUNT_POINT/home"
+        mount -o subvol=@log,$btrfs_opts "$root_partition" "$MOUNT_POINT/var/log"
+        mount -o subvol=@pkg,$btrfs_opts "$root_partition" "$MOUNT_POINT/var/cache/pacman/pkg"
 
         mkdir -p "$MOUNT_POINT/boot"
         mount "$efi_partition" "$MOUNT_POINT/boot"

@@ -1,13 +1,25 @@
-BASE_PAC=(
+LINUX_PAC=(
     amd-ucode
+    archlinux-keyring
     base
-    base-devel
+    exfatprogs              # exFAT filesystem tools
     btrfs-progs
     linux
     linux-firmware
-    neovim-lspconfig
     reflector
+)
+
+BASE_PAC=(
+    avahi
+    base-devel
+    gst-plugin-pipewire
+    libpulse
+    neovim-lspconfig
+    pipewire-alsa
+    pipewire-jack
+    pipewire-pulse
     wireless-regdb
+    wireplumber
 )
 
 # ──────────────── PACMAN ──────────────── #
@@ -15,7 +27,6 @@ FRESH_PAC=(
     # ------- System Core / Kernel / Boot / Firmware --------
     acpi                    # Power & thermal info
     dosfstools
-    exfatprogs              # exFAT filesystem tools
     fwupd                   # Firmware updater
     mesa-utils
     smartmontools           # SMART disk monitoring tools

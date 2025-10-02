@@ -145,7 +145,6 @@ unmount_mounted() {
 
 aardvark() {
 
-    trap unmount_mounted EXIT
     trap 'error_trap $LINENO $BASH_COMMAND' ERR
     get_disk_selection
     validate_disk_size
@@ -159,3 +158,4 @@ aardvark() {
     format_partitions
     mount_filesystems
 }
+aardvark

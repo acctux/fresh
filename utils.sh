@@ -1,9 +1,11 @@
 #######################################
 # Logging helpers
 #######################################
-log() {
-    printf '%(%Y-%m-%d %H:%M:%S)T - %s\n' -1 "$*" | tee -a "$LOG_FILE"
-}
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
 info()    { printf "${BLUE}[INFO]${NC} %s\n"    "$*" | tee -a "$LOG_FILE"; }
 success() { printf "${GREEN}[SUCCESS]${NC} %s\n" "$*" | tee -a "$LOG_FILE"; }
 warning() { printf "${YELLOW}[WARNING]${NC} %s\n" "$*" | tee -a "$LOG_FILE"; }

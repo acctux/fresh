@@ -36,20 +36,20 @@ KEY_FILES=(
     "id_ed25519.pub"
 )
 
-echo -ne "
--------------------------------------------------------------------------
+# echo -ne "
+# -------------------------------------------------------------------------
 
-███╗   ██╗  ██████╗   █████╗  ██╗  ██╗  ██████╗     █████╗  ██████╗   ██████╗ ██╗  ██╗
-████╗  ██║ ██╔═══██╗ ██╔══██╗ ██║  ██║ ██╔════╝    ██╔══██╗ ██╔══██╗ ██╔════╝ ██║  ██║
-██╔██╗ ██║ ██║   ██║ ███████║ ███████║ ╚█████╗     ███████║ ██████╔╝ ██║      ███████║
-██║╚██╗██║ ██║   ██║ ██╔══██║ ██╔══██║  ╚═══██╗    ██╔══██║ ██╔══██╗ ██║      ██╔══██║
-██║ ╚████║ ╚██████╔╝ ██║  ██║ ██║  ██║ ██████╔╝    ██║  ██║ ██║  ██║ ╚██████╗ ██║  ██║
-╚═╝  ╚═══╝  ╚═════╝  ╚═╝  ╚═╝ ╚═╝  ╚═╝ ╚═════╝     ╚═╝  ╚═╝ ╚═╝  ╚═╝  ╚═════╝ ╚═╝  ╚═╝
+# ███╗   ██╗  ██████╗   █████╗  ██╗  ██╗  ██████╗     █████╗  ██████╗   ██████╗ ██╗  ██╗
+# ████╗  ██║ ██╔═══██╗ ██╔══██╗ ██║  ██║ ██╔════╝    ██╔══██╗ ██╔══██╗ ██╔════╝ ██║  ██║
+# ██╔██╗ ██║ ██║   ██║ ███████║ ███████║ ╚█████╗     ███████║ ██████╔╝ ██║      ███████║
+# ██║╚██╗██║ ██║   ██║ ██╔══██║ ██╔══██║  ╚═══██╗    ██╔══██║ ██╔══██╗ ██║      ██╔══██║
+# ██║ ╚████║ ╚██████╔╝ ██║  ██║ ██║  ██║ ██████╔╝    ██║  ██║ ██║  ██║ ╚██████╗ ██║  ██║
+# ╚═╝  ╚═══╝  ╚═════╝  ╚═╝  ╚═╝ ╚═╝  ╚═╝ ╚═════╝     ╚═╝  ╚═╝ ╚═╝  ╚═╝  ╚═════╝ ╚═╝  ╚═╝
 
--------------------------------------------------------------------------
-The one-opinion opinionated automated Arch Linux Installer
--------------------------------------------------------------------------
-"
+# -------------------------------------------------------------------------
+# The one-opinion opinionated automated Arch Linux Installer
+# -------------------------------------------------------------------------
+# "
 
 # Runtime variables (initially empty)
 DISK=""
@@ -62,45 +62,45 @@ SWAP_PARTITION=""
 #######################################
 
 main() {
-    trap 'error_trap $LINENO $BASH_COMMAND' ERR
+    # trap 'error_trap $LINENO $BASH_COMMAND' ERR
 
-    require_root
-    check_dependencies
+    # require_root
+    # check_dependencies
 
-    trap unmount_mounted EXIT
+    # trap unmount_mounted EXIT
     info "Starting Arch Linux installation"
 
     ( bash "$SCRIPT_DIR"/animals/aardvark-disks.sh )|& tee startup.log
-    ( bash "$SCRIPT_DIR"/fresh/animals/bonobo-chroot-sys.sh )|& tee 0-preinstall.log
-    pacman -Sy archlinux-keyring
-    ( arch-chroot "$HOME_MNT"/animals/chameleon-init-chaos.sh )|& tee 1-setup.log
-    ( arch-chroot "$HOME_MNT"/animals/dingo-suusers.sh )|& tee 2-setup.log
-    ( arch-chroot python "$HOME_MNT"/animals/echidna-copy-etc.py )|& tee 3-post-setup.log
-    ( arch-chroot "$HOME_MNT"/animals/fox-services.sh )|& tee 3-post-setup.log
-    ( arch-chroot "$HOME_MNT"/animals/fox-services.sh )|& tee 3-post-setup.log
-    ( arch-chroot "$HOME_MNT" /usr/bin/runuser -u $USERNAME -- /home/$USERNAME/scripts/zebra-user.sh )|& tee 2-user.log
+#     ( bash "$SCRIPT_DIR"/fresh/animals/bonobo-chroot-sys.sh )|& tee 0-preinstall.log
+#     pacman -Sy archlinux-keyring
+#     ( arch-chroot "$HOME_MNT"/animals/chameleon-init-chaos.sh )|& tee 1-setup.log
+#     ( arch-chroot "$HOME_MNT"/animals/dingo-suusers.sh )|& tee 2-setup.log
+#     ( arch-chroot python "$HOME_MNT"/animals/echidna-copy-etc.py )|& tee 3-post-setup.log
+#     ( arch-chroot "$HOME_MNT"/animals/fox-services.sh )|& tee 3-post-setup.log
+#     ( arch-chroot "$HOME_MNT"/animals/fox-services.sh )|& tee 3-post-setup.log
+#     ( arch-chroot "$HOME_MNT" /usr/bin/runuser -u $USERNAME -- /home/$USERNAME/scripts/zebra-user.sh )|& tee 2-user.log
 
-    additional_packages
-    arch-chroot "$MOUNT_POINT" systemctl enable "${SERV_ENABLE}"
-    arch-chroot "$MOUNT_POINT" systemctl disable systemd-timesyncd.service
-    ansible_etc_playbook
-    echo -ne "
--------------------------------------------------------------------------
-███╗   ██╗  ██████╗   █████╗  ██╗  ██╗  ██████╗     █████╗  ██████╗   ██████╗ ██╗  ██╗
-████╗  ██║ ██╔═══██╗ ██╔══██╗ ██║  ██║ ██╔════╝    ██╔══██╗ ██╔══██╗ ██╔════╝ ██║  ██║
-██╔██╗ ██║ ██║   ██║ ███████║ ███████║ ╚█████╗     ███████║ ██████╔╝ ██║      ███████║
-██║╚██╗██║ ██║   ██║ ██╔══██║ ██╔══██║  ╚═══██╗    ██╔══██║ ██╔══██╗ ██║      ██╔══██║
-██║ ╚████║ ╚██████╔╝ ██║  ██║ ██║  ██║ ██████╔╝    ██║  ██║ ██║  ██║ ╚██████╗ ██║  ██║
-╚═╝  ╚═══╝  ╚═════╝  ╚═╝  ╚═╝ ╚═╝  ╚═╝ ╚═════╝     ╚═╝  ╚═╝ ╚═╝  ╚═╝  ╚═════╝ ╚═╝  ╚═╝
+#     additional_packages
+#     arch-chroot "$MOUNT_POINT" systemctl enable "${SERV_ENABLE}"
+#     arch-chroot "$MOUNT_POINT" systemctl disable systemd-timesyncd.service
+#     ansible_etc_playbook
+#     echo -ne "
+# -------------------------------------------------------------------------
+# ███╗   ██╗  ██████╗   █████╗  ██╗  ██╗  ██████╗     █████╗  ██████╗   ██████╗ ██╗  ██╗
+# ████╗  ██║ ██╔═══██╗ ██╔══██╗ ██║  ██║ ██╔════╝    ██╔══██╗ ██╔══██╗ ██╔════╝ ██║  ██║
+# ██╔██╗ ██║ ██║   ██║ ███████║ ███████║ ╚█████╗     ███████║ ██████╔╝ ██║      ███████║
+# ██║╚██╗██║ ██║   ██║ ██╔══██║ ██╔══██║  ╚═══██╗    ██╔══██║ ██╔══██╗ ██║      ██╔══██║
+# ██║ ╚████║ ╚██████╔╝ ██║  ██║ ██║  ██║ ██████╔╝    ██║  ██║ ██║  ██║ ╚██████╗ ██║  ██║
+# ╚═╝  ╚═══╝  ╚═════╝  ╚═╝  ╚═╝ ╚═╝  ╚═╝ ╚═════╝     ╚═╝  ╚═╝ ╚═╝  ╚═╝  ╚═════╝ ╚═╝  ╚═╝
 
--------------------------------------------------------------------------
-                    Automated Arch Linux Installer
--------------------------------------------------------------------------
-                Done - Please Eject Install Media and Reboot
-"
-    if yes_no_prompt "Reboot now?"; then
-        reboot
-    fi
+# -------------------------------------------------------------------------
+#                     Automated Arch Linux Installer
+# -------------------------------------------------------------------------
+#                 Done - Please Eject Install Media and Reboot
+# "
+#     if yes_no_prompt "Reboot now?"; then
+#         reboot
+#     fi
 }
 
 if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then

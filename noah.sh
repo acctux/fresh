@@ -1,7 +1,114 @@
-pacman -Sy --noconfirm --needed git
-rm -rf ~/fresh
-git clone https://github.com/acctux/fresh.git ~/fresh
+#!/usr/bin/env bash
 
-cd $HOME/fresh/fresh
+# Robust Arch Linux base installer – improved version
+set -Eeuo pipefail
 
-exec ./fresh.sh
+#######################################
+# Global configuration and constants
+#######################################
+
+SCRIPT_DIR="$(dirname "$0")"
+source "$SCRIPT_DIR/utils.sh"
+source "$SCRIPT_DIR/utils/passwords_util.sh"
+source "$SCRIPT_DIR/utils/select_from_menu.sh"
+source "$SCRIPT_DIR/utils/yes_no.sh"
+source "$SCRIPT_DIR/animals/aardvark-disks.sh"
+source "$SCRIPT_DIR/animals/bonobo-chroot-sys.sh"
+source "$SCRIPT_DIR/animals/chameleon-pacman-setup.sh"
+source "$SCRIPT_DIR/animals/dingo-user-init.sh"
+source "$SCRIPT_DIR/animals/echidna-etc.sh"
+source "$SCRIPT_DIR/animals/fox-sys-serv.sh"
+source "$SCRIPT_DIR/animals/gecko-mariadb.sh"
+source "$SCRIPT_DIR/animals/hyena-user-serv.sh"
+source "$SCRIPT_DIR/lib/package_management.sh"
+source "$SCRIPT_DIR/conf/conf_user.sh"
+source "$SCRIPT_DIR/conf/conf_services.sh"
+source "$SCRIPT_DIR/conf/conf_pac.sh"
+
+readonly LOG_FILE="/tmp/noah.log"
+
+readonly USERNAME="nick"
+readonly HOSTNAME="arch"
+readonly SWAP_SIZE="8G"
+readonly EFI_SIZE="512M"
+readonly MOUNT_POINT="/mnt"
+readonly HOME_MNT="$MOUNT_POINT/home/$USERNAME"
+KEY_DIR="$HOME_MNT/.ssh"
+KEY_FILES=(
+    "my-private-key.asc"
+    "id_ed25519"
+    "my-public-key.asc"
+    "id_ed25519.pub"
+)
+
+set +a
+echo -ne "
+-------------------------------------------------------------------------
+
+███╗   ██╗  ██████╗   █████╗  ██╗  ██╗  ██████╗     █████╗  ██████╗   ██████╗ ██╗  ██╗
+████╗  ██║ ██╔═══██╗ ██╔══██╗ ██║  ██║ ██╔════╝    ██╔══██╗ ██╔══██╗ ██╔════╝ ██║  ██║
+██╔██╗ ██║ ██║   ██║ ███████║ ███████║ ╚█████╗     ███████║ ██████╔╝ ██║      ███████║
+██║╚██╗██║ ██║   ██║ ██╔══██║ ██╔══██║  ╚═══██╗    ██╔══██║ ██╔══██╗ ██║      ██╔══██║
+██║ ╚████║ ╚██████╔╝ ██║  ██║ ██║  ██║ ██████╔╝    ██║  ██║ ██║  ██║ ╚██████╗ ██║  ██║
+╚═╝  ╚═══╝  ╚═════╝  ╚═╝  ╚═╝ ╚═╝  ╚═╝ ╚═════╝     ╚═╝  ╚═╝ ╚═╝  ╚═╝  ╚═════╝ ╚═╝  ╚═╝
+
+-------------------------------------------------------------------------
+The one-opinion opinionated automated Arch Linux Installer
+-------------------------------------------------------------------------
+"
+
+# Runtime variables (initially empty)
+DISK=""
+ROOT_PASSWORD=""
+USER_PASSWORD=""
+SWAP_PARTITION=""
+
+#######################################
+# Main
+#######################################
+
+main() {
+    trap 'error_trap $LINENO $BASH_COMMAND' ERR
+
+    require_root
+    check_dependencies
+
+    trap unmount_mounted EXIT
+    info "Starting Arch Linux installation"
+
+    ( bash "$SCRIPT_DIR"/animals/aardvark-disks.sh )|& tee startup.log
+    ( bash "$SCRIPT_DIR"/fresh/animals/bonobo-chroot-sys.sh )|& tee 0-preinstall.log
+    pacman -Sy archlinux-keyring
+    ( arch-chroot "$HOME_MNT"/animals/chameleon-init-chaos.sh )|& tee 1-setup.log
+    ( arch-chroot "$HOME_MNT"/animals/dingo-suusers.sh )|& tee 2-setup.log
+    ( arch-chroot python "$HOME_MNT"/animals/echidna-copy-etc.py )|& tee 3-post-setup.log
+    ( arch-chroot "$HOME_MNT"/animals/fox-services.sh )|& tee 3-post-setup.log
+    ( arch-chroot "$HOME_MNT"/animals/fox-services.sh )|& tee 3-post-setup.log
+    ( arch-chroot "$HOME_MNT" /usr/bin/runuser -u $USERNAME -- /home/$USERNAME/scripts/zebra-user.sh )|& tee 2-user.log
+
+    additional_packages
+    arch-chroot "$MOUNT_POINT" systemctl enable "${SERV_ENABLE}"
+    arch-chroot "$MOUNT_POINT" systemctl disable systemd-timesyncd.service
+    ansible_etc_playbook
+    echo -ne "
+-------------------------------------------------------------------------
+███╗   ██╗  ██████╗   █████╗  ██╗  ██╗  ██████╗     █████╗  ██████╗   ██████╗ ██╗  ██╗
+████╗  ██║ ██╔═══██╗ ██╔══██╗ ██║  ██║ ██╔════╝    ██╔══██╗ ██╔══██╗ ██╔════╝ ██║  ██║
+██╔██╗ ██║ ██║   ██║ ███████║ ███████║ ╚█████╗     ███████║ ██████╔╝ ██║      ███████║
+██║╚██╗██║ ██║   ██║ ██╔══██║ ██╔══██║  ╚═══██╗    ██╔══██║ ██╔══██╗ ██║      ██╔══██║
+██║ ╚████║ ╚██████╔╝ ██║  ██║ ██║  ██║ ██████╔╝    ██║  ██║ ██║  ██║ ╚██████╗ ██║  ██║
+╚═╝  ╚═══╝  ╚═════╝  ╚═╝  ╚═╝ ╚═╝  ╚═╝ ╚═════╝     ╚═╝  ╚═╝ ╚═╝  ╚═╝  ╚═════╝ ╚═╝  ╚═╝
+
+-------------------------------------------------------------------------
+                    Automated Arch Linux Installer
+-------------------------------------------------------------------------
+                Done - Please Eject Install Media and Reboot
+"
+    if yes_no_prompt "Reboot now?"; then
+        reboot
+    fi
+}
+
+if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
+    main "$@"
+fi

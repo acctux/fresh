@@ -1,0 +1,257 @@
+
+BASE_PAC=(
+    acpi
+    acpid
+    ananicy-cpp
+    avahi
+    blueman
+    bluez-tools
+    exfatprogs
+    gst-plugin-pipewire
+    libpulse
+    pacman-contrib
+    pipewire-alsa
+    pipewire-jack
+    pipewire-pulse
+    sof-firmware
+    tlp
+    wireless-regdb
+    wireplumber
+    zram-generator
+)
+
+FRESH_PAC=(
+--------------------------------------
+#        Hardware/Firmware
+--------------------------------------
+    alsa-firmware
+    alsa-utils
+    bolt
+    dosfstools
+    gthumb
+    hdparm
+    hwdetect
+    ntfs-3g
+    smartmontools
+    udisks2-btrfs
+--------------------------------------
+#               Admin
+--------------------------------------
+    btop
+    etckeeper
+    firejail
+    logrotate
+    man-db
+    man-pages
+    powertop
+--------------------------------------
+#               Keys/Priveleges
+--------------------------------------
+    keepassxc
+    libgnome-keyring
+    openssh
+    polkit-gnome
+    seahorse
+--------------------------------------
+#             Network
+--------------------------------------
+    firewalld
+    impala
+    kdeconnect
+    ldns
+    ntp
+    nss-mdns
+    openresolv
+    protonmail-bridge
+    qbittorrent
+    scrcpy
+    sshfs
+    unbound
+--------------------------------------
+#       Packages-Extra abilities
+--------------------------------------
+    ccache
+    expac
+    pkgdiff
+    pkgfile
+    rebuild-detector
+--------------------------------------
+#       CLI-Environment Extensibility
+--------------------------------------
+    bash-completion
+    bat-extras
+    eza
+    fzf
+    less
+    starship
+    tmux
+    trash-cli
+    zsh-autocomplete
+    zsh-completions
+    zsh-syntax-highlighting
+--------------------------------------
+#         CLI Programs
+--------------------------------------
+    aria2
+    csvkit
+    fd
+    fdupes
+    git-delta
+    github-cli
+    graphicsmagick
+    grex
+    lazygit
+    miller
+    navi
+    parallel
+    playerctl
+    pv
+    remind
+    sd
+    watchexec
+    wget
+    yq
+    zoxide
+--------------------------------------
+#    DE Agnostic Personal Essentials
+--------------------------------------
+    alacritty
+    baobab
+    capitaine-cursors
+    cheese
+    gimp
+    gnucash
+    handbrake
+    haruna
+    hunspell-en_us
+    hyphen-en
+    kvantum
+    ly
+    meld
+    pavucontrol
+    qalculate-qt
+    qt6-multimedia-ffmpeg
+    ttf-caladea
+    ttf-cascadia-mono-nerd
+    wl-clipboard
+    xdg-desktop-portal-gtk
+    xdg-user-dirs
+--------------------------------------
+#        Hyprland
+--------------------------------------
+    accountsservice
+    archlinux-xdg-menu
+    brightnessctl
+    fuzzel
+    hyprland
+    hypridle
+    hyprlock
+    hyprpicker
+    hyprshot
+    mako
+    nemo-fileroller
+    nwg-clipman
+    satty
+    swayosd
+    swww
+    uwsm
+    waybar
+    xdg-desktop-portal-hyprland
+--------------------------------------
+#       Programming/Data Science
+--------------------------------------
+    clang
+    dbeaver
+    eslint
+    jdk-openjre
+    lua-sec
+    luarocks
+    mariadb
+    shfmt
+    rust-analyzer
+    tree-sitter-bash
+    tree-sitter-python
+    uv
+    zed
+    # ----------- Spell Checking / Hyphenation --------------
+    # ---------------- Games ----------------
+    gamemode
+    gnuchess
+    lib32-gamemode
+    lib32-mangohud
+    lutris
+    mangohud
+    mgba-qt
+    pychess
+    steam-native-runtime
+    umu-launcher
+    vkd3d
+    wine-staging
+    wine-mono
+    winetricks
+    # ------------ DEPENDENCIES --------------
+    tesseract-data-eng
+    webkit2gtk
+    unrar
+    yt-dlp
+    cdrtools
+    # -- waybar depends --
+    bc
+    gobject-introspection
+    libappindicator-gtk3
+    chrono-date
+    scdoc
+    # ------------ Chaotic AUR packages ----------
+    anki
+    ayugram-desktop-git
+    betterbird-bin
+    dxvk-mingw-git
+    brave-bin
+    localsend
+    logiops
+    ocrmypdf
+    octopi
+    onlyoffice-bin
+    paru
+    proton-ge-custom-bin
+    qt6ct-kde
+    rpcs3-git
+    wlogout
+    zapzap
+)
+
+# ──────────────── AUR ──────────────── #
+AUR=(
+    surfshark-client
+)
+
+    # ----------- Saved --------------
+    # wofi
+    # nwg-look                # GTK theme preview & changer but handled through gsettings currently
+    # fwupd                   # Firmware updater
+    # dconf-editor            # GNOME Settings program
+    # hledger                 # Accounting tool
+    # visidata                # Interactive data exploration CSV, TSV, Excel, SQLite, JSON, YAML
+    # solaar                  # Logitech device manager
+    # gnumeric                # Spreadsheet app
+    # inkscape                # Vector graphics editor
+    # dnsmasq                 # Lightweight DNS/DHCP server
+    # keyd                    # Keyboard remapping daemon
+    # -------- Python --------
+    # ipython
+    # python-mysqlclient      # MySQL client for Python
+    # python-polars           # Dataframe library
+    # python-pandas           # Data analysis library
+    # python-plotly           # Interactive visualization library
+    # python-statsmodels
+    # python-xlsxwriter       # Excel writing library
+    # python-yfinance
+    # mycli
+    # ------- NVIDIA --------
+    # dkms                    # Kernel module manager
+    # lib32-nvidia-utils      # 32-bit NVIDIA driver support
+    # libva-nvidia-driver     # Nvidia VA-API driver
+    # linux-headers           # Kernel headers (needed for DKMS)
+    # libxnvctrl              # Nvidia X control library
+    # nvidia-open-dkms        # Nvidia kernel modules
+    # nvidia-prime            # Nvidia PRIME support

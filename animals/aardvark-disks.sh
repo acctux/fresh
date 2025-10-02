@@ -151,8 +151,6 @@ aardvark() {
 
     trap 'error_trap $LINENO $BASH_COMMAND' ERR
     get_disk_selection
-    validate_disk_size
-
     info "Installation summary:"
     printf 'Disk: %s\nEFI size: %s\nSwap size: %s\nHostname: %s\nUsername: %s\nTimezone: %s\n\n' \
         "$DISK" "$EFI_SIZE" "$SWAP_SIZE" "$HOSTNAME" "$USERNAME" "$TIMEZONE"

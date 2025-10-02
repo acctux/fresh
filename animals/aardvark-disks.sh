@@ -33,22 +33,26 @@ get_disk_selection() {
     done
     DISK="${disks[$index]}"
     info "Selected disk: $DISK (${labels[$index]})"
-    validate_disk "$DISK"
+    check_disk_size "$DISK"
 
     yes_no_prompt "WARNING: All data on $DISK will be destroyed. Continue?" || fatal "Installation cancelled by user"
 }
 
-validate_disk_size() {
-    local disk_bytes efi_bytes swap_bytes root_min bytes_required
+check_disk_size() {
+    local disk_bytes efi_bytes root_min bytes_required
+
     disk_bytes=$(lsblk -b -dn -o SIZE "$DISK")
     efi_bytes=$(numfmt --from=iec "$EFI_SIZE")
-    swap_bytes=$(numfmt --from=iec "$SWAP_SIZE")
-    root_min=$((1 * 1024 * 1024 * 1024))
-    bytes_required=$((efi_bytes + swap_bytes + root_min))
+    root_min=$((8 * 1024 * 1024 * 1024))  # 8 GiB for root
+
+    bytes_required=$((efi_bytes + root_min))
+
     if (( disk_bytes < bytes_required )); then
-        fatal "Disk size $(numfmt --to=iec $disk_bytes) is smaller than required $(numfmt --to=iec $bytes_required)"
+        error "Disk size $(numfmt --to=iec "$disk_bytes") is smaller than required $(numfmt --to=iec "$bytes_required")"
+        exit 1
     fi
-    success "Disk has sufficient capacity: $(numfmt --to=iec $disk_bytes)"
+
+    success "Disk has sufficient capacity: $(numfmt --to=iec "$disk_bytes")"
 }
 
 #######################################

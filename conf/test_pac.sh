@@ -1,4 +1,4 @@
-PACKAGES=(
+FLOOD_PAC=(
     acpi
     ananicy-cpp
     bolt

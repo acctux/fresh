@@ -236,4 +236,3 @@ aardvark() {
     # format_partitions
     # mount_filesystems
 }
-aardvark

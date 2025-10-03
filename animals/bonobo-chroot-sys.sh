@@ -33,18 +33,17 @@ autodetect_cpu() {
 }
 
 regional_settings() {
-    locale="en_US.UTF-8"
-    timezone="US/Eastern"
+
 
     info "Configuring system"
     genfstab -U "$MOUNT_POINT" > "$MOUNT_POINT/etc/fstab"
 
-    # Timezone & locale
-    ln -sf /usr/share/zoneinfo/$timezone /etc/localtime
+    # Timezone & LOCALE
+    ln -sf /usr/share/zoneinfo/$TIMEZONE /etc/localtime
     hwclock --systohc
-    echo "$locale UTF-8" >> "$MOUNT_POINT/etc/locale.gen"
-    arch-chroot "$MOUNT_POINT" locale-gen
-    echo "LANG=$locale" > "$MOUNT_POINT/etc/locale.conf"
+    echo "$LOCALE UTF-8" >> "$MOUNT_POINT/etc/LOCALE.gen"
+    arch-chroot "$MOUNT_POINT" LOCALE-gen
+    echo "LANG=$LOCALE" > "$MOUNT_POINT/etc/LOCALE.conf"
 }
 
 set_hostname() {

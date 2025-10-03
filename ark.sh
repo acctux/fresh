@@ -85,111 +85,35 @@ validate_disk() {
 }
 
 get_disk_selection() {
-  info "Detecting available disks..."
-  local disks=()
-  local labels=()
-
-  while IFS= read -r line; do
-    line="${line% disk}"
-    local name size model
-    name=$(awk '{print $1}' <<<"$line")
-    size=$(awk '{print $2}' <<<"$line")
-    model=$(cut -d' ' -f3- <<<"$line")
-    if [[ -b "/dev/$name" ]]; then
-      disks+=("/dev/$name")
-      labels+=("$name ($size) - $model")
-    fi
-  done < <(lsblk -dn -o NAME,SIZE,MODEL,TYPE | grep 'disk$')
-
-  if [[ ${#disks[@]} -eq 0 ]]; then
-    fatal "No suitable disks found"
-  fi
-
-  # Inline menu selection logic
-  local prompt="Available disks:"
-  local num="${#labels[@]}"
-  local choice selection index
-
-  while true; do
-    info "$prompt"
-    for i in "${!labels[@]}"; do
-      printf '%d) %s\n' "$((i + 1))" "${labels[i]}"
-    done
-    if ! read -rp "Select an option (1-${num}): " choice </dev/tty; then
-      fatal "Input aborted"
-    fi
-    if [[ "$choice" =~ ^[0-9]+$ ]] && ((choice >= 1 && choice <= num)); then
-      selection="${labels[$((choice - 1))]}"
-      index=$((choice - 1))
-      break
-    fi
-    warning "Invalid choice. Please select a number between 1 and ${num}."
+# Disk selection.
+  PS3="Select disk (enter number): "
+  select disk in $(lsblk -dn -o NAME,SIZE,MODEL | grep 'disk$' | awk '{print $1 " (" $2 ") - " $3}'); do
+      DISK=$(echo "$disk" | awk '{print "/dev/" $1}')
+      [[ -b "$DISK" && $(lsblk -dn -o TYPE "$DISK") == "disk" && ! $(lsblk -rno MOUNTPOINT "$DISK" | grep -qE '\S') ]] && break
   done
+  [[ -n "$DISK" ]] || exit 1
 
-  DISK="${disks[$index]}"
-  info "Selected disk: $DISK (${labels[$index]})"
-
-  validate_disk "$DISK"
-}
-
-partition_prefix() {
-  local disk="$1"
-  if [[ "$disk" =~ (nvme|mmcblk|loop) ]]; then
-    echo "${disk}p"
-  else
-    echo "$disk"
-  fi
-}
-
-create_partitions() {
-  info "Creating partitions on $DISK"
-  wipefs -af "$DISK"
-  sgdisk --zap-all "$DISK" >/dev/null
-  sgdisk -n 1:0:+${EFI_SIZE} -t 1:ef00 "$DISK" # EFI partition
-  sgdisk -n 2:0:0 -t 2:8300 "$DISK"            # Root partition (Btrfs)
-  sleep 4
+  # Wipe and partition disk.
+  wipefs -af "$DISK" &>/dev/null
+  sgdisk --zap-all "$DISK" &>/dev/null
+  sgdisk -n 1:0:+${EFI_SIZE} -t 1:ef00 -n 2:0:0 -t 2:8300 "$DISK" &>/dev/null
   partprobe "$DISK"
-  success "Partitions created successfully"
-}
+  sleep 3
 
-format_partitions() {
-  info "Formatting partitions"
-  local prefix
-  prefix=$(partition_prefix "$DISK")
+  # Format partitions.
+  prefix=$( [[ "$DISK" =~ (nvme|mmcblk|loop) ]] && echo "${DISK}p" || echo "$DISK" )
+  mkfs.fat -F 32 "${prefix}1" &>/dev/null
+  mkfs.btrfs -f "${prefix}2" &>/dev/null
 
-  local efi_partition="${prefix}1"
-  local root_partition="${prefix}2"
-
-  mkfs.fat -F32 "$efi_partition"
-  mkfs.btrfs -f "$root_partition"
-  success "Partitions formatted successfully"
-}
-
-mount_filesystems() {
-  BTRFS_MOUNT_OPTIONS="compress=zstd,noatime"
-  info "Mounting filesystems"
-  local prefix
-  prefix=$(partition_prefix "$DISK")
-
-  local efi_partition="${prefix}1"
-  local root_partition="${prefix}2"
-
-  mount "$root_partition" /mnt
-  btrfs subvolume create /mnt/@
-  btrfs subvolume create /mnt/@home
-  btrfs subvolume create /mnt/@log
-  btrfs subvolume create /mnt/@pkg
-  umount /mnt
-
-  mount -o subvol=@,$BTRFS_MOUNT_OPTIONS "$root_partition" /mnt
-  mkdir -p /mnt/home /mnt/var/log /mnt/var/cache/pacman/pkg
-  mount -o subvol=@home,$BTRFS_MOUNT_OPTIONS "$root_partition" /mnt/home
-  mount -o subvol=@log,$BTRFS_MOUNT_OPTIONS "$root_partition" /mnt/var/log
-  mount -o subvol=@pkg,$BTRFS_MOUNT_OPTIONS "$root_partition" /mnt/var/cache/pacman/pkg
-
-  mkdir -p /mnt/boot
-  mount "$efi_partition" /mnt/boot
-  success "Filesystems mounted successfully"
+  # Mount filesystems and create BTRFS subvolumes.
+  mount "${prefix}2" "$MOUNT_POINT"
+  btrfs subvolume create "$MOUNT_POINT/@root" &>/dev/null
+  btrfs subvolume create "$MOUNT_POINT/@home" &>/dev/null
+  umount "$MOUNT_POINT"
+  mount -o subvol=@root,compress=zstd,noatime "${prefix}2" "$MOUNT_POINT"
+  mkdir -p "$MOUNT_POINT/home" "$MOUNT_POINT/boot"
+  mount -o subvol=@home,compress=zstd,noatime "${prefix}2" "$MOUNT_POINT/home"
+  mount "${prefix}1" "$MOUNT_POINT/boot"
 }
 
 verify_mount() {
@@ -281,9 +205,6 @@ ark() {
 
   pac_prep
   get_disk_selection
-  make_mnt_dir
-  create_partitions
-  mount_filesystems
   #  verify_mount
   pacstrap_init
 

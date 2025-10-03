@@ -83,7 +83,7 @@ EOF
 bonobo() {
     autodetect_cpu
     pacstrap --noconfirm "$MOUNT_POINT" "${init_pkgs[@]}"
-    regional_settings
-    set_hostname
-    configure_bootloader
+    # regional_settings
+    # set_hostname
+    # configure_bootloader
 }

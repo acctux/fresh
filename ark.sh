@@ -14,13 +14,20 @@
 # -------------------------------------------------------------------------
 
 pac_prep() {
-  pacman -Sy --noconfirm archlinux-keyring
-  iso=$(curl -4 ifconfig.co/country-iso)
+  pacman -S --noconfirm --needed pacman-contrib
 
   sed -i 's/^#ParallelDownloads/ParallelDownloads/' /etc/pacman.conf
   cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.backup
   info "Updating reflector mirrors."
-  reflector -a 48 -c $iso -f 5 -l 20 --sort rate --save /etc/pacman.d/mirrorlist
+
+  reflector --country $(curl -4 ifconfig.co/country-iso) \
+    --protocol https \
+    --completion-percent 100 \
+    --latest 20 \
+    --sort rate \
+    --threads 8 \
+    --download-timeout 3 \
+    --save /etc/pacman.d/mirrorlist
 }
 
 get_disk_selection() {
@@ -65,53 +72,26 @@ make_mnt_dir() {
 
 create_partitions() {
   # - EFI_SIZE: 600M for UEFI (300–600M recommended) 1M for GRUB on BIOS systems.
-  : "${EFI_SIZE:=500M}" "${BIOS_BOOT_SIZE:=1M}"
-  [[ -b "$DISK" ]] || {
-    echo "Error: Invalid disk $DISK"
-    return 1
-  }
-  # - sgdisk -Z clears GPT/MBR; sufficient for 2024+ systems.
-  sgdisk -Z "$DISK" || {
-    echo "Error: Failed to wipe $DISK"
-    return 1
-  }
-  # Logic: Initialize GPT with 2048-sector alignment for SSD/NVMe performance.
-  # - 1 MiB alignment is standard in 2024+ for modern storage.
-  sgdisk -a 2048 -o "$DISK" || {
-    echo "Error: Failed to set GPT"
-    return 1
-  }
-  # Logic: Create partitions dynamically, starting with partition 1.
+  : "${EFI_SIZE:=500M}"
+  [[ -b "$DISK" ]] || error "Invalid disk $DISK"
+  sgdisk -Z "$DISK" || error "Error: Failed to wipe $DISK"
+  # - 2048 = 1 MiB alignment
+  sgdisk -a 2048 -o "$DISK" || error "Error: Failed to set GPT"
+  # Create partitions, starting with partition 1
   local part=1
   # - 1M, type ef02, named BIOSBOOT; sets legacy boot attribute for GRUB.
   if [[ ! -d "/sys/firmware/efi" ]]; then
-    sgdisk -n $part::+"$BIOS_BOOT_SIZE" --typecode=$part:ef02 --change-name=$part:'BIOSBOOT' "$DISK" || {
-      echo "Error: Failed to create BIOS boot partition"
-      return 1
-    }
-    sgdisk -A $part:set:2 "$DISK" || {
-      echo "Error: Failed to set BIOS boot attribute"
-      return 1
-    }
+    sgdisk -n $part::+1M --typecode=$part:ef02 --change-name=$part:'BIOSBOOT' "$DISK" || echo "Error: Failed to create BIOS boot partition"
+    sgdisk -A $part:set:2 "$DISK" || echo "Error: Failed to set BIOS boot attribute"
     ((part++))
   fi
-  # Logic: Create EFI partition for UEFI systems (standard in 2024+).
-  # - 600M (or user-defined), type ef00, named EFIBOOT for bootloader.
-  sgdisk -n $part::+"$EFI_SIZE" --typecode=$part:ef00 --change-name=$part:'EFIBOOT' "$DISK" || {
-    echo "Error: Failed to create EFI partition"
-    return 1
-  }
+  # Create EFI partition, type ef00, named EFIBOOT for bootloader.
+  sgdisk -n $part::+"$EFI_SIZE" --typecode=$part:ef00 --change-name=$part:'EFIBOOT' "$DISK" || echo "Error: Failed to create EFI partition"
   ((part++))
-  # Logic: Create root partition with all remaining space.
-  sgdisk -n $part::-0 --typecode=$part:8300 --change-name=$part:'ROOT' "$DISK" || {
-    echo "Error: Failed to create root partition"
-    return 1
-  }
+  # Create root partition with all remaining space.
+  sgdisk -n $part::-0 --typecode=$part:8300 --change-name=$part:'ROOT' "$DISK" || echo "Error: Failed to create root partition"
   # - partprobe ensures partitions are recognized for formatting.
-  partprobe "$DISK" || {
-    echo "Error: Failed to update partition table"
-    return 1
-  }
+  partprobe "$DISK" || echo "Error: Failed to update partition table"
   echo "Partitions created successfully"
 }
 

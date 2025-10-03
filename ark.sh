@@ -83,16 +83,55 @@ validate_disk() {
 
   success "Disk $disk validated"
 }
-
 get_disk_selection() {
-# Disk selection.
-  PS3="Select disk (enter number): "
-  select disk in $(lsblk -dn -o NAME,SIZE,MODEL | grep 'disk$' | awk '{print $1 " (" $2 ") - " $3}'); do
-      DISK=$(echo "$disk" | awk '{print "/dev/" $1}')
-      [[ -b "$DISK" && $(lsblk -dn -o TYPE "$DISK") == "disk" && ! $(lsblk -rno MOUNTPOINT "$DISK" | grep -qE '\S') ]] && break
-  done
-  [[ -n "$DISK" ]] || exit 1
+  info "Detecting available disks..."
+  local disks=()
+  local labels=()
 
+  while IFS= read -r line; do
+    line="${line% disk}"
+    local name size model
+    name=$(awk '{print $1}' <<<"$line")
+    size=$(awk '{print $2}' <<<"$line")
+    model=$(cut -d' ' -f3- <<<"$line")
+    if [[ -b "/dev/$name" ]]; then
+      disks+=("/dev/$name")
+      labels+=("$name ($size) - $model")
+    fi
+  done < <(lsblk -dn -o NAME,SIZE,MODEL,TYPE | grep 'disk$')
+
+  if [[ ${#disks[@]} -eq 0 ]]; then
+    fatal "No suitable disks found"
+  fi
+
+  # Inline menu selection logic
+  local prompt="Available disks:"
+  local num="${#labels[@]}"
+  local choice selection index
+
+  while true; do
+    info "$prompt"
+    for i in "${!labels[@]}"; do
+      printf '%d) %s\n' "$((i + 1))" "${labels[i]}"
+    done
+    if ! read -rp "Select an option (1-${num}): " choice </dev/tty; then
+      fatal "Input aborted"
+    fi
+    if [[ "$choice" =~ ^[0-9]+$ ]] && ((choice >= 1 && choice <= num)); then
+      selection="${labels[$((choice - 1))]}"
+      index=$((choice - 1))
+      break
+    fi
+    warning "Invalid choice. Please select a number between 1 and ${num}."
+  done
+
+  DISK="${disks[$index]}"
+  info "Selected disk: $DISK (${labels[$index]})"
+
+  validate_disk "$DISK"
+}
+do_the_disk() {
+# Disk selection.
   # Wipe and partition disk.
   wipefs -af "$DISK" &>/dev/null
   sgdisk --zap-all "$DISK" &>/dev/null

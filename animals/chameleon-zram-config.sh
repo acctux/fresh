@@ -1,6 +1,7 @@
 zram_config() {
-    local config_path="$MOUNT_POINT/etc/systemd/zram-generator.conf"
-    local zram_parameters="$MOUNT_POINT/etc/sysctl.d/99-vm-zram-parameters.conf"
+    pacman -S --needed zram-generator
+    local config_path="/etc/systemd/zram-generator.conf"
+    local zram_parameters="/etc/sysctl.d/99-vm-zram-parameters.conf"
 
     tee "$config_path" > /dev/null <<EOF
 [zram0]
@@ -17,6 +18,6 @@ EOF
 }
 chameleon() {
     zram_config
-    arch-chroot "$MOUNT_POINT" systemctl enable --now systemd-zram-setup@zram0.service
+    systemctl enable systemd-zram-setup@zram0.service
     echo "ZRAM enabled."
 }

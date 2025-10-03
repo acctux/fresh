@@ -42,7 +42,9 @@ select_from_menu() {
     for i in "${!options[@]}"; do
       printf '%d) %s\n' "$((i + 1))" "${options[i]}" >&2
     done
-    if ! read -rp "Select an option (1-${num}): " choice; then
+
+    printf "Select an option (1-%d): " "$num" >&2
+    if ! read -r choice; then
       fatal "Input aborted"
     fi
     if [[ "$choice" =~ ^[0-9]+$ ]] && ((choice >= 1 && choice <= num)); then

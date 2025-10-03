@@ -12,9 +12,12 @@
 # -------------------------------------------------------------------------
 # The one-opinion opinionated automated Arch Linux Installer
 # -------------------------------------------------------------------------
-#######################################
-# Logging helpers
-#######################################
+readonly LOG_FILE="/tmp/noah.log"
+
+readonly USERNAME="nick"
+readonly HOSTNAME="arch"
+readonly EFI_SIZE="512M"
+
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -28,14 +31,6 @@ error() { printf "${RED}[ERROR]${NC} %s\n" "$*" | tee -a "$LOG_FILE"; }
 fatal() {
   error "$*"
   exit 1
-}
-
-error_trap() {
-  local exit_code=$?
-  local line="$1"
-  local cmd="$2"
-  error "Command '${cmd}' failed at line ${line} with exit code ${exit_code}"
-  exit "$exit_code"
 }
 
 unmount_mounted() {
@@ -61,7 +56,8 @@ pac_prep() {
   cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.backup
   info "Updating reflector mirrors."
 
-  reflector --country $(curl -4 ifconfig.co/country-iso) \
+  iso=$(curl -4 ifconfig.co/country-iso)
+  reflector --country $iso \
     --protocol https \
     --completion-percent 100 \
     --latest 20 \
@@ -92,6 +88,23 @@ select_from_menu() {
     fi
     warning "Invalid choice. Please select a number between 1 and ${num}." >&2
   done
+}
+
+validate_disk() {
+  local disk="$1"
+  if [[ ! -b "$disk" ]]; then
+    fatal "Disk $disk does not exist or is not a block device"
+  fi
+
+  if [[ $(lsblk -dn -o TYPE "$disk") != "disk" ]]; then
+    fatal "Target $disk is not a disk device"
+  fi
+
+  if lsblk -rno MOUNTPOINT "$disk" | grep -qE '\S'; then
+    fatal "Disk $disk has mounted partitions. Please unmount them before proceeding."
+  fi
+
+  success "Disk $disk validated"
 }
 
 get_disk_selection() {
@@ -126,37 +139,7 @@ get_disk_selection() {
   done
   DISK="${disks[$index]}"
   info "Selected disk: $DISK (${labels[$index]})"
-}
-
-make_mnt_dir() {
-  echo "making mount directory"
-  mkdir /mnt &>/dev/null || true
-  echo "mount directory created"
-}
-
-create_partitions() {
-  # - EFI_SIZE: 600M for UEFI (300–600M recommended) 1M for GRUB on BIOS systems.
-  : "${EFI_SIZE:=500M}"
-  [[ -b "$DISK" ]] || error "Invalid disk $DISK"
-  sgdisk -Z "$DISK" || error "Error: Failed to wipe $DISK"
-  # - 2048 = 1 MiB alignment
-  sgdisk -a 2048 -o "$DISK" || error "Error: Failed to set GPT"
-  # Create partitions, starting with partition 1
-  local part=1
-  # - 1M, type ef02, named BIOSBOOT; sets legacy boot attribute for GRUB.
-  if [[ ! -d "/sys/firmware/efi" ]]; then
-    sgdisk -n $part::+1M --typecode=$part:ef02 --change-name=$part:'BIOSBOOT' "$DISK" || echo "Error: Failed to create BIOS boot partition"
-    sgdisk -A $part:set:2 "$DISK" || echo "Error: Failed to set BIOS boot attribute"
-    ((part++))
-  fi
-  # Create EFI partition, type ef00, named EFIBOOT for bootloader.
-  sgdisk -n $part::+"$EFI_SIZE" --typecode=$part:ef00 --change-name=$part:'EFIBOOT' "$DISK" || echo "Error: Failed to create EFI partition"
-  ((part++))
-  # Create root partition with all remaining space.
-  sgdisk -n $part::-0 --typecode=$part:8300 --change-name=$part:'ROOT' "$DISK" || echo "Error: Failed to create root partition"
-  # - partprobe ensures partitions are recognized for formatting.
-  partprobe "$DISK" || echo "Error: Failed to update partition table"
-  echo "Partitions created successfully"
+  validate_disk "$DISK"
 }
 
 partition_prefix() {
@@ -168,18 +151,34 @@ partition_prefix() {
   fi
 }
 
+create_partitions() {
+  info "Creating partitions on $DISK"
+  wipefs -af "$DISK"
+  sgdisk --zap-all "$DISK" >/dev/null
+  sgdisk -n 1:0:+${EFI_SIZE} -t 1:ef00 "$DISK" # EFI partition
+  sgdisk -n 2:0:0 -t 2:8300 "$DISK"            # Root partition (Btrfs)
+  until [[ -b "$efi_partition" && -b "$root_partition" ]]; do
+    sleep 1
+    partprobe "$DISK"
+  done
+  success "Partitions created successfully"
+}
+
 format_partitions() {
   info "Formatting partitions"
   local prefix
   prefix=$(partition_prefix "$DISK")
+
   local efi_partition="${prefix}1"
   local root_partition="${prefix}2"
+
   mkfs.fat -F32 "$efi_partition"
   mkfs.btrfs -f "$root_partition"
   success "Partitions formatted successfully"
 }
 
 mount_filesystems() {
+  BTRFS_MOUNT_OPTIONS="compress=zstd,noatime"
   info "Mounting filesystems"
   local prefix
   prefix=$(partition_prefix "$DISK")
@@ -188,23 +187,17 @@ mount_filesystems() {
   local root_partition="${prefix}2"
 
   mount "$root_partition" /mnt
-  mkdir -p /mnt/boot
-  mount "$efi_partition" /mnt/boot
-
   btrfs subvolume create /mnt/@
   btrfs subvolume create /mnt/@home
   btrfs subvolume create /mnt/@log
   btrfs subvolume create /mnt/@pkg
-
-  umount /mnt/boot
   umount /mnt
 
-  mount -o subvol=@,$MOUNT_OPTIONS "$root_partition" /mnt
-
+  mount -o subvol=@,$BTRFS_MOUNT_OPTIONS "$root_partition" /mnt
   mkdir -p /mnt/home /mnt/var/log /mnt/var/cache/pacman/pkg
-  mount -o subvol=@home,$MOUNT_OPTIONS "$root_partition" /mnt/home
-  mount -o subvol=@log,$MOUNT_OPTIONS "$root_partition" /mnt/var/log
-  mount -o subvol=@pkg,$MOUNT_OPTIONS "$root_partition" /mnt/var/cache/pacman/pkg
+  mount -o subvol=@home,$BTRFS_MOUNT_OPTIONS "$root_partition" /mnt/home
+  mount -o subvol=@log,$BTRFS_MOUNT_OPTIONS "$root_partition" /mnt/var/log
+  mount -o subvol=@pkg,$BTRFS_MOUNT_OPTIONS "$root_partition" /mnt/var/cache/pacman/pkg
 
   mkdir -p /mnt/boot
   mount "$efi_partition" /mnt/boot

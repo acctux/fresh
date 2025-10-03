@@ -58,6 +58,21 @@ ROOT_PASSWORD=""
 USER_PASSWORD=""
 SWAP_PARTITION=""
 
+unmount_mounted() {
+    info "Unmounting filesystems"
+    if mountpoint -q "$MOUNT_POINT/boot"; then
+        umount "$MOUNT_POINT/boot" || error "Failed to unmount $MOUNT_POINT/boot"
+    fi
+    for sub in home var/log var/cache/pacman/pkg; do
+        if mountpoint -q "$MOUNT_POINT/$sub"; then
+            umount "$MOUNT_POINT/$sub" || error "Failed to unmount $MOUNT_POINT/$sub"
+        fi
+    done
+    if mountpoint -q "$MOUNT_POINT"; then
+        umount "$MOUNT_POINT" || error "Failed to unmount $MOUNT_POINT"
+    fi
+    success "Filesystems unmounted successfully"
+}
 #######################################
 # Main
 #######################################

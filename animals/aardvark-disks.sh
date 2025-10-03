@@ -1,7 +1,22 @@
 #!/bin/bash
 #
-MOUNT_OPTIONS="noatime,compress=zstd,ssd,commit=120"
+readonly LOG_FILE="/tmp/noah.log"
 
+readonly USERNAME="nick"
+readonly HOSTNAME="arch"
+readonly EFI_SIZE="512M"
+readonly MOUNT_POINT="/mnt"
+readonly TIMEZONE="US/Eastern"
+LOCALE="en_US.UTF-8"
+
+readonly HOME_MNT="$MOUNT_POINT/home/$USERNAME"
+KEY_DIR="$HOME_MNT/.ssh"
+KEY_FILES=(
+    "my-private-key.asc"
+    "id_ed25519"
+    "my-public-key.asc"
+    "id_ed25519.pub"
+)
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -11,6 +26,11 @@ info()    { printf "${BLUE}[INFO]${NC} %s\n"    "$*" | tee -a "$LOG_FILE"; }
 success() { printf "${GREEN}[SUCCESS]${NC} %s\n" "$*" | tee -a "$LOG_FILE"; }
 warning() { printf "${YELLOW}[WARNING]${NC} %s\n" "$*" | tee -a "$LOG_FILE"; }
 error()   { printf "${RED}[ERROR]${NC} %s\n"   "$*" | tee -a "$LOG_FILE"; }
+
+SCRIPT_DIR="$(dirname "$0")"
+MOUNT_OPTIONS="noatime,compress=zstd,ssd,commit=120"
+source "$SCRIPT_DIR/utils.sh"
+
 
 select_from_menu() {
     # Generic menu selection helper

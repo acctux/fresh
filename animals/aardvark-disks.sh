@@ -221,7 +221,7 @@ unmount_mounted() {
 }
 
 aardvark() {
-
+    unmount_mounted
     trap 'error_trap $LINENO $BASH_COMMAND' ERR
     get_disk_selection
     info "Installation summary:"

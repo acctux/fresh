@@ -1,19 +1,59 @@
 #!/bin/bash
-
-iso=$(curl -4 ifconfig.co/country-iso)
-timedatectl set-ntp true
-pacman -S --noconfirm archlinux-keyring # update keyrings to prevent package install failures
-pacman -S --noconfirm --needed pacman-contrib terminus-font
-setfont ter-v22b
-sed -i 's/^#ParallelDownloads/ParallelDownloads/' /etc/pacman.conf
-pacman -S --noconfirm --needed reflector rsync grub
-cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.backup
+drivessd () {
 echo -ne "
--------------------------------------------------------------------------
-                    Setting up $iso mirrors for faster downloads
--------------------------------------------------------------------------
+Is this an ssd? yes/no:
 "
-reflector -a 48 -c $iso -f 5 -l 20 --sort rate --save /etc/pacman.d/mirrorlist
+
+options=("Yes" "No")
+select_option $? 1 "${options[@]}"
+
+case ${options[$?]} in
+    y|Y|yes|Yes|YES)
+    set_option MOUNT_OPTIONS "noatime,compress=zstd,ssd,commit=120";;
+    n|N|no|NO|No)
+    set_option MOUNT_OPTIONS "noatime,compress=zstd,commit=120";;
+    *) echo "Wrong option. Try again";drivessd;;
+esac
+}
+
+# @description Disk selection for drive to be used with installation.
+diskpart () {
+echo -ne "
+------------------------------------------------------------------------
+    THIS WILL FORMAT AND DELETE ALL DATA ON THE DISK
+    Please make sure you know what you are doing because
+    after formating your disk there is no way to get data back
+------------------------------------------------------------------------
+
+"
+
+PS3='
+Select the disk to install on: '
+options=($(lsblk -n --output TYPE,KNAME,SIZE | awk '$1=="disk"{print "/dev/"$2"|"$3}'))
+
+select_option $? 1 "${options[@]}"
+disk=${options[$?]%|*}
+
+echo -e "\n${disk%|*} selected \n"
+    set_option DISK ${disk%|*}
+
+drivessd
+}
+diskpart
+# iso=$(curl -4 ifconfig.co/country-iso)
+# timedatectl set-ntp true
+# pacman -S --noconfirm archlinux-keyring # update keyrings to prevent package install failures
+# pacman -S --noconfirm --needed pacman-contrib terminus-font
+# setfont ter-v22b
+# sed -i 's/^#ParallelDownloads/ParallelDownloads/' /etc/pacman.conf
+# pacman -S --noconfirm --needed reflector rsync grub
+# cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.backup
+# echo -ne "
+# -------------------------------------------------------------------------
+#                     Setting up $iso mirrors for faster downloads
+# -------------------------------------------------------------------------
+# "
+# reflector -a 48 -c $iso -f 5 -l 20 --sort rate --save /etc/pacman.d/mirrorlist
 echo "making mount directory"
 mkdir /mnt &>/dev/null || true
 echo "mount directory created"

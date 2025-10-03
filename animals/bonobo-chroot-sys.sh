@@ -29,7 +29,8 @@ autodetect_cpu() {
         CPU_MAN="intel"
     fi
     echo "Detectcted: $CPU_MAN"
-    pacstrap --noconfirm "$MOUNT_POINT" "${init_pkgs[@]}"
+    echo "$init_pkgs"
+    pacstrap "$MOUNT_POINT" "${init_pkgs[@]}"
 }
 
 regional_settings() {

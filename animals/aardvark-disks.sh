@@ -1,6 +1,5 @@
 #!/bin/bash
 
-source $CONFIGS_DIR/setup.conf
 iso=$(curl -4 ifconfig.co/country-iso)
 timedatectl set-ntp true
 pacman -S --noconfirm archlinux-keyring # update keyrings to prevent package install failures

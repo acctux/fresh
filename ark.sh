@@ -14,10 +14,7 @@
 # -------------------------------------------------------------------------
 
 pacman -Sy --noconfirm archlinux-keyring
-if [[ ! -d ~/fresh ]]; then
-  pacman -S --needed git
-  git clone https://github.com/acctux/fresh.git ~/fresh
-fi
+[[ -d ~/fresh ]] || pacman -S --needed git && git clone https://github.com/acctux/fresh.git ~/fresh
 
 pac_prep() {
   iso=$(curl -4 ifconfig.co/country-iso)

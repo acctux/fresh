@@ -13,10 +13,8 @@
 # The one-opinion opinionated automated Arch Linux Installer
 # -------------------------------------------------------------------------
 
-pacman -Sy --noconfirm archlinux-keyring
-[[ -d ~/fresh ]] || pacman -S --needed git && git clone https://github.com/acctux/fresh.git ~/fresh && exec ~/fresh/ark.sh
-
 pac_prep() {
+  pacman -Sy --noconfirm archlinux-keyring
   iso=$(curl -4 ifconfig.co/country-iso)
 
   pacman -S --noconfirm --needed pacman-contrib
@@ -255,13 +253,10 @@ EOF
 }
 
 ark() {
-  check_git
-
-  get_disk_selection
-
   timedatectl set-ntp true
 
   pac_prep
+  get_disk_selection
   make_mnt_dir
   create_partitions
   mount_filesystems

@@ -233,7 +233,7 @@ aardvark() {
 
     yes_no_prompt "Proceed with installation?" || fatal "Installation cancelled by user"
     create_partitions
-    format_partitions
-    mount_filesystems
+    # format_partitions
+    # mount_filesystems
 }
 aardvark

@@ -12,6 +12,47 @@
 # -------------------------------------------------------------------------
 # The one-opinion opinionated automated Arch Linux Installer
 # -------------------------------------------------------------------------
+#######################################
+# Logging helpers
+#######################################
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+info() { printf "${BLUE}[INFO]${NC} %s\n" "$*" | tee -a "$LOG_FILE"; }
+success() { printf "${GREEN}[SUCCESS]${NC} %s\n" "$*" | tee -a "$LOG_FILE"; }
+warning() { printf "${YELLOW}[WARNING]${NC} %s\n" "$*" | tee -a "$LOG_FILE"; }
+error() { printf "${RED}[ERROR]${NC} %s\n" "$*" | tee -a "$LOG_FILE"; }
+
+fatal() {
+  error "$*"
+  exit 1
+}
+
+error_trap() {
+  local exit_code=$?
+  local line="$1"
+  local cmd="$2"
+  error "Command '${cmd}' failed at line ${line} with exit code ${exit_code}"
+  exit "$exit_code"
+}
+
+unmount_mounted() {
+  info "Unmounting filesystems"
+  if mountpoint -q "mnt/boot"; then
+    umount "/mnt/boot" || error "Failed to unmount mnt/boot"
+  fi
+  for sub in home var/log var/cache/pacman/pkg; do
+    if mountpoint -q "mnt/$sub"; then
+      umount "/mnt/$sub" || error "Failed to unmount /mnt/$sub"
+    fi
+  done
+  if ! umount -R "/mnt"; then
+    error "No mount exists or failed."
+  fi
+  success "Filesystems unmounted successfully"
+}
 
 pac_prep() {
   pacman -S --noconfirm --needed pacman-contrib
@@ -256,6 +297,7 @@ EOF
 }
 
 ark() {
+  unmount_mounted
   timedatectl set-ntp true
 
   pac_prep

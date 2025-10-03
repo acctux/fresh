@@ -82,19 +82,3 @@ get_password() {
     return 0
   done
 }
-
-unmount_mounted() {
-  info "Unmounting filesystems"
-  if mountpoint -q "mnt/boot"; then
-    umount "/mnt/boot" || error "Failed to unmount mnt/boot"
-  fi
-  for sub in home var/log var/cache/pacman/pkg; do
-    if mountpoint -q "mnt/$sub"; then
-      umount "/mnt/$sub" || error "Failed to unmount /mnt/$sub"
-    fi
-  done
-  if ! umount -R "/mnt"; then
-    error "Failed to unmount mnt"
-  fi
-  success "Filesystems unmounted successfully"
-}

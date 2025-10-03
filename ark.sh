@@ -13,11 +13,20 @@
 # The one-opinion opinionated automated Arch Linux Installer
 # -------------------------------------------------------------------------
 
-check_git() {
-  if [[ ! -d ~/fresh ]]; then
-    pacman -S --needed git
-    git clone https://github.com/acctux/fresh.git ~/fresh
-  fi
+if [[ ! -d ~/fresh ]]; then
+  pacman -S --needed git
+  git clone https://github.com/acctux/fresh.git ~/fresh
+fi
+
+pac_prep() {
+  iso=$(curl -4 ifconfig.co/country-iso)
+
+  pacman -S --noconfirm --needed pacman-contrib
+
+  sed -i 's/^#ParallelDownloads/ParallelDownloads/' /etc/pacman.conf
+  cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.backup
+  info "Updating reflector mirrors."
+  reflector -a 48 -c $iso -f 5 -l 20 --sort rate --save /etc/pacman.d/mirrorlist
 }
 
 get_disk_selection() {
@@ -52,17 +61,6 @@ get_disk_selection() {
   done
   DISK="${disks[$index]}"
   info "Selected disk: $DISK (${labels[$index]})"
-}
-
-pac_prep() {
-  iso=$(curl -4 ifconfig.co/country-iso)
-
-  pacman -S --noconfirm --needed pacman-contrib
-
-  sed -i 's/^#ParallelDownloads/ParallelDownloads/' /etc/pacman.conf
-  cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.backup
-  info "Updating reflector mirrors."
-  reflector -a 48 -c $iso -f 5 -l 20 --sort rate --save /etc/pacman.d/mirrorlist
 }
 
 make_mnt_dir() {

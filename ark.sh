@@ -245,14 +245,15 @@ ark() {
   pac_prep
   get_disk_selection
   #  verify_mount
-  pacstrap_init
+  do_the_disk
+  # pacstrap_init
 
-  cp -R ${SCRIPT_DIR} /mnt/root/fresh
-
-  generate_fstab
-  check_bios
-  regional_settings
-  set_hostname
-  configure_bootloader
+  # cp -R ${SCRIPT_DIR} /mnt/root/fresh
+# 
+  # generate_fstab
+  # check_bios
+  # regional_settings
+  # set_hostname
+  # configure_bootloader
 }
 ark

@@ -131,7 +131,7 @@ get_disk_selection() {
   validate_disk "$DISK"
 }
 do_the_disk() {
-# Disk selection.
+  mkdir -p "$MOUNT_POINT"
   # Wipe and partition disk.
   wipefs -af "$DISK" &>/dev/null
   sgdisk --zap-all "$DISK" &>/dev/null
@@ -240,9 +240,9 @@ EOF
 
 ark() {
   unmount_mounted
-  timedatectl set-ntp true
+  # timedatectl set-ntp true
 
-  pac_prep
+  # pac_prep
   get_disk_selection
   #  verify_mount
   do_the_disk

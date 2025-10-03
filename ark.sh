@@ -168,9 +168,9 @@ regional_settings() {
   # Timezone & LOCALE
   ln -sf /usr/share/zoneinfo/$TIMEZONE /etc/localtime
   hwclock --systohc
-  echo "$LOCALE UTF-8" >>"/mnt/etc/LOCALE.gen"
-  arch-chroot "/mnt" LOCALE-gen
-  echo "LANG=$LOCALE" >"/mnt/etc/LOCALE.conf"
+  echo "$LOCALE UTF-8" >>"/mnt/etc/locale.gen"
+  arch-chroot "/mnt" locale-gen
+  echo "LANG=$LOCALE" >"/mnt/etc/locale.conf"
 }
 
 set_hostname() {

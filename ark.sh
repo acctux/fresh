@@ -63,6 +63,7 @@ pac_prep() {
 
   sed -i 's/^#ParallelDownloads/ParallelDownloads/' /etc/pacman.conf
   cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.backup
+  info "Updating reflector mirrors."
   reflector -a 48 -c $iso -f 5 -l 20 --sort rate --save /etc/pacman.d/mirrorlist
 }
 

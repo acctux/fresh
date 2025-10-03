@@ -117,7 +117,7 @@ unmount_mounted() {
     fi
   done
   if mountpoint -q "mnt"; then
-    umount "/mnt" || error "Failed to unmount mnt"
+    umount -R "/mnt" || error "Failed to unmount mnt"
   fi
   success "Filesystems unmounted successfully"
 }

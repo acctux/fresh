@@ -274,3 +274,4 @@ ark() {
   set_hostname
   configure_bootloader
 }
+ark

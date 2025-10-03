@@ -15,7 +15,7 @@ echo -ne "
 "
 reflector -a 48 -c $iso -f 5 -l 20 --sort rate --save /etc/pacman.d/mirrorlist
 echo "making mount directory"
-mkdir /mnt &>/dev/null # Hide error if directory exists
+mkdir /mnt &>/dev/null || true
 echo "mount directory created"
 
 umount -A --recursive /mnt # Ensure everything is unmounted

@@ -84,8 +84,8 @@ main() {
     # trap unmount_mounted EXIT
     info "Starting Arch Linux installation"
     unmount_mounted
-    (bash "$SCRIPT_DIR/animals/aardvark-disks.sh")
-    (arch-chroot /mnt "$SCRIPT_DIR/animals/chameleon-zram-config.sh")
+    bash "$SCRIPT_DIR/animals/aardvark-disks.sh"
+    arch-chroot /mnt "$SCRIPT_DIR/animals/chameleon-zram-config.sh"
     # aardvark
     bonobo
     chameleon

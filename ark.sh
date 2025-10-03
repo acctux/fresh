@@ -17,8 +17,6 @@ pac_prep() {
   pacman -Sy --noconfirm archlinux-keyring
   iso=$(curl -4 ifconfig.co/country-iso)
 
-  pacman -S --noconfirm --needed pacman-contrib
-
   sed -i 's/^#ParallelDownloads/ParallelDownloads/' /etc/pacman.conf
   cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.backup
   info "Updating reflector mirrors."

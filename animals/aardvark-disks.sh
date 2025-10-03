@@ -1,4 +1,5 @@
 #!/bin/bash
+MOUNT_OPTIONS "noatime,compress=zstd,ssd,commit=120
 get_disk_selection() {
     info "Detecting available disks..."
     local disks=()

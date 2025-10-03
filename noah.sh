@@ -24,7 +24,6 @@ readonly LOG_FILE="/tmp/noah.log"
 
 readonly USERNAME="nick"
 readonly HOSTNAME="arch"
-readonly SWAP_SIZE="8G"
 readonly EFI_SIZE="512M"
 readonly MOUNT_POINT="/mnt"
 readonly TIMEZONE="US/Eastern"
@@ -71,10 +70,10 @@ main() {
     # require_root
     # check_dependencies
 
-    # trap unmount_mounted EXIT
+    trap unmount_mounted EXIT
     info "Starting Arch Linux installation"
 
-    ( bash "$SCRIPT_DIR"/animals/aardvark-disks.sh )|& tee startup.log
+   aardvark
 #     ( bash "$SCRIPT_DIR"/fresh/animals/bonobo-chroot-sys.sh )|& tee 0-preinstall.log
 #     pacman -Sy archlinux-keyring
 #     ( arch-chroot "$HOME_MNT"/animals/chameleon-init-chaos.sh )|& tee 1-setup.log

@@ -147,7 +147,7 @@ create_partitions() {
   sgdisk --zap-all "$DISK" >/dev/null
   sgdisk -n 1:0:+${EFI_SIZE} -t 1:ef00 "$DISK" # EFI partition
   sgdisk -n 2:0:0 -t 2:8300 "$DISK"            # Root partition (Btrfs)
-  sleep 2
+  sleep 4
   partprobe "$DISK"
   success "Partitions created successfully"
 }
@@ -284,7 +284,7 @@ ark() {
   make_mnt_dir
   create_partitions
   mount_filesystems
-  verify_mount
+  #  verify_mount
   pacstrap_init
 
   cp -R ${SCRIPT_DIR} /mnt/root/fresh

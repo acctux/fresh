@@ -156,7 +156,9 @@ echo -ne "
 -------------------------------------------------------------------------
 "
 
-pacstrap /mnt base \
+pacstrap /mnt \
+    amd-ucode \
+    base \
     base-devel \
     btrfs-progs \
     linux \
@@ -165,6 +167,10 @@ pacstrap /mnt base \
     neovim-lspconfig --noconfirm --needed
 echo "keyserver hkp://keyserver.ubuntu.com" >> /mnt/etc/pacman.d/gnupg/gpg.conf
 cp -R ${SCRIPT_DIR} /mnt/root/Noah
+if [[ ! -d /mnt/root/Noah ]]; then
+    echo "MISTAKE!!!"
+    exit 1
+fi
 cp /etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist
 
 genfstab -L /mnt >> /mnt/etc/fstab
@@ -173,6 +179,18 @@ echo "
 "
 cat /mnt/etc/fstab
 echo -ne "
+
+
+# cpu_type=$(lscpu)
+# if grep -E "AuthenticAMD" <<< ${cpu_type}; then
+#     pacstrap /mnt amd-ucode --noconfirm --needed
+#     CPU_MAN="amd"
+# elif grep -E "GenuineIntel" <<< ${cpu_type}; then
+#     pacstrap /mnt intel-ucode --noconfirm --needed
+#     CPU_MAN="intel"
+# fi
+
+
 -------------------------------------------------------------------------
                     GRUB BIOS Bootloader Install & Check
 -------------------------------------------------------------------------
@@ -181,13 +199,4 @@ if [[ ! -d "/sys/firmware/efi" ]]; then
     grub-install --boot-directory=/mnt/boot ${DISK}
 else
     pacstrap /mnt efibootmgr --noconfirm --needed
-fi
-
-cpu_type=$(lscpu)
-if grep -E "AuthenticAMD" <<< ${cpu_type}; then
-    pacstrap /mnt amd-ucode --noconfirm --needed
-    CPU_MAN="amd"
-elif grep -E "GenuineIntel" <<< ${cpu_type}; then
-    pacstrap /mnt intel-ucode --noconfirm --needed
-    CPU_MAN="intel"
 fi

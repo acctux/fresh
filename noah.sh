@@ -51,8 +51,6 @@ source "$SCRIPT_DIR/animals/dingo-reflector-chaotic.sh"
 # source "$SCRIPT_DIR/conf/test_pac.sh"
 # source "$SCRIPT_DIR/conf/conf_sysctl.sh"
 
-# echo -ne "
-# "
 
 # Runtime variables (initially empty)
 DISK=""
@@ -75,20 +73,12 @@ main() {
     unmount_mounted
     aardvark
     bonobo
-    arch-chroot "$SCRIPT_DIR"/animals/chameleon-zram-config.sh )|& tee 1-setup.log
-    # dingo
-#     ( bash "$SCRIPT_DIR"/animals/bonobo-chroot-sys.sh )|& tee 0-preinstall.log
+    chameleon
+    dingo
+
 #     pacman -Sy archlinux-keyring
-#     ( arch-chroot "$HOME_MNT"/animals/dingo-suusers.sh )|& tee 2-setup.log
-#     ( arch-chroot python "$HOME_MNT"/animals/echidna-copy-etc.py )|& tee 3-post-setup.log
-#     ( arch-chroot "$HOME_MNT"/animals/fox-services.sh )|& tee 3-post-setup.log
-#     ( arch-chroot "$HOME_MNT"/animals/fox-services.sh )|& tee 3-post-setup.log
 #     ( arch-chroot "$HOME_MNT" /usr/bin/runuser -u $USERNAME -- /home/$USERNAME/scripts/zebra-user.sh )|& tee 2-user.log
 
-#     additional_packages
-#     arch-chroot "$MOUNT_POINT" systemctl enable "${SERV_ENABLE}"
-#     arch-chroot "$MOUNT_POINT" systemctl disable systemd-timesyncd.service
-#     ansible_etc_playbook
 #     echo -ne "
 # -------------------------------------------------------------------------
 # ███╗   ██╗  ██████╗   █████╗  ██╗  ██╗  ██████╗     █████╗  ██████╗   ██████╗ ██╗  ██╗

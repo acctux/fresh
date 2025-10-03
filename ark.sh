@@ -13,6 +13,7 @@
 # The one-opinion opinionated automated Arch Linux Installer
 # -------------------------------------------------------------------------
 
+pacman -Sy --noconfirm archlinux-keyring
 if [[ ! -d ~/fresh ]]; then
   pacman -S --needed git
   git clone https://github.com/acctux/fresh.git ~/fresh
@@ -257,7 +258,6 @@ EOF
 }
 
 ark() {
-  pacman -Sy --noconfirm archlinux-keyring
   check_git
 
   get_disk_selection

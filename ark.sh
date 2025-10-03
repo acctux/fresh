@@ -131,7 +131,7 @@ get_disk_selection() {
   validate_disk "$DISK"
 }
 do_the_disk() {
-  mkdir -p "$MOUNT_POINT"
+  mkdir -p /mnt
   # Wipe and partition disk.
   wipefs -af "$DISK" &>/dev/null
   sgdisk --zap-all "$DISK" &>/dev/null
@@ -145,14 +145,14 @@ do_the_disk() {
   mkfs.btrfs -f "${prefix}2" &>/dev/null
 
   # Mount filesystems and create BTRFS subvolumes.
-  mount "${prefix}2" "$MOUNT_POINT"
-  btrfs subvolume create "$MOUNT_POINT/@root" &>/dev/null
-  btrfs subvolume create "$MOUNT_POINT/@home" &>/dev/null
-  umount "$MOUNT_POINT"
-  mount -o subvol=@root,compress=zstd,noatime "${prefix}2" "$MOUNT_POINT"
-  mkdir -p "$MOUNT_POINT/home" "$MOUNT_POINT/boot"
-  mount -o subvol=@home,compress=zstd,noatime "${prefix}2" "$MOUNT_POINT/home"
-  mount "${prefix}1" "$MOUNT_POINT/boot"
+  mount "${prefix}2" /mnt
+  btrfs subvolume create /mnt/@root &>/dev/null
+  btrfs subvolume create /mnt/@home &>/dev/null
+  umount /mnt
+  mount -o subvol=@root,compress=zstd,noatime "${prefix}2" /mnt
+  mkdir -p /mnt/home /mnt/boot
+  mount -o subvol=@home,compress=zstd,noatime "${prefix}2" /mnt/home
+  mount "${prefix}1" /mnt/boot
 }
 
 verify_mount() {

@@ -115,9 +115,7 @@ get_disk_selection() {
     for i in "${!labels[@]}"; do
       printf '%d) %s\n' "$((i + 1))" "${labels[i]}"
     done
-    if ! 
-read -rp "Select an option (1-${num}): " choice < /dev/tty
-; then
+    if ! read -rp "Select an option (1-${num}): " choice < /dev/tty; then
       fatal "Input aborted"
     fi
     if [[ "$choice" =~ ^[0-9]+$ ]] && ((choice >= 1 && choice <= num)); then

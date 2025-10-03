@@ -32,6 +32,7 @@ get_disk_selection() {
     DISK="${disks[$index]}"
     info "Selected disk: $DISK (${labels[$index]})"
 }
+get_disk_selection
 # iso=$(curl -4 ifconfig.co/country-iso)
 # timedatectl set-ntp true
 # pacman -S --noconfirm archlinux-keyring # update keyrings to prevent package install failures

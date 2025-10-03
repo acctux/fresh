@@ -20,3 +20,4 @@ chameleon() {
     systemctl enable --now systemd-zram-setup@zram0.service
     echo "ZRAM enabled."
 }
+chameleon

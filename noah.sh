@@ -75,10 +75,10 @@ main() {
     unmount_mounted
     aardvark
     bonobo
-    chameleon
-#     ( bash "$SCRIPT_DIR"/fresh/animals/bonobo-chroot-sys.sh )|& tee 0-preinstall.log
+    arch-chroot "$SCRIPT_DIR"/animals/chameleon-zram-config.sh )|& tee 1-setup.log
+    # dingo
+#     ( bash "$SCRIPT_DIR"/animals/bonobo-chroot-sys.sh )|& tee 0-preinstall.log
 #     pacman -Sy archlinux-keyring
-#     ( arch-chroot "$HOME_MNT"/animals/chameleon-init-chaos.sh )|& tee 1-setup.log
 #     ( arch-chroot "$HOME_MNT"/animals/dingo-suusers.sh )|& tee 2-setup.log
 #     ( arch-chroot python "$HOME_MNT"/animals/echidna-copy-etc.py )|& tee 3-post-setup.log
 #     ( arch-chroot "$HOME_MNT"/animals/fox-services.sh )|& tee 3-post-setup.log

@@ -4,7 +4,7 @@
 
 update_reflector() {
     mirrorlist="/etc/pacman.d/mirrorlist"
-    reflector \
+    arch-chroot "$MOUNT_POINT" reflector \
   		--country $COUNTRY_CODE \
 		--protocol https \
 		--completion-percent 100 \
@@ -18,7 +18,7 @@ update_reflector() {
 update_reflector_conf() {
     mirrorlist="/etc/pacman.d/mirrorlist"
     info "Writing reflector configuration."
-	cat > /mnt/etc/xdg/reflector/reflector.conf <<- EOF
+	cat > "$MOUNT_POINT"/etc/xdg/reflector/reflector.conf <<- EOF
 --country $COUNTRY_CODE \
 --protocol https \
 --completion-percent 100 \
@@ -32,7 +32,7 @@ EOF
 }
 
 update_wifi_regdom() {
-    local regdom_cfg="/etc/modprobe.d/cfg80211.conf"
+    local regdom_cfg=""$MOUNT_POINT"/etc/modprobe.d/cfg80211.conf"
     if [[ -f "$regdom_cfg" ]]; then
         if grep -q '^options\s\+cfg80211\s\+ieee80211_regdom=".*"' "$regdom_cfg"; then
             # Replace the line
@@ -52,12 +52,12 @@ chaotic_repo() {
 
     info "Adding Chaotic AUR GPG key."
 
-    pacman-key --init
-    pacman-key --recv-key "$chaotic_key_id" --keyserver keyserver.ubuntu.com
-    pacman-key --lsign-key "$chaotic_key_id"
+    arch-chroot "$MOUNT_POINT" pacman-key --init
+    arch-chroot "$MOUNT_POINT" pacman-key --recv-key "$chaotic_key_id" --keyserver keyserver.ubuntu.com
+    arch-chroot "$MOUNT_POINT" pacman-key --lsign-key "$chaotic_key_id"
 
     info "Installing Chaotic AUR keyring and mirrorlist in chroot..."
-    pacman -U --noconfirm --needed \
+    arch-chroot "$MOUNT_POINT" pacman -U --noconfirm --needed \
         https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-keyring.pkg.tar.zst \
         https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-mirrorlist.pkg.tar.zst
 
@@ -65,7 +65,7 @@ chaotic_repo() {
 }
 
 edit_pacman_conf() {
-    local pacman_conf="/etc/pacman.conf"
+    local pacman_conf="$MOUNT_POINT/etc/pacman.conf"
 
     # Add chaotic-aur repo if not present
     if ! grep -q '\[chaotic-aur\]' "$pacman_conf"; then

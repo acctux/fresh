@@ -70,11 +70,11 @@ main() {
     # require_root
     # check_dependencies
 
-    trap unmount_mounted EXIT
+    # trap unmount_mounted EXIT
     info "Starting Arch Linux installation"
-
-   aardvark
-   bonobo
+    unmount_mounted
+    aardvark
+    bonobo
 #     ( bash "$SCRIPT_DIR"/fresh/animals/bonobo-chroot-sys.sh )|& tee 0-preinstall.log
 #     pacman -Sy archlinux-keyring
 #     ( arch-chroot "$HOME_MNT"/animals/chameleon-init-chaos.sh )|& tee 1-setup.log

@@ -8,7 +8,9 @@
 
 CPU_MAN=""
 
-declare -a init_pkgs=(
+
+autodetect_cpu() {
+    init_pkgs=(
     base \
     base-devel \
     btrfs-progs \
@@ -18,9 +20,7 @@ declare -a init_pkgs=(
     neovim-lspconfig \
     reflector \
     zram-generator
-)
-
-autodetect_cpu() {
+    )
     cpu_type=$(lscpu)
     if grep -E "AuthenticAMD" <<< ${cpu_type}; then
         init_pkgs+=(amd-ucode)

@@ -12,10 +12,9 @@
 # -------------------------------------------------------------------------
 # The one-opinion opinionated automated Arch Linux Installer
 # -------------------------------------------------------------------------
-#
+
 check_git() {
   if [[ ! -d ~/fresh ]]; then
-    pacman -Sy archlinux-keyring
     pacman -S --needed git
     git clone https://github.com/acctux/fresh.git ~/fresh
   fi
@@ -58,7 +57,6 @@ get_disk_selection() {
 pac_prep() {
   iso=$(curl -4 ifconfig.co/country-iso)
 
-  pacman -S --noconfirm archlinux-keyring # update keyrings to prevent package install failures
   pacman -S --noconfirm --needed pacman-contrib
 
   sed -i 's/^#ParallelDownloads/ParallelDownloads/' /etc/pacman.conf
@@ -74,55 +72,107 @@ make_mnt_dir() {
 }
 
 create_partitions() {
-  # Disk prep
-  sgdisk -Z ${DISK}         # Zap all on disk
-  sgdisk -a 2048 -o ${DISK} # New GPT disk with 2048 alignment
-
-  # Create partitions
-  sgdisk -n 1::+1M --typecode=1:ef02 --change-name=1:'BIOSBOOT' ${DISK}  # BIOS Boot Partition
-  sgdisk -n 2::+600M --typecode=2:ef00 --change-name=2:'EFIBOOT' ${DISK} # UEFI Boot Partition
-  sgdisk -n 3::-0 --typecode=3:8300 --change-name=3:'ROOT' ${DISK}       # Root Partition, remaining space
-  if [[ ! -d "/sys/firmware/efi" ]]; then                                # Check for BIOS system
-    sgdisk -A 1:set:2 ${DISK}
+  # - EFI_SIZE: 600M for UEFI (300–600M recommended) 1M for GRUB on BIOS systems.
+  : "${EFI_SIZE:=500M}" "${BIOS_BOOT_SIZE:=1M}"
+  [[ -b "$DISK" ]] || {
+    echo "Error: Invalid disk $DISK"
+    return 1
+  }
+  # - sgdisk -Z clears GPT/MBR; sufficient for 2024+ systems.
+  sgdisk -Z "$DISK" || {
+    echo "Error: Failed to wipe $DISK"
+    return 1
+  }
+  # Logic: Initialize GPT with 2048-sector alignment for SSD/NVMe performance.
+  # - 1 MiB alignment is standard in 2024+ for modern storage.
+  sgdisk -a 2048 -o "$DISK" || {
+    echo "Error: Failed to set GPT"
+    return 1
+  }
+  # Logic: Create partitions dynamically, starting with partition 1.
+  local part=1
+  # - 1M, type ef02, named BIOSBOOT; sets legacy boot attribute for GRUB.
+  if [[ ! -d "/sys/firmware/efi" ]]; then
+    sgdisk -n $part::+"$BIOS_BOOT_SIZE" --typecode=$part:ef02 --change-name=$part:'BIOSBOOT' "$DISK" || {
+      echo "Error: Failed to create BIOS boot partition"
+      return 1
+    }
+    sgdisk -A $part:set:2 "$DISK" || {
+      echo "Error: Failed to set BIOS boot attribute"
+      return 1
+    }
+    ((part++))
   fi
-  # Reread partition table
-  partprobe ${DISK}
+  # Logic: Create EFI partition for UEFI systems (standard in 2024+).
+  # - 600M (or user-defined), type ef00, named EFIBOOT for bootloader.
+  sgdisk -n $part::+"$EFI_SIZE" --typecode=$part:ef00 --change-name=$part:'EFIBOOT' "$DISK" || {
+    echo "Error: Failed to create EFI partition"
+    return 1
+  }
+  ((part++))
+  # Logic: Create root partition with all remaining space.
+  sgdisk -n $part::-0 --typecode=$part:8300 --change-name=$part:'ROOT' "$DISK" || {
+    echo "Error: Failed to create root partition"
+    return 1
+  }
+  # - partprobe ensures partitions are recognized for formatting.
+  partprobe "$DISK" || {
+    echo "Error: Failed to update partition table"
+    return 1
+  }
+  echo "Partitions created successfully"
+}
+
+partition_prefix() {
+  local disk="$1"
+  if [[ "$disk" =~ (nvme|mmcblk|loop) ]]; then
+    echo "${disk}p"
+  else
+    echo "$disk"
+  fi
+}
+
+format_partitions() {
+  info "Formatting partitions"
+  local prefix
+  prefix=$(partition_prefix "$DISK")
+  local efi_partition="${prefix}1"
+  local root_partition="${prefix}2"
+  mkfs.fat -F32 "$efi_partition"
+  mkfs.btrfs -f "$root_partition"
+  success "Partitions formatted successfully"
 }
 
 mount_filesystems() {
-  if [[ "${DISK}" =~ "nvme" ]]; then
-    partition2=${DISK}p2
-    partition3=${DISK}p3
-  else
-    partition2=${DISK}2
-    partition3=${DISK}3
-  fi
+  info "Mounting filesystems"
+  local prefix
+  prefix=$(partition_prefix "$DISK")
 
-  mkfs.vfat -F32 -n "EFIBOOT" ${partition2}
-  mkfs.btrfs -L ROOT ${partition3} -f
-  mount -t btrfs ${partition3} /mnt
+  local efi_partition="${prefix}1"
+  local root_partition="${prefix}2"
 
-  # Create btrfs subvolumes
+  mount "$root_partition" /mnt
+  mkdir -p /mnt/boot
+  mount "$efi_partition" /mnt/boot
+
   btrfs subvolume create /mnt/@
   btrfs subvolume create /mnt/@home
-  btrfs subvolume create /mnt/@var
-  btrfs subvolume create /mnt/@tmp
-  btrfs subvolume create /mnt/@.snapshots
+  btrfs subvolume create /mnt/@log
+  btrfs subvolume create /mnt/@pkg
 
-  # Set up btrfs subvolumes and mount
+  umount /mnt/boot
   umount /mnt
-  mount -o ${MOUNT_OPTIONS},subvol=@ ${partition3} /mnt
-  mkdir -p /mnt/{home,var,tmp,.snapshots}
 
-  # Mount btrfs subvolumes
-  mount -o ${MOUNT_OPTIONS},subvol=@home ${partition3} /mnt/home
-  mount -o ${MOUNT_OPTIONS},subvol=@tmp ${partition3} /mnt/tmp
-  mount -o ${MOUNT_OPTIONS},subvol=@var ${partition3} /mnt/var
-  mount -o ${MOUNT_OPTIONS},subvol=@.snapshots ${partition3} /mnt/.snapshots
+  mount -o subvol=@,$MOUNT_OPTIONS "$root_partition" /mnt
 
-  # Mount EFI partition
-  mkdir -p /mnt/boot/efi
-  mount -t vfat -L EFIBOOT /mnt/boot/efi
+  mkdir -p /mnt/home /mnt/var/log /mnt/var/cache/pacman/pkg
+  mount -o subvol=@home,$MOUNT_OPTIONS "$root_partition" /mnt/home
+  mount -o subvol=@log,$MOUNT_OPTIONS "$root_partition" /mnt/var/log
+  mount -o subvol=@pkg,$MOUNT_OPTIONS "$root_partition" /mnt/var/cache/pacman/pkg
+
+  mkdir -p /mnt/boot
+  mount "$efi_partition" /mnt/boot
+  success "Filesystems mounted successfully"
 }
 
 verify_mount() {
@@ -209,6 +259,7 @@ EOF
 }
 
 ark() {
+  pacman -Sy archlinux-keyring
   check_git
 
   get_disk_selection

@@ -1,3 +1,79 @@
+# readonly LOG_FILE="/tmp/noah.log"
+
+# readonly USERNAME="nick"
+# readonly HOSTNAME="arch"
+# readonly EFI_SIZE="512M"
+# readonly MOUNT_POINT="/mnt"
+# readonly TIMEZONE="US/Eastern"
+# LOCALE="en_US.UTF-8"
+
+
+# #######################################
+# # Logging helpers
+# #######################################
+# RED='\033[0;31m'
+# GREEN='\033[0;32m'
+# YELLOW='\033[1;33m'
+# BLUE='\033[0;34m'
+# NC='\033[0m' # No Color
+# info()    { printf "${BLUE}[INFO]${NC} %s\n"    "$*" | tee -a "$LOG_FILE"; }
+# success() { printf "${GREEN}[SUCCESS]${NC} %s\n" "$*" | tee -a "$LOG_FILE"; }
+# warning() { printf "${YELLOW}[WARNING]${NC} %s\n" "$*" | tee -a "$LOG_FILE"; }
+# error()   { printf "${RED}[ERROR]${NC} %s\n"   "$*" | tee -a "$LOG_FILE"; }
+
+# fatal() {
+#     error "$*"
+#     exit 1
+# }
+
+# error_trap() {
+#     local exit_code=$?
+#     local line="$1"
+#     local cmd="$2"
+#     error "Command '${cmd}' failed at line ${line} with exit code ${exit_code}"
+#     exit "$exit_code"
+# }
+
+
+# yes_no_prompt() {
+#     # Ask a yes/no question until the user enters y or n
+#     local prompt="$1"
+#     local reply
+#     while true; do
+#         if ! read -rp "$prompt [y/n]: " reply; then
+#             fatal "Input aborted"
+#         fi
+#         case "$reply" in
+#             [Yy]) return 0 ;;
+#             [Nn]) return 1 ;;
+#         esac
+#         warning "Please answer 'y' or 'n'."
+#     done
+# }
+
+# select_from_menu() {
+#     # Generic menu selection helper
+#     local prompt="$1"
+#     shift
+#     local options=("$@")
+#     local num="${#options[@]}"
+#     local choice
+#     while true; do
+#         info "$prompt" >&2
+#         for i in "${!options[@]}"; do
+#             printf '%d) %s\n' "$((i+1))" "${options[i]}" >&2
+#         done
+#         if ! read -rp "Select an option (1-${num}): " choice; then
+#             fatal "Input aborted"
+#         fi
+#         if [[ "$choice" =~ ^[0-9]+$ ]] && (( choice >= 1 && choice <= num )); then
+#             echo "${options[$((choice-1))]}"
+#             return 0
+#         fi
+#         warning "Invalid choice. Please select a number between 1 and ${num}." >&2
+#     done
+# }
+
 #######################################
 # User input functions
 #######################################
@@ -39,13 +115,14 @@ get_disk_selection() {
 }
 
 check_disk_size() {
-    local disk_bytes efi_bytes root_min bytes_required
+    local disk_bytes efi_bytes bios_bytes root_min bytes_required
 
     disk_bytes=$(lsblk -b -dn -o SIZE "$DISK")
     efi_bytes=$(numfmt --from=iec "$EFI_SIZE")
+    bios_bytes=$((1 * 1024 * 1024))  # 1 MiB for BIOS boot
     root_min=$((8 * 1024 * 1024 * 1024))  # 8 GiB for root
 
-    bytes_required=$((efi_bytes + root_min))
+    bytes_required=$((efi_bytes + bios_bytes + root_min))
 
     if (( disk_bytes < bytes_required )); then
         error "Disk size $(numfmt --to=iec "$disk_bytes") is smaller than required $(numfmt --to=iec "$bytes_required")"
@@ -71,11 +148,13 @@ create_partitions() {
     info "Creating partitions on $DISK"
     wipefs -af "$DISK"
     sgdisk --zap-all "$DISK" >/dev/null
-    sgdisk -n 1::+1M --typecode=1:ef02 --change-name=1:'BIOSBOOT' ${DISK}
-    sgdisk -n 2::+300M --typecode=2:ef00 --change-name=2:'EFIBOOT' ${DISK}
-    sgdisk -n 3::-0 --typecode=3:8300 --change-name=3:'ROOT' ${DISK}
+    sgdisk -n 1::+1M --typecode=1:ef02 --change-name=1:'BIOSBOOT' "$DISK"
+    sgdisk -n 2::+${EFI_SIZE} --typecode=2:ef00 --change-name=2:'EFIBOOT' "$DISK"
+    sgdisk -n 3::-0 --typecode=3:8300 --change-name=3:'ROOT' "$DISK"
     partprobe "$DISK"
-    sleep 2
+    until lsblk "$DISK" | grep -q "part"; do
+        sleep 0.5
+    done
     success "Partitions created successfully"
 }
 
@@ -84,15 +163,11 @@ format_partitions() {
     local prefix
     prefix=$(partition_prefix "$DISK")
 
-    local efi_partition="${prefix}1"
-    local swap_partition="${prefix}2"
+    local bios_partition="${prefix}1"
+    local efi_partition="${prefix}2"
     local root_partition="${prefix}3"
 
-    SWAP_PARTITION="$swap_partition"
-
     mkfs.fat -F32 "$efi_partition"
-    mkswap "$swap_partition"
-    swapon "$swap_partition"
     mkfs.btrfs -f "$root_partition"
     success "Partitions formatted successfully"
 }
@@ -102,8 +177,8 @@ mount_filesystems() {
     local prefix
     prefix=$(partition_prefix "$DISK")
 
-    local btrfs_opts="compress=lzo,noatime"
-    local efi_partition="${prefix}1"
+    local btrfs_opts="compress=zstd,noatime"
+    local efi_partition="${prefix}2"
     local root_partition="${prefix}3"
 
     mount "$root_partition" "$MOUNT_POINT"
@@ -130,21 +205,19 @@ mount_filesystems() {
 # Cleanup
 #######################################
 unmount_mounted() {
-    info "Unmounting boot."
+    info "Unmounting filesystems"
     if mountpoint -q "$MOUNT_POINT/boot"; then
-        umount "$MOUNT_POINT/boot" || true
+        umount "$MOUNT_POINT/boot" || error "Failed to unmount $MOUNT_POINT/boot"
     fi
     for sub in home var/log var/cache/pacman/pkg; do
         if mountpoint -q "$MOUNT_POINT/$sub"; then
-            umount "$MOUNT_POINT/$sub" || true
+            umount "$MOUNT_POINT/$sub" || error "Failed to unmount $MOUNT_POINT/$sub"
         fi
     done
     if mountpoint -q "$MOUNT_POINT"; then
-        umount "$MOUNT_POINT" || true
+        umount "$MOUNT_POINT" || error "Failed to unmount $MOUNT_POINT"
     fi
-    if [[ -n "$SWAP_PARTITION" ]]; then
-        swapoff "$SWAP_PARTITION" || true
-    fi
+    success "Filesystems unmounted successfully"
 }
 
 aardvark() {
@@ -152,8 +225,8 @@ aardvark() {
     trap 'error_trap $LINENO $BASH_COMMAND' ERR
     get_disk_selection
     info "Installation summary:"
-    printf 'Disk: %s\nEFI size: %s\nSwap size: %s\nHostname: %s\nUsername: %s\nTimezone: %s\n\n' \
-        "$DISK" "$EFI_SIZE" "$SWAP_SIZE" "$HOSTNAME" "$USERNAME" "$TIMEZONE"
+    printf 'Disk: %s\nEFI size: %s\nHostname: %s\nUsername: %s\nTimezone: %s\n\n' \
+        "$DISK" "$EFI_SIZE" "$HOSTNAME" "$USERNAME" "$TIMEZONE"
 
     yes_no_prompt "Proceed with installation?" || fatal "Installation cancelled by user"
     create_partitions

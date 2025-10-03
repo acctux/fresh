@@ -70,7 +70,7 @@ select_option() {
     local colmax=$2
     local offset=$(( $cols / $colmax ))
 
-    local size=$4
+    # local size=$4
     shift 4
 
     # ensure cursor and input echoing back on upon a ctrl+c during read -s

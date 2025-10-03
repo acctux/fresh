@@ -134,7 +134,7 @@ do_the_disk() {
   mkdir -p /mnt
   # Wipe and partition disk.
   wipefs -af "$DISK" &>/dev/null
-  sgdisk --zap-all "$DISK" &>/dev/null
+  sgdisk -Z "$DISK" &>/dev/null
   sgdisk -n 1:0:+${EFI_SIZE} -t 1:ef00 -n 2:0:0 -t 2:8300 "$DISK" &>/dev/null
   partprobe "$DISK"
   sleep 3

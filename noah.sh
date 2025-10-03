@@ -85,7 +85,7 @@ main() {
     info "Starting Arch Linux installation"
     unmount_mounted
     bash "$SCRIPT_DIR/animals/aardvark-disks.sh"
-    arch-chroot /mnt "$SCRIPT_DIR/animals/chameleon-zram-config.sh"
+    arch-chroot /mnt "$HOME/Noah/animals/chameleon-zram-config.sh"
     # aardvark
     bonobo
     chameleon

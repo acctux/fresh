@@ -12,6 +12,14 @@
 # -------------------------------------------------------------------------
 # The one-opinion opinionated automated Arch Linux Installer
 # -------------------------------------------------------------------------
+#
+check_git() {
+  if [[ ! -d ~/fresh ]]; then
+    pacman -Sy archlinux-keyring
+    pacman -S --needed git
+    git clone https://github.com/acctux/fresh.git ~/fresh
+  fi
+}
 
 get_disk_selection() {
   info "Detecting available disks..."

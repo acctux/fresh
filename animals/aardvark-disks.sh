@@ -33,21 +33,23 @@ get_disk_selection() {
     DISK="${disks[$index]}"
     info "Selected disk: $DISK (${labels[$index]})"
 }
+
 get_disk_selection
-# iso=$(curl -4 ifconfig.co/country-iso)
-# timedatectl set-ntp true
-# pacman -S --noconfirm archlinux-keyring # update keyrings to prevent package install failures
-# pacman -S --noconfirm --needed pacman-contrib terminus-font
-# setfont ter-v22b
-# sed -i 's/^#ParallelDownloads/ParallelDownloads/' /etc/pacman.conf
-# pacman -S --noconfirm --needed reflector rsync grub
-# cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.backup
-# echo -ne "
-# -------------------------------------------------------------------------
-#                     Setting up $iso mirrors for faster downloads
-# -------------------------------------------------------------------------
-# "
-# reflector -a 48 -c $iso -f 5 -l 20 --sort rate --save /etc/pacman.d/mirrorlist
+
+iso=$(curl -4 ifconfig.co/country-iso)
+timedatectl set-ntp true
+pacman -S --noconfirm archlinux-keyring # update keyrings to prevent package install failures
+pacman -S --noconfirm --needed pacman-contrib
+
+sed -i 's/^#ParallelDownloads/ParallelDownloads/' /etc/pacman.conf
+cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.backup
+echo -ne "
+-------------------------------------------------------------------------
+                    Setting up $iso mirrors for faster downloads
+-------------------------------------------------------------------------
+"
+reflector -a 48 -c $iso -f 5 -l 20 --sort rate --save /etc/pacman.d/mirrorlist
+
 echo "making mount directory"
 mkdir /mnt &>/dev/null || true
 echo "mount directory created"
@@ -84,32 +86,22 @@ mkfs.btrfs -L ROOT ${partition3} -f
 mount -t btrfs ${partition3} /mnt
 
 # Create btrfs subvolumes
-createsubvolumes () {
-    btrfs subvolume create /mnt/@
-    btrfs subvolume create /mnt/@home
-    btrfs subvolume create /mnt/@var
-    btrfs subvolume create /mnt/@tmp
-    btrfs subvolume create /mnt/@.snapshots
-}
-
-# Mount btrfs subvolumes
-mountallsubvol () {
-    mount -o ${MOUNT_OPTIONS},subvol=@home ${partition3} /mnt/home
-    mount -o ${MOUNT_OPTIONS},subvol=@tmp ${partition3} /mnt/tmp
-    mount -o ${MOUNT_OPTIONS},subvol=@var ${partition3} /mnt/var
-    mount -o ${MOUNT_OPTIONS},subvol=@.snapshots ${partition3} /mnt/.snapshots
-}
+btrfs subvolume create /mnt/@
+btrfs subvolume create /mnt/@home
+btrfs subvolume create /mnt/@var
+btrfs subvolume create /mnt/@tmp
+btrfs subvolume create /mnt/@.snapshots
 
 # Set up btrfs subvolumes and mount
-subvolumesetup () {
-    createsubvolumes
-    umount /mnt
-    mount -o ${MOUNT_OPTIONS},subvol=@ ${partition3} /mnt
-    mkdir -p /mnt/{home,var,tmp,.snapshots}
-    mountallsubvol
-}
+umount /mnt
+mount -o ${MOUNT_OPTIONS},subvol=@ ${partition3} /mnt
+mkdir -p /mnt/{home,var,tmp,.snapshots}
 
-subvolumesetup
+# Mount btrfs subvolumes
+mount -o ${MOUNT_OPTIONS},subvol=@home ${partition3} /mnt/home
+mount -o ${MOUNT_OPTIONS},subvol=@tmp ${partition3} /mnt/tmp
+mount -o ${MOUNT_OPTIONS},subvol=@var ${partition3} /mnt/var
+mount -o ${MOUNT_OPTIONS},subvol=@.snapshots ${partition3} /mnt/.snapshots
 
 # Mount EFI partition
 mkdir -p /mnt/boot/efi
@@ -128,9 +120,16 @@ echo -ne "
                     Arch Install on Main Drive
 -------------------------------------------------------------------------
 "
-pacstrap /mnt base base-devel linux linux-firmware vim nano sudo archlinux-keyring wget libnewt --noconfirm --needed
+
+pacstrap /mnt base \
+    base-devel \
+    btrfs-progs \
+    linux \
+    reflector \
+    rlinux-firmware \
+    neovim-lspconfig --noconfirm --needed
 echo "keyserver hkp://keyserver.ubuntu.com" >> /mnt/etc/pacman.d/gnupg/gpg.conf
-cp -R ${SCRIPT_DIR} /mnt/root/ArchTitus
+cp -R ${SCRIPT_DIR} /mnt/root/Noah
 cp /etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist
 
 genfstab -L /mnt >> /mnt/etc/fstab
@@ -147,4 +146,13 @@ if [[ ! -d "/sys/firmware/efi" ]]; then
     grub-install --boot-directory=/mnt/boot ${DISK}
 else
     pacstrap /mnt efibootmgr --noconfirm --needed
+fi
+
+cpu_type=$(lscpu)
+if grep -E "AuthenticAMD" <<< ${cpu_type}; then
+    pacstrap /mnt amd-ucode --noconfirm --needed
+    CPU_MAN="amd"
+elif grep -E "GenuineIntel" <<< ${cpu_type}; then
+    pacstrap /mnt intel-ucode --noconfirm --needed
+    CPU_MAN="intel"
 fi

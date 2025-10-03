@@ -40,9 +40,7 @@ KEY_FILES=(
 
 SCRIPT_DIR="$(dirname "$0")"
 source "$SCRIPT_DIR/utils.sh"
-source "$SCRIPT_DIR/animals/aardvark-disks.sh"
 # source "$SCRIPT_DIR/animals/bonobo-chroot-sys.sh"
-# source "$SCRIPT_DIR/animals/chameleon-zram-config.sh"
 # source "$SCRIPT_DIR/animals/dingo-reflector-chaotic.sh"
 # source "$SCRIPT_DIR/animals/echidna-gpu-flood.sh"
 # source "$SCRIPT_DIR/animals/fox-copy-etc.sh"
@@ -86,7 +84,9 @@ main() {
     # trap unmount_mounted EXIT
     info "Starting Arch Linux installation"
     unmount_mounted
-    aardvark
+    (bash "$SCRIPT_DIR/animals/aardvark-disks.sh")
+    (arch-chroot /mnt "$SCRIPT_DIR/animals/chameleon-zram-config.sh")
+    # aardvark
     bonobo
     chameleon
     dingo

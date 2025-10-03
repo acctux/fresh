@@ -1,5 +1,5 @@
 pacman -Sy --noconfirm archlinux-keyring
 rm -rf ~/fresh
-pacman -S --needed git
+pacman -S --noconfirm --needed git
 git clone https://github.com/acctux/fresh.git ~/fresh
 exec ~/fresh/ark.sh

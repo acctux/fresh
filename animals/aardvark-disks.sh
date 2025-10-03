@@ -95,7 +95,7 @@ sgdisk -a 2048 -o ${DISK} # New GPT disk with 2048 alignment
 
 # Create partitions
 sgdisk -n 1::+1M --typecode=1:ef02 --change-name=1:'BIOSBOOT' ${DISK} # BIOS Boot Partition
-sgdisk -n 2::+300M --typecode=2:ef00 --change-name=2:'EFIBOOT' ${DISK} # UEFI Boot Partition
+sgdisk -n 2::+600M --typecode=2:ef00 --change-name=2:'EFIBOOT' ${DISK} # UEFI Boot Partition
 sgdisk -n 3::-0 --typecode=3:8300 --change-name=3:'ROOT' ${DISK} # Root Partition, remaining space
 if [[ ! -d "/sys/firmware/efi" ]]; then # Check for BIOS system
     sgdisk -A 1:set:2 ${DISK}
@@ -163,8 +163,8 @@ pacstrap /mnt \
     btrfs-progs \
     linux \
     reflector \
-    rlinux-firmware \
-    neovim-lspconfig --noconfirm --needed
+    linux-firmware \
+    neovim-lspconfig
 echo "keyserver hkp://keyserver.ubuntu.com" >> /mnt/etc/pacman.d/gnupg/gpg.conf
 cp -R ${SCRIPT_DIR} /mnt/root/Noah
 if [[ ! -d /mnt/root/Noah ]]; then

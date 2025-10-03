@@ -6,7 +6,7 @@
 # Variables
 #######################################
 
-CPU_MANUFACTURER=""
+CPU_MAN=""
 
 declare -a init_pkgs=(
     base \
@@ -29,7 +29,7 @@ autodetect_cpu() {
         init_pkgs+=(intel-ucode)
         CPU_MAN="intel"
     fi
-    echo "Detectcted: $CPU_MANUFACTURER"
+    echo "Detectcted: $CPU_MAN"
 }
 
 regional_settings() {

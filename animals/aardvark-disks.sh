@@ -180,6 +180,10 @@ echo "
 cat /mnt/etc/fstab
 echo -ne "
 
+if [[ ! -d /mnt/root/Noah ]]; then
+    echo "MISTAKE 2!!!"
+    exit 1
+fi
 
 # cpu_type=$(lscpu)
 # if grep -E "AuthenticAMD" <<< ${cpu_type}; then
@@ -199,4 +203,8 @@ if [[ ! -d "/sys/firmware/efi" ]]; then
     grub-install --boot-directory=/mnt/boot ${DISK}
 else
     pacstrap /mnt efibootmgr --noconfirm --needed
+fi
+if [[ ! -d /mnt/root/Noah ]]; then
+    echo "MISTAKE 3!!!"
+    exit 1
 fi

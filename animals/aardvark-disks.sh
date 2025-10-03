@@ -18,7 +18,6 @@ echo "making mount directory"
 mkdir /mnt &>/dev/null || true
 echo "mount directory created"
 
-umount -A --recursive /mnt # Ensure everything is unmounted
 # Disk prep
 sgdisk -Z ${DISK} # Zap all on disk
 sgdisk -a 2048 -o ${DISK} # New GPT disk with 2048 alignment

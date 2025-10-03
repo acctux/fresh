@@ -259,7 +259,7 @@ EOF
 }
 
 ark() {
-  pacman -Sy archlinux-keyring
+  pacman -Sy --noconfirm archlinux-keyring
   check_git
 
   get_disk_selection

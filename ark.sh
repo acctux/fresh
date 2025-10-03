@@ -115,7 +115,7 @@ get_disk_selection() {
     for i in "${!labels[@]}"; do
       printf '%d) %s\n' "$((i + 1))" "${labels[i]}"
     done
-    if ! read -rp "Select an option (1-${num}): " choice < /dev/tty; then
+    if ! read -rp "Select an option (1-${num}): " choice </dev/tty; then
       fatal "Input aborted"
     fi
     if [[ "$choice" =~ ^[0-9]+$ ]] && ((choice >= 1 && choice <= num)); then
@@ -147,7 +147,6 @@ create_partitions() {
   sgdisk --zap-all "$DISK" >/dev/null
   sgdisk -n 1:0:+${EFI_SIZE} -t 1:ef00 "$DISK" # EFI partition
   sgdisk -n 2:0:0 -t 2:8300 "$DISK"            # Root partition (Btrfs)
-  until [[ -b "$efi_partition" && -b "$root_partition" ]]; do
   sleep 2
   partprobe "$DISK"
   success "Partitions created successfully"

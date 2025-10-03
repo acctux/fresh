@@ -28,8 +28,10 @@ warning() { printf "${YELLOW}[WARNING]${NC} %s\n" "$*" | tee -a "$LOG_FILE"; }
 error()   { printf "${RED}[ERROR]${NC} %s\n"   "$*" | tee -a "$LOG_FILE"; }
 
 SCRIPT_DIR="$(dirname "$0")"
+PARENT_DIR="$(dirname "${SCRIPT_DIR}")"
+
 MOUNT_OPTIONS="noatime,compress=zstd,ssd,commit=120"
-source "$SCRIPT_DIR/utils.sh"
+source "$PARENT_DIR/utils.sh"
 
 
 select_from_menu() {
@@ -200,21 +202,6 @@ echo "
 cat /mnt/etc/fstab
 echo -ne "
 
-if [[ ! -d /mnt/root/Noah ]]; then
-    echo "MISTAKE 2!!!"
-    exit 1
-fi
-
-# cpu_type=$(lscpu)
-# if grep -E "AuthenticAMD" <<< ${cpu_type}; then
-#     pacstrap /mnt amd-ucode --noconfirm --needed
-#     CPU_MAN="amd"
-# elif grep -E "GenuineIntel" <<< ${cpu_type}; then
-#     pacstrap /mnt intel-ucode --noconfirm --needed
-#     CPU_MAN="intel"
-# fi
-
-
 -------------------------------------------------------------------------
                     GRUB BIOS Bootloader Install & Check
 -------------------------------------------------------------------------
@@ -223,8 +210,4 @@ if [[ ! -d "/sys/firmware/efi" ]]; then
     grub-install --boot-directory=/mnt/boot ${DISK}
 else
     pacstrap /mnt efibootmgr --noconfirm --needed
-fi
-if [[ ! -d /mnt/root/Noah ]]; then
-    echo "MISTAKE 3!!!"
-    exit 1
 fi

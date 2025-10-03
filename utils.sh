@@ -99,3 +99,19 @@ select_from_menu() {
         warning "Invalid choice. Please select a number between 1 and ${num}." >&2
     done
 }
+
+unmount_mounted() {
+    info "Unmounting filesystems"
+    if mountpoint -q "mnt/boot"; then
+        umount "mnt/boot" || error "Failed to unmount mnt/boot"
+    fi
+    for sub in home var/log var/cache/pacman/pkg; do
+        if mountpoint -q "mnt/$sub"; then
+            umount "mnt/$sub" || error "Failed to unmount mnt/$sub"
+        fi
+    done
+    if mountpoint -q "mnt"; then
+        umount "mnt" || error "Failed to unmount mnt"
+    fi
+    success "Filesystems unmounted successfully"
+}

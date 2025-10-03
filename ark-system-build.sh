@@ -1,22 +1,38 @@
 #!/bin/bash
-#
+
+# -------------------------------------------------------------------------
+
+# ███╗   ██╗  ██████╗   █████╗  ██╗  ██╗  ██████╗     █████╗  ██████╗   ██████╗ ██╗  ██╗
+# ████╗  ██║ ██╔═══██╗ ██╔══██╗ ██║  ██║ ██╔════╝    ██╔══██╗ ██╔══██╗ ██╔════╝ ██║  ██║
+# ██╔██╗ ██║ ██║   ██║ ███████║ ███████║ ╚█████╗     ███████║ ██████╔╝ ██║      ███████║
+# ██║╚██╗██║ ██║   ██║ ██╔══██║ ██╔══██║  ╚═══██╗    ██╔══██║ ██╔══██╗ ██║      ██╔══██║
+# ██║ ╚████║ ╚██████╔╝ ██║  ██║ ██║  ██║ ██████╔╝    ██║  ██║ ██║  ██║ ╚██████╗ ██║  ██║
+# ╚═╝  ╚═══╝  ╚═════╝  ╚═╝  ╚═╝ ╚═╝  ╚═╝ ╚═════╝     ╚═╝  ╚═╝ ╚═╝  ╚═╝  ╚═════╝ ╚═╝  ╚═╝
+
+# -------------------------------------------------------------------------
+# The one-opinion opinionated automated Arch Linux Installer
+# -------------------------------------------------------------------------
+
 readonly LOG_FILE="/tmp/noah.log"
 
 readonly USERNAME="nick"
 readonly HOSTNAME="arch"
 readonly EFI_SIZE="512M"
-readonly MOUNT_POINT="/mnt"
 readonly TIMEZONE="US/Eastern"
 LOCALE="en_US.UTF-8"
 
-readonly HOME_MNT="$MOUNT_POINT/home/$USERNAME"
+readonly HOME_MNT="mnt/home/$USERNAME"
 KEY_DIR="$HOME_MNT/.ssh"
+MOUNT_OPTIONS="noatime,compress=zstd,ssd,commit=120"
 KEY_FILES=(
     "my-private-key.asc"
     "id_ed25519"
     "my-public-key.asc"
     "id_ed25519.pub"
 )
+
+DISK=""
+
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -29,11 +45,14 @@ error()   { printf "${RED}[ERROR]${NC} %s\n"   "$*" | tee -a "$LOG_FILE"; }
 
 SCRIPT_DIR="$(dirname "$0")"
 PARENT_DIR="$(dirname "${SCRIPT_DIR}")"
-
-MOUNT_OPTIONS="noatime,compress=zstd,ssd,commit=120"
 source "$PARENT_DIR/utils.sh"
 
-DISK=""
+check_git() {
+    if [[ ! -d ~/fresh ]]; then
+        pacman -Sy archlinux-keyring
+        pacman -S --needed git
+        git clone https://github.com/acctux/fresh.git ~/fresh
+}
 
 select_from_menu() {
     # Generic menu selection helper
@@ -182,7 +201,6 @@ pacstrap_init() {
     linux-firmware \
     neovim-lspconfig
     echo "keyserver hkp://keyserver.ubuntu.com" >> /mnt/etc/pacman.d/gnupg/gpg.conf
-    cp -R ${SCRIPT_DIR} /mnt/root/Noah
     cp /etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist
 }
 
@@ -194,19 +212,76 @@ generate_fstab() {
     cat /mnt/etc/fstab
 }
 
+check_bios() {
+    if [[ ! -d "/sys/firmware/efi" ]]; then
+        grub-install --boot-directory=/mnt/boot ${DISK}
+    else
+        pacstrap /mnt efibootmgr --noconfirm --needed
+    fi
+}
+
+regional_settings() {
+    # Timezone & LOCALE
+    ln -sf /usr/share/zoneinfo/$TIMEZONE /etc/localtime
+    hwclock --systohc
+    echo "$LOCALE UTF-8" >> "/mnt/etc/LOCALE.gen"
+    arch-chroot "/mnt" LOCALE-gen
+    echo "LANG=$LOCALE" > "/mnt/etc/LOCALE.conf"
+}
+
+set_hostname() {
+    # Hostname & hosts file
+    echo "$HOSTNAME" > "/mnt/etc/hostname"
+    cat > "/mnt/etc/hosts" <<EOF
+127.0.0.1   localhost
+::1         localhost
+127.0.1.1   $HOSTNAME.localdomain $HOSTNAME
+EOF
+    success "System configuration completed"
+}
+
+configure_bootloader() {
+    info "Configuring systemd boot"
+    local prefix
+    prefix=$(partition_prefix "$DISK")
+    local root_uuid
+    root_uuid=$(blkid -s UUID -o value "${prefix}3")
+
+    arch-chroot "/mnt" bootctl --path=/boot install
+    cat > "/mnt/boot/loader/loader.conf" <<EOF
+default arch.conf
+timeout 1
+EOF
+    cat > "/mnt/boot/loader/entries/arch.conf" <<EOF
+title   Arch Linux
+linux   /vmlinuz-linux
+EOF
+
+    echo "initrd /$CPU_MAN-ucode.img"   >> "/mnt/boot/loader/entries/arch.conf"
+    echo "initrd /initramfs-linux.img" >> "/mnt/boot/loader/entries/arch.conf"
+    echo "options root=UUID=$root_uuid rw rootflags=subvol=@" >> "/mnt/boot/loader/entries/arch.conf"
+    success "Systemd-boot configured."
+}
+
 ark() {
-   timedatectl set-ntp true
-   get_disk_selection
-   pac_prep
-   make_mnt_dir
-   create_partitions
-   mount_filesystems
-   verify_mount
-   pacstrap_init
-   generate_fstab
-   if [[ ! -d "/sys/firmware/efi" ]]; then
-       grub-install --boot-directory=/mnt/boot ${DISK}
-   else
-       pacstrap /mnt efibootmgr --noconfirm --needed
-   fi
+    check_git
+
+    get_disk_selection
+
+    timedatectl set-ntp true
+
+    pac_prep
+    make_mnt_dir
+    create_partitions
+    mount_filesystems
+    verify_mount
+    pacstrap_init
+
+    cp -R ${SCRIPT_DIR} /mnt/root/fresh
+
+    generate_fstab
+    check_bios
+    regional_settings
+    set_hostname
+    configure_bootloader
 }

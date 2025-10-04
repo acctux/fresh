@@ -933,6 +933,19 @@ function chaotic_repo {
 }
 export -f chaotic_repo
 
+function pacman_conf {
+  sed -i '$a\\n[chaotic-aur]\nInclude = /etc/pacman.d/chaotic-mirrorlist' /mnt/etc/pacman.conf
+  # 1. Uncomment the 'Color' line
+  sed -i '/^\s*#\s*Color\s*$/s/^#\s*//' /mnt/etc/pacman.conf
+  # 2. Append 'ILoveCandy' after the 'Color' line
+  sed -i '/^\s*Color\s*$/a ILoveCandy' /mnt/etc/pacman.conf
+  # 4. Uncomment [multilib] section header
+  sed -i '/^\s*#\s*\[multilib\]/s/^#\s*//' /mnt/etc/pacman.conf
+  
+  # 5. Uncomment the Include line under [multilib]
+  sed -i '/^\[multilib\]/,/^$/{ /^\s*#\s*Include\s*=.*/s/^#\s*// }' /mnt/etc/pacman.conf
+}
+
 function serv_enable {
   systemctl enable \
     acpid.service \

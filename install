@@ -949,7 +949,7 @@ function install_packages {
     linux-headers \
     pacman-contrib \
     reflector \
-    rsync \
+    rsync
   systemctl enable iwd
 }
 export -f install_packages

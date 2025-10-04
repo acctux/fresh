@@ -963,6 +963,7 @@ function chaotic_repo {
     https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-keyring.pkg.tar.zst \
     https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-mirrorlist.pkg.tar.zst
 }
+export -f chaotic_repo
 
 function pacman_conf {
   echo -e '\n[chaotic-aur]\nInclude = /etc/pacman.d/chaotic-mirrorlist' | tee -a /mnt/etc/pacman.conf

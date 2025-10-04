@@ -922,12 +922,6 @@ EOF
   echo "net.core.wmem_max=4194304" 
 }
 
-function install_packages {
-  pacman --noconfirm -S \
-    
-}
-export -f install_packages
-
 function chaotic_repo {
   chaotic_key_id="3056513887B78AEB"
   pacman-key --init
@@ -964,35 +958,34 @@ export -f serv_enable
 #
 
 function main {
-  check_root
-  check_network
-  if ! check_install_commands; then
-    check_sync_repos
-    install_dependencies
-  fi
+  # check_root
+  # check_network
+  # if ! check_install_commands; then
+  #   check_sync_repos
+  #   install_dependencies
+  # fi
 
-  ask_device
-  check_bootmode
-  ask_partition_sizes
+  # ask_device
+  # check_bootmode
+  # ask_partition_sizes
 
-  ask_password
+  # ask_password
 
-  set_partitions
-  format_partitions
+  # set_partitions
+  # format_partitions
 
-  mount_install
-  pacstrap /mnt base base-devel iwd linux linux-firmware linux-headers pacman-contrib reflector rsync
-  genfstab -U /mnt >> /mnt/etc/fstab
+  # mount_install
+  # pacstrap /mnt base base-devel iwd linux linux-firmware linux-headers pacman-contrib reflector rsync
+  # genfstab -U /mnt >> /mnt/etc/fstab
 
-  if [[ "${BOOTMODE}" = "systemd-boot" ]]; then
-    sed -i "/\(.*\)\s\+\/efi\s\+vfat/s/0022/0077/g" /mnt/etc/fstab
-  fi
-  TIMEZONE="${TIMEZONE}" arch-chroot /mnt /bin/bash -c "set_timezone"
-  LOCALE="${LOCALE}" CHARSET="${CHARSET}" \
-    arch-chroot /mnt /bin/bash -c "set_locale"
+  # if [[ "${BOOTMODE}" = "systemd-boot" ]]; then
+  #   sed -i "/\(.*\)\s\+\/efi\s\+vfat/s/0022/0077/g" /mnt/etc/fstab
+  # fi
+  # TIMEZONE="${TIMEZONE}" arch-chroot /mnt /bin/bash -c "set_timezone"
+  # LOCALE="${LOCALE}" CHARSET="${CHARSET}" \
+  #   arch-chroot /mnt /bin/bash -c "set_locale"
 
-  arch-chroot /mnt /bin/bash -c "update_mirrorlist"
-  arch-chroot /mnt /bin/bash -c "install_packages"
+  # arch-chroot /mnt /bin/bash -c "update_mirrorlist"
   arch-chroot /mnt /bin/bash -c "install_ucode"
   arch-chroot /mnt /bin/bash -c "chaotic_repo"
   pacman_conf

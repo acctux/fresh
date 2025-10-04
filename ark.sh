@@ -320,7 +320,7 @@ mount "$BTRFS" /mnt
 
 # Creating BTRFS subvolumes.
 info_print "Creating BTRFS subvolumes."
-subvols=(snapshots var_pkgs var_log home root srv)
+subvols=(var_pkgs var_log home root srv)
 for subvol in '' "${subvols[@]}"; do
     btrfs su cr /mnt/@"$subvol" &>/dev/null
 done
@@ -330,12 +330,11 @@ umount /mnt
 info_print "Mounting the newly created subvolumes."
 mountopts="ssd,noatime,compress-force=zstd:3,discard=async"
 mount -o "$mountopts",subvol=@ "$BTRFS" /mnt
-mkdir -p /mnt/{home,root,srv,.snapshots,var/{log,cache/pacman/pkg},boot}
+mkdir -p /mnt/{home,root,srv,var/{log,cache/pacman/pkg},boot}
 for subvol in "${subvols[@]:2}"; do
     mount -o "$mountopts",subvol=@"$subvol" "$BTRFS" /mnt/"${subvol//_//}"
 done
 chmod 750 /mnt/root
-mount -o "$mountopts",subvol=@snapshots "$BTRFS" /mnt/.snapshots
 mount -o "$mountopts",subvol=@var_pkgs "$BTRFS" /mnt/var/cache/pacman/pkg
 chattr +C /mnt/var/log
 mount "$ESP" /mnt/boot/
@@ -385,7 +384,7 @@ UUID=$(blkid -s UUID -o value $CRYPTROOT)
 sed -i "\,^GRUB_CMDLINE_LINUX=\"\",s,\",&rd.luks.name=$UUID=cryptroot root=$BTRFS," /mnt/etc/default/grub
 
 # Configuring the system.
-info_print "Configuring the system (timezone, system clock, initramfs, Snapper, GRUB)."
+info_print "Configuring the system (timezone, system clock, initramfs, GRUB)."
 arch-chroot /mnt /bin/bash -e <<EOF
 
     # Setting up timezone.
@@ -399,15 +398,6 @@ arch-chroot /mnt /bin/bash -e <<EOF
 
     # Generating a new initramfs.
     mkinitcpio -P &>/dev/null
-
-    # Snapper configuration.
-    umount /.snapshots
-    rm -r /.snapshots
-    snapper --no-dbus -c root create-config /
-    btrfs subvolume delete /.snapshots &>/dev/null
-    mkdir /.snapshots
-    mount -a &>/dev/null
-    chmod 750 /.snapshots
 
     # Installing GRUB.
     grub-install --target=x86_64-efi --efi-directory=/boot/ --bootloader-id=GRUB &>/dev/null

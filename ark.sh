@@ -359,7 +359,7 @@ microcode_detector
 
 # Pacstrap (setting up a base sytem onto the new root).
 info_print "Installing the base system (it may take a while)."
-pacstrap -K /mnt base linux "$microcode" linux-firmware "linux-headers btrfs-progs grub grub-btrfs rsync efibootmgr reflector zram-generator sudo &>/dev/null
+pacstrap -K /mnt base linux "$microcode" linux-firmware linux-headers btrfs-progs grub grub-btrfs rsync efibootmgr reflector zram-generator sudo &>/dev/null
 
 # Setting up the hostname.
 echo "$hostname" > /mnt/etc/hostname

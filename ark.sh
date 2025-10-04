@@ -235,6 +235,21 @@ keyboard_selector () {
     esac
 }
 
+
+info "Unmounting filesystems"
+if mountpoint -q "mnt/boot"; then
+  umount "/mnt/boot" || error "Failed to unmount mnt/boot"
+fi
+for sub in home var/log var/cache/pacman/pkg; do
+  if mountpoint -q "mnt/$sub"; then
+    umount "/mnt/$sub" || error "Failed to unmount /mnt/$sub"
+  fi
+done
+if ! umount -R "/mnt"; then
+  error "No mount exists or failed."
+fi
+success "Filesystems unmounted successfully"
+
 # Welcome screen.
 echo -ne "${BOLD}${BYELLOW}
 ======================================================================
@@ -384,7 +399,7 @@ UUID=$(blkid -s UUID -o value $CRYPTROOT)
 sed -i "\,^GRUB_CMDLINE_LINUX=\"\",s,\",&rd.luks.name=$UUID=cryptroot root=$BTRFS," /mnt/etc/default/grub
 
 # Configuring the system.
-info_print "Configuring the system (timezone, system clock, initramfs, GRUB)."
+info_print "Configuring the system timezone, system clock, initramfs, GRUB."
 arch-chroot /mnt /bin/bash -e <<EOF
 
     # Setting up timezone.

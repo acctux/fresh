@@ -239,7 +239,7 @@ ark() {
   # do_the_disk
   # pacstrap_init
 
-  cp -R $SCRIPT_DIR /mnt/root/fresh
+  # cp -R $SCRIPT_DIR /mnt/root/fresh
   generate_fstab
   check_bios
   # regional_settings

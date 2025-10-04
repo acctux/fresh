@@ -79,7 +79,7 @@ function install_flood {
     hyprpicker \
     hyprshot \
     impala \
-    jdk-openjre \
+    jre-openjdk \
     kdeconnect \
     keepassxc \
     kvantum \
@@ -190,7 +190,7 @@ function install_flood {
     zram-generator \
     zsh-autocomplete \
     zsh-completions \
-    zsh-syntax-highlighting \
+    zsh-syntax-highlighting
   systemctl enable iwd
 }
 export -f install_flood

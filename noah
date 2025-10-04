@@ -999,8 +999,8 @@ function main {
   #   arch-chroot /mnt /bin/bash -c "set_locale"
 
   # arch-chroot /mnt /bin/bash -c "update_mirrorlist"
-  arch-chroot /mnt /bin/bash -c "install_ucode"
-  arch-chroot /mnt /bin/bash -c "chaotic_repo"
+  # arch-chroot /mnt /bin/bash -c "install_ucode"
+  # arch-chroot /mnt /bin/bash -c "chaotic_repo"
   pacman_conf
   arch-chroot /mnt /bin/bash -c "update_mirrorlist"
   arch-chroot /mnt /bin/bash -c "install_flood"

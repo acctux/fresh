@@ -2,187 +2,197 @@
 # PACKAGES CONFIG
 #
 #######################################
-FLOOD_PAC=(
-    accountsservice
-    acpi
-    acpid
-    alacritty
-    alsa-firmware
-    alsa-utils
-    ananicy-cpp
-    anki
-    archlinux-xdg-menu
-    aria2
-    avahi
-    ayugram-desktop-git
-    baobab
-    bash-completion
-    bat-extras
-    bc
-    betterbird-bin
-    blueman
-    bluez-tools
-    bolt
-    brave-bin
-    brightnessctl
-    btop
-    capitaine-cursors
-    ccache
-    cdrtools
-    cheese
-    chrono-date
-    clang
-    csvkit
-    dbeaver
-    dosfstools
-    dxvk-mingw-git
-    eslint
-    etckeeper
-    exfatprogs
-    expac
-    eza
-    fd
-    fdupes
-    firejail
-    firewalld
-    fuzzel
-    fzf
-    gamemode
-    gimp
-    git-delta
-    github-cli
-    gnucash
-    gnuchess
-    gobject-introspection
-    graphicsmagick
-    grex
-    gst-plugin-pipewire
-    gthumb
-    handbrake
-    haruna
-    hdparm
-    hunspell-en_us
-    hwdetect
-    hyphen-en
-    hypridle
-    hyprland
-    hyprlock
-    hyprpicker
-    hyprshot
-    impala
-    jdk-openjre
-    kdeconnect
-    keepassxc
-    kvantum
-    lazygit
-    ldns
-    less
-    lib32-gamemode
-    lib32-mangohud
-    libappindicator-gtk3
-    libgnome-keyring
-    libpulse
-    localsend
-    logiops
-    logrotate
-    luarocks
-    lua-sec
-    lutris
-    ly
-    mako
-    man-db
-    mangohud
-    man-pages
-    mariadb
-    meld
-    mgba-qt
-    miller
-    navi
-    nemo-fileroller
-    nss-mdns
-    ntfs-3g
-    ntp
-    nwg-clipman
-    ocrmypdf
-    octopi
-    onlyoffice-bin
-    openresolv
-    openssh
-    pacman-contrib
-    parallel
-    paru
-    pavucontrol
-    pipewire-alsa
-    pipewire-jack
-    pipewire-pulse
-    pkgdiff
-    pkgfile
-    playerctl
-    polkit-gnome
-    powertop
-    proton-ge-custom-bin
-    protonmail-bridge
-    pv
-    pychess
-    qalculate-qt
-    qbittorrent
-    qt6ct-kde
-    qt6-multimedia-ffmpeg
-    rebuild-detector
-    remind
-    rpcs3-git
-    rust-analyzer
-    satty
-    scdoc
-    scrcpy
-    sd
-    seahorse
-    shfmt
-    smartmontools
-    sof-firmware
-    sshfs
-    starship
-    steam-native-runtime
-    swayosd
-    swww
-    tesseract-data-eng
-    tlp
-    tmux
-    trash-cli
-    tree-sitter-bash
-    tree-sitter-python
-    ttf-caladea
-    ttf-cascadia-mono-nerd
-    udisks2-btrfs
-    umu-launcher
-    unbound
-    unrar
-    uv
-    uwsm
-    vkd3d
-    watchexec
-    waybar
-    webkit2gtk
-    wget
-    wine-mono
-    wine-staging
-    winetricks
-    wireplumber
-    wl-clipboard
-    wlogout
-    xdg-desktop-portal-gtk
-    xdg-desktop-portal-hyprland
-    xdg-user-dirs
-    yq
-    yt-dlp
-    zapzap
-    zed
-    zoxide
-    zram-generator
-    zsh-autocomplete
-    zsh-completions
-    zsh-syntax-highlighting
-)
+function install_packages {
+  pacman --noconfirm -S \
+    base-devel \
+    bash-completion \
+    iwd \
+    linux \
+    linux-firmware \
+    linux-headers \
+    rsync \
+    accountsservice \
+    acpi \
+    acpid \
+    alacritty \
+    alsa-firmware \
+    alsa-utils \
+    ananicy-cpp \
+    anki \
+    archlinux-xdg-menu \
+    aria2 \
+    avahi \
+    ayugram-desktop-git \
+    baobab \
+    bat-extras \
+    bc \
+    betterbird-bin \
+    blueman \
+    bluez-tools \
+    bolt \
+    brave-bin \
+    brightnessctl \
+    btop \
+    capitaine-cursors \
+    ccache \
+    cdrtools \
+    cheese \
+    chrono-date \
+    clang \
+    csvkit \
+    dbeaver \
+    dosfstools \
+    dxvk-mingw-git \
+    eslint \
+    etckeeper \
+    exfatprogs \
+    expac \
+    eza \
+    fd \
+    fdupes \
+    firejail \
+    firewalld \
+    fuzzel \
+    fzf \
+    gamemode \
+    gimp \
+    git-delta \
+    github-cli \
+    gnucash \
+    gnuchess \
+    gobject-introspection \
+    graphicsmagick \
+    grex \
+    gst-plugin-pipewire \
+    gthumb \
+    handbrake \
+    haruna \
+    hdparm \
+    hunspell-en_us \
+    hwdetect \
+    hyphen-en \
+    hypridle \
+    hyprland \
+    hyprlock \
+    hyprpicker \
+    hyprshot \
+    impala \
+    jdk-openjre \
+    kdeconnect \
+    keepassxc \
+    kvantum \
+    lazygit \
+    ldns \
+    less \
+    lib32-gamemode \
+    lib32-mangohud \
+    libappindicator-gtk3 \
+    libgnome-keyring \
+    libpulse \
+    localsend \
+    logiops \
+    logrotate \
+    luarocks \
+    lua-sec \
+    lutris \
+    ly \
+    mako \
+    man-db \
+    mangohud \
+    man-pages \
+    mariadb \
+    meld \
+    mgba-qt \
+    miller \
+    navi \
+    nemo-fileroller \
+    nss-mdns \
+    ntfs-3g \
+    ntp \
+    nwg-clipman \
+    ocrmypdf \
+    octopi \
+    onlyoffice-bin \
+    openresolv \
+    openssh \
+    pacman-contrib \
+    parallel \
+    paru \
+    pavucontrol \
+    pipewire-alsa \
+    pipewire-jack \
+    pipewire-pulse \
+    pkgdiff \
+    pkgfile \
+    playerctl \
+    polkit-gnome \
+    powertop \
+    proton-ge-custom-bin \
+    protonmail-bridge \
+    pv \
+    pychess \
+    qalculate-qt \
+    qbittorrent \
+    qt6ct-kde \
+    qt6-multimedia-ffmpeg \
+    rebuild-detector \
+    remind \
+    rpcs3-git \
+    rust-analyzer \
+    satty \
+    scdoc \
+    scrcpy \
+    sd \
+    seahorse \
+    shfmt \
+    smartmontools \
+    sof-firmware \
+    sshfs \
+    starship \
+    steam-native-runtime \
+    swayosd \
+    swww \
+    tesseract-data-eng \
+    tlp \
+    tmux \
+    trash-cli \
+    tree-sitter-bash \
+    tree-sitter-python \
+    ttf-caladea \
+    ttf-cascadia-mono-nerd \
+    udisks2-btrfs \
+    umu-launcher \
+    unbound \
+    unrar \
+    uv \
+    uwsm \
+    vkd3d \
+    watchexec \
+    waybar \
+    webkit2gtk \
+    wget \
+    wine-mono \
+    wine-staging \
+    winetricks \
+    wireplumber \
+    wl-clipboard \
+    wlogout \
+    xdg-desktop-portal-gtk \
+    xdg-desktop-portal-hyprland \
+    xdg-user-dirs \
+    yq \
+    yt-dlp \
+    zapzap \
+    zed \
+    zoxide \
+    zram-generator \
+    zsh-autocomplete \
+    zsh-completions \
+    zsh-syntax-highlighting \
+  systemctl enable iwd
+}
+export -f install_packages
+
 
 # ──────────────── AUR ──────────────── #
 AUR=(

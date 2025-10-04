@@ -2,7 +2,7 @@
 # PACKAGES CONFIG
 #
 #######################################
-function install_packages {
+function install_flood {
   pacman --noconfirm -S \
     base-devel \
     bash-completion \
@@ -10,6 +10,8 @@ function install_packages {
     linux \
     linux-firmware \
     linux-headers \
+    pacman-contrib \
+    reflector \
     rsync \
     accountsservice \
     acpi \

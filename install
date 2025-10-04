@@ -201,7 +201,6 @@ install_dependencies() {
     curl
     dosfstools
     findutils
-    fzf
     git
     gptfdisk
     grep
@@ -921,24 +920,59 @@ function update_mirrorlist {
 }
 export -f update_mirrorlist
 
-# function install_packages {
-#   pacman --noconfirm -S \
-#     base-devel \
-#     bash-completion \
-#     curl \
-#     fzf \
-#     git \
-#     iwd \
-#     linux \
-#     linux-firmware \
-#     linux-headers \
-#     man-db \
-#     man-pages \
-#     pacman-contrib \
-#     rsync
-#   systemctl enable iwd
-# }
-# export -f install_packages
+update_etc_confs() {
+  # Ensure the destination directory exists
+  copy_config_file "/var/lib/iwd/$WIFI_NAME" "/etc/pam.d/sshd.new"
+--country $COUNTRY_CODE \
+--protocol https \
+--completion-percent 100 \
+--latest 20 \
+--sort rate \
+--threads 8 \
+--download-timeout 3 \
+--save /etc/pacman.d/mirrorlist
+EOF
+  auth       optional     pam_gnome_keyring.so
+  session    optional     pam_gnome_keyring.so auto_start
+  regdom_cfg=
+  echo "options cfg80211 ieee80211_regdom=$COUNTRY_CODE" >>/mnt/etc/modprobe.d/regdom.conf
+  echo "net.core.wmem_max=4194304" 
+}
+
+function install_packages {
+  pacman --noconfirm -S \
+    base-devel \
+    bash-completion \
+    iwd \
+    linux \
+    linux-firmware \
+    linux-headers \
+    pacman-contrib \
+    reflector \
+    rsync \
+  systemctl enable iwd
+}
+export -f install_packages
+
+function chaotic_repo {
+  chaotic_key_id="3056513887B78AEB"
+  pacman-key --init
+  pacman-key --recv-key "$chaotic_key_id" --keyserver keyserver.ubuntu.com
+  pacman-key --lsign-key "$chaotic_key_id"
+  pacman -U --noconfirm --needed \
+    https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-keyring.pkg.tar.zst \
+    https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-mirrorlist.pkg.tar.zst
+}
+
+function pacman_conf {
+  pacman_conf="$MOUNT_POINT/etc/pacman.conf"
+
+  echo -e '\n[chaotic-aur]\nInclude = /etc/pacman.d/chaotic-mirrorlist' | tee -a "$pacman_conf"
+
+  # Update ParallelDownloads and handle Color/ILoveCandy in one sed pass
+  sed -i -e 's/^ParallelDownloads *=.*/ParallelDownloads = 10/' \
+    -e '/^#?\s*Color\s*$/ { s/^#//; a ILoveCandy; }' "$pacman_conf"
+}
 
 #
 # Define main select wrapper
@@ -995,6 +1029,9 @@ function main {
     DEVICE="${DEVICE}" \
       arch-chroot /mnt /bin/bash -c "install_gummiboot"
   fi
+  arch-chroot /mnt /bin/bash -c "pacman_conf"
+  arch-chroot /mnt /bin/bash -c "chaotic_repo"
+  arch-chroot /mnt /bin/bash -c "install_flood"
   unmount_install
   show_success "Done! Reboot now."
 }

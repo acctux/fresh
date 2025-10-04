@@ -924,15 +924,7 @@ EOF
 
 function install_packages {
   pacman --noconfirm -S \
-    base-devel \
-    bash-completion \
-    iwd \
-    linux \
-    linux-firmware \
-    linux-headers \
-    pacman-contrib \
-    reflector \
-    rsync
+    
 }
 export -f install_packages
 
@@ -989,7 +981,7 @@ function main {
   format_partitions
 
   mount_install
-  pacstrap /mnt base
+  pacstrap /mnt base base-devel iwd linux linux-firmware linux-headers pacman-contrib reflector rsync
   genfstab -U /mnt >> /mnt/etc/fstab
 
   if [[ "${BOOTMODE}" = "systemd-boot" ]]; then
@@ -1002,9 +994,15 @@ function main {
   arch-chroot /mnt /bin/bash -c "update_mirrorlist"
   arch-chroot /mnt /bin/bash -c "install_packages"
   arch-chroot /mnt /bin/bash -c "install_ucode"
+  arch-chroot /mnt /bin/bash -c "chaotic_repo"
+  pacman_conf
+  arch-chroot /mnt /bin/bash -c "update_mirrorlist"
+  arch-chroot /mnt /bin/bash -c "install_flood"
+
   HOST_NAME="${HOST_NAME}" arch-chroot /mnt /bin/bash -c "set_hostname"
   USER_NAME="${USER_NAME}" USER_PASSWORD="${USER_PASSWORD}" arch-chroot /mnt /bin/bash -c "add_user"
   arch-chroot /mnt /bin/bash -c "disable_root"
+  
   arch-chroot /mnt /bin/bash -c "set_mkinitcpio"
   if [[ "${BOOTMODE}" == "GRUB" ]]; then
     DEVICE="${DEVICE}" \
@@ -1022,10 +1020,7 @@ function main {
     DEVICE="${DEVICE}" \
       arch-chroot /mnt /bin/bash -c "install_gummiboot"
   fi
-  arch-chroot /mnt /bin/bash -c "chaotic_repo"
-  pacman_conf
-  arch-chroot /mnt /bin/bash -c "update_mirrorlist"
-  arch-chroot /mnt /bin/bash -c "install_flood"
+
   mv "${DIR}/noah-install.service" /mnt/etc/systemd/system
   mv "${DIR}/noah-install.sh" /mnt/usr/local/bin
   cp -r "${DIR}" /mnt/root/fresh 

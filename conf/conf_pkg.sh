@@ -17,6 +17,7 @@ function install_flood {
     avahi \
     ayugram-desktop-git \
     baobab \
+    bash-completion \
     bat-extras \
     bc \
     betterbird-bin \

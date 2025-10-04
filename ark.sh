@@ -106,66 +106,20 @@ network_installer () {
     esac
 }
 
-# User enters a password for the LUKS Container (function).
-lukspass_selector () {
-    input_print "Please enter a password for the LUKS container (you're not going to see the password): "
+# Setting up a password for the root account (function).
+password_selector () {
+    input_print "Please enter a password for the root user (you're not going to see it): "
     read -r -s password
     if [[ -z "$password" ]]; then
-        echo
-        error_print "You need to enter a password for the LUKS Container, please try again."
-        return 1
-    fi
-    echo
-    input_print "Please enter the password for the LUKS container again (you're not going to see the password): "
-    read -r -s password2
-    echo
-    if [[ "$password" != "$password2" ]]; then
-        error_print "Passwords don't match, please try again."
-        return 1
-    fi
-    return 0
-}
-
-# Setting up a password for the user account (function).
-userpass_selector () {
-    input_print "Please enter name for a user account (enter empty to not create one): "
-    read -r username
-    if [[ -z "$username" ]]; then
-        return 0
-    fi
-    input_print "Please enter a password for $username (you're not going to see the password): "
-    read -r -s userpass
-    if [[ -z "$userpass" ]]; then
-        echo
-        error_print "You need to enter a password for $username, please try again."
-        return 1
-    fi
-    echo
-    input_print "Please enter the password again (you're not going to see it): " 
-    read -r -s userpass2
-    echo
-    if [[ "$userpass" != "$userpass2" ]]; then
-        echo
-        error_print "Passwords don't match, please try again."
-        return 1
-    fi
-    return 0
-}
-
-# Setting up a password for the root account (function).
-rootpass_selector () {
-    input_print "Please enter a password for the root user (you're not going to see it): "
-    read -r -s rootpass
-    if [[ -z "$rootpass" ]]; then
         echo
         error_print "You need to enter a password for the root user, please try again."
         return 1
     fi
     echo
     input_print "Please enter the password again (you're not going to see it): " 
-    read -r -s rootpass2
+    read -r -s password2
     echo
-    if [[ "$rootpass" != "$rootpass2" ]]; then
+    if [[ "$password" != "$password2" ]]; then
         error_print "Passwords don't match, please try again."
         return 1
     fi
@@ -277,7 +231,7 @@ do
 done
 
 # Setting up LUKS password.
-until lukspass_selector; do : ; done
+until password_selector; do : ; done
 
 # User choses the network.
 until network_selector; do : ; done
@@ -287,10 +241,6 @@ until locale_selector; do : ; done
 
 # User choses the hostname.
 until hostname_selector; do : ; done
-
-# User sets up the user/root passwords.
-until userpass_selector; do : ; done
-until rootpass_selector; do : ; done
 
 # Warn user about deletion of old partition scheme.
 input_print "This will delete the current partition table on $DISK once installation starts. Do you agree [y/N]?: "
@@ -359,7 +309,7 @@ microcode_detector
 
 # Pacstrap (setting up a base sytem onto the new root).
 info_print "Installing the base system (it may take a while)."
-pacstrap -K /mnt base linux "$microcode" linux-firmware linux-headers btrfs-progs grub grub-btrfs rsync efibootmgr reflector zram-generator sudo &>/dev/null
+pacstrap -K /mnt base linux "$microcode" linux-firmware linux-headers btrfs-progs grub grub-btrfs efibootmgr reflector zram-generator sudo &>/dev/null
 
 # Setting up the hostname.
 echo "$hostname" > /mnt/etc/hostname
@@ -424,7 +374,7 @@ EOF
 
 # Setting root password.
 info_print "Setting root password."
-echo "root:$rootpass" | arch-chroot /mnt chpasswd
+echo "root:$password" | arch-chroot /mnt chpasswd
 
 # Setting user password.
 if [[ -n "$username" ]]; then
@@ -432,26 +382,8 @@ if [[ -n "$username" ]]; then
     info_print "Adding the user $username to the system with root privilege."
     arch-chroot /mnt useradd -m -G wheel -s /bin/bash "$username"
     info_print "Setting user password for $username."
-    echo "$username:$userpass" | arch-chroot /mnt chpasswd
+    echo "$username:$password" | arch-chroot /mnt chpasswd
 fi
-
-# Boot backup hook.
-info_print "Configuring /boot backup when pacman transactions are made."
-mkdir /mnt/etc/pacman.d/hooks
-cat > /mnt/etc/pacman.d/hooks/50-bootbackup.hook <<EOF
-[Trigger]
-Operation = Upgrade
-Operation = Install
-Operation = Remove
-Type = Path
-Target = usr/lib/modules/*/vmlinuz
-
-[Action]
-Depends = rsync
-Description = Backing up /boot...
-When = PostTransaction
-Exec = /usr/bin/rsync -a --delete /boot /.bootbackup
-EOF
 
 # ZRAM configuration.
 info_print "Configuring ZRAM."
@@ -470,6 +402,9 @@ services=(reflector.timer btrfs-scrub@-.timer btrfs-scrub@home.timer btrfs-scrub
 for service in "${services[@]}"; do
     systemctl enable "$service" --root=/mnt &>/dev/null
 done
+
+#copy to newinstall
+cp -r "$(pwd)" /mnt/root/fresh
 
 # Finishing up.
 info_print "Done, you may now wish to reboot (further changes can be done by chrooting into /mnt)."

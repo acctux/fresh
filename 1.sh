@@ -6,4 +6,5 @@ echo "Executing ArchTitus Script"
 
 cd $HOME/fresh
 
-exec ./ark.sh
+echo "please run ./ark.sh"
+exit 0

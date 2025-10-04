@@ -193,7 +193,7 @@ function install_flood {
     zsh-syntax-highlighting \
   systemctl enable iwd
 }
-export -f install_packages
+export -f install_flood
 
 
 # # ──────────────── AUR ──────────────── #

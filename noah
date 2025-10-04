@@ -20,7 +20,7 @@
 set -euo pipefail
 
 DIR="$(dirname "$0")"
-. "${DIR}"/conf/conf_pkg.sh
+. "${DIR}"/conf/test_pkg.sh
 
 TIMEZONE="UTC"
 HOST_NAME="Arch"
@@ -173,7 +173,6 @@ function check_install_commands {
     arch-chroot
     cryptsetup
     findmnt
-    fzf
     genfstab
     lvcreate
     mount
@@ -246,23 +245,7 @@ function check_network {
   fi
 }
 
-function set_config_key_value {
-  local file="${1}"
-  local key="${2}"
-  local value="${3}"
 
-  if [ -f "${file}" ]; then
-    if grep -q "^${key}" "${file}"; then
-      sed -i "s,^${key}=.*,${key}=${value},g" "${file}"
-    else
-      echo "${key}=${value}" >> "${file}"
-    fi
-  else
-    show_warning "${file@Q} does not exist. Creating new."
-    mkdir -p "$(dirname "${file}")"
-    echo "${key}=${value}" > "${file}"
-  fi
-}
 
 function copy_config_file {
   local source="${1}"
@@ -950,7 +933,6 @@ function install_packages {
     pacman-contrib \
     reflector \
     rsync
-  systemctl enable iwd
 }
 export -f install_packages
 
@@ -965,78 +947,90 @@ function chaotic_repo {
 }
 export -f chaotic_repo
 
-function pacman_conf {
-  sed -i '$a\\n[chaotic-aur]\nInclude = /etc/pacman.d/chaotic-mirrorlist' /mnt/etc/pacman.conf
-  # 1. Uncomment the 'Color' line
-  sed -i '/^\s*#\s*Color\s*$/s/^#\s*//' /mnt/etc/pacman.conf
-  # 2. Append 'ILoveCandy' after the 'Color' line
-  sed -i '/^\s*Color\s*$/a ILoveCandy' /mnt/etc/pacman.conf
-  # 4. Uncomment [multilib] section header
-  sed -i '/^\s*#\s*\[multilib\]/s/^#\s*//' /mnt/etc/pacman.conf
-  
-  # 5. Uncomment the Include line under [multilib]
-  sed -i '/^\[multilib\]/,/^$/{ /^\s*#\s*Include\s*=.*/s/^#\s*// }' /mnt/etc/pacman.conf
+function serv_enable {
+  systemctl enable \
+    acpid.service \
+    avahi-daemon.service \
+    bluetooth.service \
+    ark-interior.service \
+    iwd.service \
+    logid.service \
+    ntpd.service \
+    tlp.service \
+    fstrim.timer \
+    logrotate.timer \
+    man-db.timer \
+    paccache.timer \
+    reflector.timer
+  systemctl disable systemd-timesyncd
 }
+
+export -f serv_enable
 
 #
 # Define main select wrapper
 #
 
 function main {
-  # check_root
-  # check_network
-  # if ! check_install_commands; then
-  #   check_sync_repos
-  #   install_dependencies
-  # fi
+  check_root
+  check_network
+  if ! check_install_commands; then
+    check_sync_repos
+    install_dependencies
+  fi
 
-  # ask_device
-  # check_bootmode
-  # ask_partition_sizes
+  ask_device
+  check_bootmode
+  ask_partition_sizes
 
-  # ask_password
+  ask_password
 
-  # set_partitions
-  # format_partitions
+  set_partitions
+  format_partitions
 
-  # mount_install
-  # pacstrap /mnt base
-  # genfstab -U /mnt >> /mnt/etc/fstab
+  mount_install
+  pacstrap /mnt base
+  genfstab -U /mnt >> /mnt/etc/fstab
 
-  # if [[ "${BOOTMODE}" = "systemd-boot" ]]; then
-  #   sed -i "/\(.*\)\s\+\/efi\s\+vfat/s/0022/0077/g" /mnt/etc/fstab
-  # fi
-  # TIMEZONE="${TIMEZONE}" arch-chroot /mnt /bin/bash -c "set_timezone"
-  # LOCALE="${LOCALE}" CHARSET="${CHARSET}" \
-  #   arch-chroot /mnt /bin/bash -c "set_locale"
+  if [[ "${BOOTMODE}" = "systemd-boot" ]]; then
+    sed -i "/\(.*\)\s\+\/efi\s\+vfat/s/0022/0077/g" /mnt/etc/fstab
+  fi
+  TIMEZONE="${TIMEZONE}" arch-chroot /mnt /bin/bash -c "set_timezone"
+  LOCALE="${LOCALE}" CHARSET="${CHARSET}" \
+    arch-chroot /mnt /bin/bash -c "set_locale"
 
-  # arch-chroot /mnt /bin/bash -c "update_mirrorlist"
-  # arch-chroot /mnt /bin/bash -c "install_packages"
-  # arch-chroot /mnt /bin/bash -c "install_ucode"
-  # HOST_NAME="${HOST_NAME}" arch-chroot /mnt /bin/bash -c "set_hostname"
-  # USER_NAME="${USER_NAME}" USER_PASSWORD="${USER_PASSWORD}" arch-chroot /mnt /bin/bash -c "add_user"
-  # arch-chroot /mnt /bin/bash -c "disable_root"
-  # arch-chroot /mnt /bin/bash -c "set_mkinitcpio"
-  # if [[ "${BOOTMODE}" == "GRUB" ]]; then
-  #   DEVICE="${DEVICE}" \
-  #     arch-chroot /mnt /bin/bash -c "install_grub"
+  arch-chroot /mnt /bin/bash -c "update_mirrorlist"
+  arch-chroot /mnt /bin/bash -c "install_packages"
+  arch-chroot /mnt /bin/bash -c "install_ucode"
+  HOST_NAME="${HOST_NAME}" arch-chroot /mnt /bin/bash -c "set_hostname"
+  USER_NAME="${USER_NAME}" USER_PASSWORD="${USER_PASSWORD}" arch-chroot /mnt /bin/bash -c "add_user"
+  arch-chroot /mnt /bin/bash -c "disable_root"
+  arch-chroot /mnt /bin/bash -c "set_mkinitcpio"
+  if [[ "${BOOTMODE}" == "GRUB" ]]; then
+    DEVICE="${DEVICE}" \
+      arch-chroot /mnt /bin/bash -c "install_grub"
 
-  # elif [[ "${BOOTMODE}" == "systemd-boot" ]]; then
-  #   cp -f \
-  #     "${DIR}/hooks/efi-update@.path" \
-  #     "${DIR}/hooks/efi-update@.service" \
-  #     /mnt/etc/systemd/system/
+  elif [[ "${BOOTMODE}" == "systemd-boot" ]]; then
+    cp -f \
+      "${DIR}/hooks/efi-update@.path" \
+      "${DIR}/hooks/efi-update@.service" \
+      /mnt/etc/systemd/system/
 
-  #   cp -f "${DIR}/utils/sdboot-mkconfig" /mnt/usr/local/sbin/
-  #   chmod +x /mnt/usr/local/sbin/sdboot-mkconfig
+    cp -f "${DIR}/utils/sdboot-mkconfig" /mnt/usr/local/sbin/
+    chmod +x /mnt/usr/local/sbin/sdboot-mkconfig
 
-  #   DEVICE="${DEVICE}" \
-  #     arch-chroot /mnt /bin/bash -c "install_gummiboot"
-  # fi
-  # arch-chroot /mnt /bin/bash -c "chaotic_repo"
+    DEVICE="${DEVICE}" \
+      arch-chroot /mnt /bin/bash -c "install_gummiboot"
+  fi
+  arch-chroot /mnt /bin/bash -c "chaotic_repo"
   pacman_conf
   arch-chroot /mnt /bin/bash -c "update_mirrorlist"
   arch-chroot /mnt /bin/bash -c "install_flood"
+  mv "${DIR}/noah-install.service" /mnt/etc/systemd/system
+  mv "${DIR}/noah-install.sh" /mnt/usr/local/bin
+  cp -r "${DIR}" /mnt/root/fresh 
+  arch-chroot /mnt /bin/bash -c "serv_enable"
+  python "${DIR}"/fox-copy-etc.py
   unmount_install
   show_success "Done! Reboot now."
 }

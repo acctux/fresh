@@ -1,0 +1,21 @@
+[Unit]
+Description=Interactive Post-Install Script
+After=multi-user.target
+Conflicts=getty@tty1.service
+Before=getty@tty1.service
+
+[Service]
+ExecStart=/usr/local/bin/ark-interior.sh
+StandardInput=tty
+StandardOutput=tty
+StandardError=tty
+TTYPath=/dev/tty1
+TTYReset=yes
+TTYVHangup=yes
+TTYVTDisallocate=yes
+RemainAfterExit=yes
+Type=oneshot
+
+[Install]
+WantedBy=multi-user.target
+

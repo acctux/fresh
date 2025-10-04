@@ -4,15 +4,6 @@
 #######################################
 function install_flood {
   pacman --noconfirm -S \
-    base-devel \
-    bash-completion \
-    iwd \
-    linux \
-    linux-firmware \
-    linux-headers \
-    pacman-contrib \
-    reflector \
-    rsync \
     accountsservice \
     acpi \
     acpid \
@@ -191,7 +182,6 @@ function install_flood {
     zsh-autocomplete \
     zsh-completions \
     zsh-syntax-highlighting
-  systemctl enable iwd
 }
 export -f install_flood
 

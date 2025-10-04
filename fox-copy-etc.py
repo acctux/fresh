@@ -49,8 +49,8 @@ def copy_all_to_etc(source_dir: Path, etc_dir: Path):
 
 
 if __name__ == "__main__":
-    source = Path("/path/to/your/source/configs")
-    dest = Path("/etc")
+    source = Path("/root/fresh/etc")
+    dest = Path("/mnt/etc")
 
     create_backups_in_etc(source, dest)
     copy_all_to_etc(source, dest)

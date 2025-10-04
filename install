@@ -962,7 +962,7 @@ function main {
   arch-chroot /mnt /bin/bash -c "disable_root"
   arch-chroot /mnt /bin/bash -c "set_mkinitcpio"
   if [[ "${BOOTMODE}" == "GRUB" ]]; then
-    SCHEME="${SCHEME}" DEVICE="${DEVICE}" \
+    DEVICE="${DEVICE}" \
       arch-chroot /mnt /bin/bash -c "install_grub"
 
   elif [[ "${BOOTMODE}" == "systemd-boot" ]]; then
@@ -974,7 +974,7 @@ function main {
     cp -f "${DIR}/utils/sdboot-mkconfig" /mnt/usr/local/sbin/
     chmod +x /mnt/usr/local/sbin/sdboot-mkconfig
 
-    SCHEME="${SCHEME}" DEVICE="${DEVICE}" \
+    DEVICE="${DEVICE}" \
       arch-chroot /mnt /bin/bash -c "install_gummiboot"
   fi
   unmount_install

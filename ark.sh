@@ -18,6 +18,8 @@ readonly USERNAME="nick"
 readonly HOSTNAME="arch"
 readonly EFI_SIZE="512M"
 
+SCRIPT_DIR="$(dirname "$0")"
+
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -155,16 +157,6 @@ do_the_disk() {
   mount "${prefix}1" /mnt/boot
 }
 
-verify_mount() {
-  if ! grep -qs '/mnt' /proc/mounts; then
-    echo "Drive is not mounted, cannot continue"
-    echo "Rebooting in 3 Seconds ..." && sleep 1
-    echo "Rebooting in 2 Seconds ..." && sleep 1
-    echo "Rebooting in 1 Second ..." && sleep 1
-    reboot now
-  fi
-}
-
 pacstrap_init() {
   pacstrap /mnt \
     amd-ucode \
@@ -239,16 +231,15 @@ EOF
 }
 
 ark() {
-  unmount_mounted
+  # unmount_mounted
   # timedatectl set-ntp true
 
   # pac_prep
-  get_disk_selection
-  #  verify_mount
-  do_the_disk
+  # get_disk_selection
+  # do_the_disk
   # pacstrap_init
 
-  # cp -R ${SCRIPT_DIR} /mnt/root/fresh
+  cp -R $SCRIPT_DIR /mnt/root/fresh
 # 
   # generate_fstab
   # check_bios

@@ -240,9 +240,8 @@ ark() {
   # pacstrap_init
 
   cp -R $SCRIPT_DIR /mnt/root/fresh
-# 
-  # generate_fstab
-  # check_bios
+  generate_fstab
+  check_bios
   # regional_settings
   # set_hostname
   # configure_bootloader

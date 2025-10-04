@@ -14,7 +14,11 @@
 # -------------------------------------------------------------------------
 # Fixing annoying issue that breaks GitHub Actions
 # shellcheck disable=SC2001
-
+kblayout="us"
+locale="en_US.UTF-8"
+username="nick"
+hostname="arch"
+network_choice=1 # 1 = IWD, 2 = networkmanager, 3 = wpa_supplacant + dhcpcd
 # Cleaning the TTY.
 clear
 
@@ -67,23 +71,6 @@ virt_check () {
     esac
 }
 
-# Selecting a way to handle internet connection (function).
-network_selector () {
-    info_print "Network utilities:"
-    info_print "1) IWD: Utility to connect to networks written by Intel (WiFi-only, built-in DHCP client)"
-    info_print "2) NetworkManager: Universal network utility (both WiFi and Ethernet, highly recommended)"
-    info_print "3) wpa_supplicant: Utility with support for WEP and WPA/WPA2 (WiFi-only, DHCPCD will be automatically installed)"
-    info_print "4) dhcpcd: Basic DHCP client (Ethernet connections or VMs)"
-    info_print "5) I will do this on my own (only advanced users)"
-    input_print "Please select the number of the corresponding networking utility (e.g. 1): "
-    read -r network_choice
-    if ! ((1 <= network_choice <= 5)); then
-        error_print "You did not enter a valid selection, please try again."
-        return 1
-    fi
-    return 0
-}
-
 # Installing the chosen networking method to the system (function).
 network_installer () {
     case $network_choice in
@@ -100,15 +87,12 @@ network_installer () {
             systemctl enable wpa_supplicant --root=/mnt &>/dev/null
             systemctl enable dhcpcd --root=/mnt &>/dev/null
             ;;
-        4 ) info_print "Installing dhcpcd."
-            pacstrap /mnt dhcpcd >/dev/null
-            systemctl enable dhcpcd --root=/mnt &>/dev/null
     esac
 }
 
 # Setting up a password for the root account (function).
 password_selector () {
-    input_print "Please enter a password for the root user (you're not going to see it): "
+    input_print "Please enter a password for everything (you're not going to see it): "
     read -r -s password
     if [[ -z "$password" ]]; then
         echo
@@ -137,58 +121,6 @@ microcode_detector () {
         microcode="intel-ucode"
     fi
 }
-
-# User enters a hostname (function).
-hostname_selector () {
-    input_print "Please enter the hostname: "
-    read -r hostname
-    if [[ -z "$hostname" ]]; then
-        error_print "You need to enter a hostname in order to continue."
-        return 1
-    fi
-    return 0
-}
-
-# User chooses the locale (function).
-locale_selector () {
-    input_print "Please insert the locale you use (format: xx_XX. Enter empty to use en_US, or \"/\" to search locales): " locale
-    read -r locale
-    case "$locale" in
-        '') locale="en_US.UTF-8"
-            info_print "$locale will be the default locale."
-            return 0;;
-        '/') sed -E '/^# +|^#$/d;s/^#| *$//g;s/ .*/ (Charset:&)/' /etc/locale.gen | less -M
-                clear
-                return 1;;
-        *)  if ! grep -q "^#\?$(sed 's/[].*[]/\\&/g' <<< "$locale") " /etc/locale.gen; then
-                error_print "The specified locale doesn't exist or isn't supported."
-                return 1
-            fi
-            return 0
-    esac
-}
-
-# User chooses the console keyboard layout (function).
-keyboard_selector () {
-    input_print "Please insert the keyboard layout to use in console (enter empty to use US, or \"/\" to look up for keyboard layouts): "
-    read -r kblayout
-    case "$kblayout" in
-        '') kblayout="us"
-            info_print "The standard US keyboard layout will be used."
-            return 0;;
-        '/') localectl list-keymaps
-             clear
-             return 1;;
-        *) if ! localectl list-keymaps | grep -Fxq "$kblayout"; then
-               error_print "The specified keymap doesn't exist."
-               return 1
-           fi
-        info_print "Changing console layout to $kblayout."
-        loadkeys "$kblayout"
-        return 0
-    esac
-}
-
 
 info "Unmounting filesystems"
 if mountpoint -q "mnt/boot"; then
@@ -232,15 +164,6 @@ done
 
 # Setting up LUKS password.
 until password_selector; do : ; done
-
-# User choses the network.
-until network_selector; do : ; done
-
-# User choses the locale.
-until locale_selector; do : ; done
-
-# User choses the hostname.
-until hostname_selector; do : ; done
 
 # Warn user about deletion of old partition scheme.
 input_print "This will delete the current partition table on $DISK once installation starts. Do you agree [y/N]?: "

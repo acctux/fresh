@@ -194,7 +194,7 @@ function install_packages {
 export -f install_packages
 
 
-# ──────────────── AUR ──────────────── #
-AUR=(
-    surfshark-client
-)
+# # ──────────────── AUR ──────────────── #
+# AUR=(
+#     surfshark-client
+# )

@@ -906,35 +906,50 @@ export -f install_grub
 
 function update_mirrorlist {
   pacman -Sy --noconfirm reflector
-  reflector --verbose --latest 10 --protocol https --sort rate --save /etc/pacman.d/mirrorlist
+  iso=$(curl -4 ifconfig.co/country-iso)
+  reflector --country $iso \
+    --protocol https \
+    --completion-percent 100 \
+    --latest 20 \
+    --sort rate \
+    --threads 8 \
+    --download-timeout 3 \
+    --save /etc/pacman.d/mirrorlist
   pacman -Sy
 }
 export -f update_mirrorlist
 
-function install_packages {
-  pacman --noconfirm -S \
-    base-devel \
-    bash-completion \
-    curl \
-    fzf \
-    git \
-    iwd \
-    linux \
-    linux-firmware \
-    linux-headers \
-    man-db \
-    man-pages \
-    pacman-contrib \
-    rsync
-  systemctl enable iwd
-}
-export -f install_packages
+# function install_packages {
+#   pacman --noconfirm -S \
+#     base-devel \
+#     bash-completion \
+#     curl \
+#     fzf \
+#     git \
+#     iwd \
+#     linux \
+#     linux-firmware \
+#     linux-headers \
+#     man-db \
+#     man-pages \
+#     pacman-contrib \
+#     rsync
+#   systemctl enable iwd
+# }
+# export -f install_packages
 
 #
 # Define main select wrapper
 #
 
 function main {
+  check_root
+  check_network
+  if ! check_install_commands; then
+    check_sync_repos
+    install_dependencies
+  fi
+
   ask_device
   check_bootmode
   ask_partition_sizes
@@ -947,6 +962,7 @@ function main {
   mount_install
   pacstrap /mnt base
   genfstab -U /mnt >> /mnt/etc/fstab
+
   if [[ "${BOOTMODE}" = "systemd-boot" ]]; then
     sed -i "/\(.*\)\s\+\/efi\s\+vfat/s/0022/0077/g" /mnt/etc/fstab
   fi
@@ -980,20 +996,5 @@ function main {
   unmount_install
   show_success "Done! Reboot now."
 }
-
-#
-# Check if dependencies are installed and if network is working
-#
-
-check_root
-check_network
-if ! check_install_commands; then
-  check_sync_repos
-  install_dependencies
-fi
-
-#
-# GO!!!
-#
 
 main

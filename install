@@ -191,31 +191,42 @@ function check_install_commands {
   done
 }
 
-function install_dependencies {
-  local install="${DIR}/packages/install.list"
+install_dependencies() {
+  local install=(
+    arch-install-scripts
+    bc
+    cryptsetup
+    curl
+    dosfstools
+    findutils
+    fzf
+    git
+    gptfdisk
+    grep
+    pacman
+    pacman-contrib
+    pacman-mirrorlist
+    parted
+    sed
+  )
+
   show_header "Checking installation dependencies."
-
-  local state=true
-  local exe
-  while read -r exe; do
-    if ! command -v "${exe}" > /dev/null; then
-      state=false
+  local missing=()
+  for exe in "${install[@]}"; do
+    if ! command -v "$exe" &>/dev/null && ! pacman -Qi "$exe" &>/dev/null; then
+      missing+=("$exe")
     fi
-  done < "${install}"
-  if "${state}"; then return; fi
-
+  done
   pacman -Sy --noconfirm archlinux-keyring
-
-  local package
-  while read -r package; do
-    if ! pacman -Qi "${package}" > /dev/null 2>&1; then
-      show_info "${package@Q} is needed for this script."
-      pacman -S --noconfirm "${package}"
-      show_success "${package@Q} now installed."
-    else
-      show_success "${package@Q} is already installed."
-    fi
-  done < "${install}"
+  if ((${#missing[@]} == 0)); then
+    return 0
+  else
+    for pkg in "${missing[@]}"; do
+      show_info "${pkg@Q} is needed for this script."
+      pacman -S --noconfirm "$pkg"
+      show_success "${pkg@Q} installed."
+    done
+  fi
 }
 
 function check_network {

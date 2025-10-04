@@ -966,7 +966,7 @@ function chaotic_repo {
 export -f chaotic_repo
 
 function pacman_conf {
-  echo -e '\n[chaotic-aur]\nInclude = /etc/pacman.d/chaotic-mirrorlist' | tee -a /mnt/etc/pacman.conf
+  sed -i '$a\\n[chaotic-aur]\nInclude = /etc/pacman.d/chaotic-mirrorlist' /mnt/etc/pacman.conf
 
   # Update ParallelDownloads and handle Color/ILoveCandy in one sed pass
   sed -i -e 's/^ParallelDownloads *=.*/ParallelDownloads = 10/' \
@@ -1028,7 +1028,7 @@ function main {
   #   DEVICE="${DEVICE}" \
   #     arch-chroot /mnt /bin/bash -c "install_gummiboot"
   # fi
-  arch-chroot /mnt /bin/bash -c "chaotic_repo"
+  # arch-chroot /mnt /bin/bash -c "chaotic_repo"
   pacman_conf
   arch-chroot /mnt /bin/bash -c "install_flood"
   unmount_install

@@ -967,10 +967,10 @@ export -f chaotic_repo
 
 function pacman_conf {
   sed -i '$a\\n[chaotic-aur]\nInclude = /etc/pacman.d/chaotic-mirrorlist' /mnt/etc/pacman.conf
-
-  # Update ParallelDownloads and handle Color/ILoveCandy in one sed pass
-  sed -i -e 's/^ParallelDownloads *=.*/ParallelDownloads = 10/' \
-    -e '/^#?\s*Color\s*$/ { s/^#//; a ILoveCandy; }' /mnt/etc/pacman.conf
+  # 1. Uncomment the 'Color' line
+  sed -i '/^\s*#\s*Color\s*$/s/^#\s*//' /mnt/etc/pacman.conf
+  # 2. Append 'ILoveCandy' after the 'Color' line
+  sed -i '/^\s*Color\s*$/a ILoveCandy' /mnt/etc/pacman.conf
 }
 
 #

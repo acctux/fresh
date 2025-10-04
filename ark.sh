@@ -266,19 +266,21 @@ EOF
 }
 
 ark() {
-  # unmount_mounted
-  # timedatectl set-ntp true
+  unmount_mounted
+  timedatectl set-ntp true
 
-  # pac_prep
-  # get_disk_selection
-  # do_the_disk
-  # pacstrap_init
+  pac_prep
+  get_disk_selection
+  
+  do_the_disk
+  setup_btrfs_filesystem
+  pacstrap_init
 
-  # cp -R $SCRIPT_DIR /mnt/root/fresh
+  cp -R $SCRIPT_DIR /mnt/root/fresh
   generate_fstab
   check_bios
-  # regional_settings
-  # set_hostname
-  # configure_bootloader
+  regional_settings
+  set_hostname
+  configure_bootloader
 }
 ark
